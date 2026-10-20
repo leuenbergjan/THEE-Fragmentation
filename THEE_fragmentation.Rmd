@@ -73,7 +73,7 @@ print(simulate_one_gen(0,100,0,0.2,0.01))
 
 
 ```{r}
-simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max) {
+simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K) {
   # Create the vector in which to save the results
   pop_vector <- c(N_init_a, N_init_A)
   # initiate the variables
@@ -110,7 +110,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
 # set t_max to a value to be used througout
 max_gen <- 1000
 # create your simulation data
-output <- simulate_pop(0,100,0,0.02,0.0001,max_gen)
+output <- simulate_pop(0,100,0,0.02,0.0001,max_gen, K)
 # show the last few lines of the data table
 print(tail(output))
 # plot the output - note that the plot range and the x axis have to be adjusted based on the length of the table
