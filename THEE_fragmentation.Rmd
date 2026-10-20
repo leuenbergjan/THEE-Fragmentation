@@ -40,7 +40,7 @@ In this notebook, we are implementing simulations of evolutionary rescue by a si
 - `t_max` number of generations after which to stop the simulation (should be an integer >0; this is not a model parameter but a setting for the simulations). In the code presented here, the simulation stops automatically if the population goes extinct, or if it recovers and exceeds 1.5 times the original total population size, so `t_max` can be set to a large value without creating extremely long simulation times.
 - `split_time` parameter which define the time point at which the fragmentation will appear	(integer >0).
 - `split_population` randomly distributes the population when the split time occurs (parameter between 1-0).
-- `habitat_proportion` parameter defining into which proportions the  habitat will be splited	(between 1-0).
+- `habitat_prop` parameter defining into which proportions the  habitat will be splitted	(between 1-0). This value will give only the size of the bigger habitat (0.8), the smaller habitat will be calculatet from it.
 - `K`	carrying capacity	limiting growth of the populations, and has the same proportion as habitats	(integer >0).
 
 ## Simulate one generation of population size change
