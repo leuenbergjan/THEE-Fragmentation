@@ -78,8 +78,20 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   pop_vector <- c(N_init_a, N_init_A)
   # initiate the variables
   pop_new <- c(N_init_a, N_init_A)
+  # Create the time at which the population splits
+  split_time <- split_time <- sample(1:t_max, 1)
+  print(split_time) # Just to check the value
+  
   # run the simulation until generation t_max
   for (i in 1:t_max) {
+    # Time when the fragmentation occur
+    if (i == split_time + 1) {
+    # Create the new habitats (creating new K)
+    K_B <- K * habitat_prop
+    K_C <- K * (1 - habitat_prop)
+    # Distribute the individuals randomly
+  
+ }
     # redefine the current population one generation later
     pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate)
     # add the new population sizes to the output vector
@@ -111,6 +123,13 @@ lines(x_range,output[,1], col="blue")
 # add number of mutant individuals
 lines(x_range,output[,2], col="red")
 ``` 
+
+## Added to the basic code from Safeeya
+First of all `split_time` was defined within the function but before the for loop. It can be defined within the function because the parameter is defined every time randomly.  Within the for loop a if function had to be added to trigger the fragmentation event. The fragmentation is triggered when `i == split_time + 1`. The +1 is necessary because of the different counts of i. This was tested with the plot (41 is actauuly 40 when counting with i). 
+
+Then two new habitats are created: `K_B` and `K_C`. The prportion of the new habitats are calculated with the help of `K_A`, which is the total carrying capacity for the initial Population. With the help of `habitat_prop` the different ratios are created.
+
+For these two steps the parameters `habitat_prop` and `K_A` have to be added to the arglist of function...
 
 ### Questions
 * What is the difference between `pop_vector` and `pop_new`?
