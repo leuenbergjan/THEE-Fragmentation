@@ -83,21 +83,26 @@ print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 ```{r}
 simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K) {
   # Create the vector in which to save the results
+  K<- 1000
   pop_vector <- c(N_init_a, N_init_A)
   # initiate the variables
   pop_new <- c(N_init_a, N_init_A)
   # Create the time at which the population splits
   split_time <- split_time <- sample(1:t_max, 1)
-  print(split_time) # Just to check the value
+  #print(split_time) # Just to check the value
   
   # run the simulation until generation t_max
   for (i in 1:t_max) {
     # Time when the fragmentation occur
     if (i == split_time + 1) {
-    # Create the new habitats (creating new K)
+    habitat_prop <- 0.8# Create the new habitats (creating new K)
     K_B <- K * habitat_prop
+    
     K_C <- K * (1 - habitat_prop)
-    # Distribute the individuals randomly
+    ## Distribute the individuals randoml
+
+
+
   
  }
     # redefine the current population one generation later
@@ -181,10 +186,9 @@ for(rval in r_values){
       # increase counter by one
       i<-i+1
       # run the simulation once
-      one_run <- simulate_pop(init_a,init_A,rval,sval,m_rate,max_gen)
+      one_run <- simulate_pop(init_a,init_A,rval,sval,m_rate,max_gen,K)
       # determine total population sizes
-      total_size <- one_run[,1]+one_run[,2]
-      # determine minimum population size
+      total_size <- one_run[,1]+one_run[,2]      # determine minimum population size
       min_size <- min(total_size)
       # determine (first) generation at which this population size occurred
       min_gen <- as.numeric(which(total_size==min_size)[1])
