@@ -71,7 +71,7 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
 
  
 # Test the function
-print(simulate_one_gen(0,100,0,0.2,0.01))
+print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 
 
 
@@ -101,11 +101,11 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   
  }
     # redefine the current population one generation later
-    pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate)
+    pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate,K)
     # add the new population sizes to the output vector
     pop_vector <- rbind(pop_vector,pop_new)
     # condition to stop the simulation before t_max: either the population exceeds 1.5 times the original population size, or it goes extinct
-    if (pop_new[1]+pop_new[2]>=10000*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
+    if ( pop_new[1]+pop_new[2]==0) break
   }
  
   # define the row and column names of the output vector
@@ -118,7 +118,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
 # set t_max to a value to be used througout
 max_gen <- 1000
 # create your simulation data
-output <- simulate_pop(0,100,0,0.02,0.0001,max_gen, K)
+output <- simulate_pop(100,0,0.1,0.02,0.001,max_gen, 1000)
 # show the last few lines of the data table
 print(tail(output))
 # plot the output - note that the plot range and the x axis have to be adjusted based on the length of the table
