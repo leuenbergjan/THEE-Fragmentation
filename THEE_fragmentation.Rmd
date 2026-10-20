@@ -46,22 +46,30 @@ In this notebook, we are implementing simulations of evolutionary rescue by a si
 ## Simulate one generation of population size change
 We want to observe the numbers of wild-type and mutant individuals over time. As first step, we simulate one generation of the population. At time $t$, the population has $N_a$ wild-type individuals and $N_A$ mutant individuals. First, these reproduce. This is modeled by drawing a Poisson random variable according to the expected absolute number $N_a \cdot (1-r)$ of wild-type individuals, where $r$ is the decay rate of the wild type, and $N_A \cdot (1-r+s)$ of mutant individuals, where $s$ is the selective advantage of the mutant over the wild time. Then mutation from $a$ to $A$ occurs as a Poisson random variable according to the given mutation rate. This defines the composition of the population at time $t+1$.
 ```{r}
-simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate) {
-  K<- 1000
-  offsp_a <- (rpois(1, N_a * (1-decay_rate))) 
-  offsp_A <- (rpois(1, N_A * (1-decay_rate+sel_coeff)))*(1-(N_a+N_A)/K)
-  
-  offsp_a <- round(offsp_a,0)
-  offsp_A <- round(offsp_A,0)
+simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
+  # total population size and per-capita growth rates without competition
+  N_tot <- N_a + N_A
+  rho_a <- -decay_rate
+  rho_A <- sel_coeff - decay_rate
+  # logistic growth: crowding reduces the growth of both types equally (set to 0 if negative)
+  mean_a <- N_a * max(0, 1 + rho_a - rho_A * N_tot / K)
+  mean_A <- N_A * max(0, 1 + rho_A - rho_A * N_tot / K)
+  # draw offspring according to Poisson distribution
+  offsp_a <- rpois(1, mean_a)
+  offsp_A <- rpois(1, mean_A)
+  # print(offsp_a)
+  # print(offsp_A)
   # draw new mutants according to Poisson distribution
   mut_a_to_A <- rpois(1, offsp_a * mut_rate)
   
   # determine new population sizes of wild type and mutant
-  N_a_new  <- max(offsp_a - mut_a_to_A, 0)
+  N_a_new <- offsp_a - mut_a_to_A
   N_A_new <-  offsp_A + mut_a_to_A
- print((1-((N_a+N_A)/K)))
+  
   return(c(N_a_new, N_A_new))
 }
+
+ 
 # Test the function
 print(simulate_one_gen(0,100,0,0.2,0.01))
 
