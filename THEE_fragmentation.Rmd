@@ -48,6 +48,7 @@ We want to observe the numbers of wild-type and mutant individuals over time. As
 ```{r}
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   # total population size and per-capita growth rates without competition
+  K<-1000
   N_tot <- N_a + N_A
   rho_a <- -decay_rate
   rho_A <- sel_coeff - decay_rate
@@ -81,14 +82,16 @@ print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 
 
 ```{r}
-simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop) {
+simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop, split_ratio) {
   # Create the vector in which to save the results
   pop_vector <- c(N_init_a, N_init_A)
   # initiate the variables
   pop_new <- c(N_init_a, N_init_A)
   # Create the time at which the population splits
-  split_time <- split_time <- sample(1:t_max, 1)
-  print(split_time) # Just to check the value
+  split_time <- 20
+  # Create the vectors for the new habitats
+  pop_vector_B <- c(0, 0)
+  pop_vector_C <- c(0, 0)
   
   # run the simulation until generation t_max
   for (i in 1:t_max) {
@@ -100,30 +103,57 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
     K_B <- K * habitat_prop
     K_C <- K * (1 - habitat_prop)
     
-    # Create the vectors for the new habitats
-    pop_vector_B <- c(0, 0)
-    pop_vector_C <- c(0, 0)
-    
-    # Distribute individuals of  pop_new[1] randomly to the new habitats
-    individuals_a <- sample(c("B", "C"), pop_new[1], replace = FALSE)
-    n_B_a <- sum(individuals_a == "B")
-    n_C_a <- sum(individuals_a == "C")
+    #create the ratio of the splitting
+    split_ratio_B <- split_ratio
+    split_ratio_C <- (1 - split_ratio_B)
+    # print(split_ratio_B)
+    # print(split_ratio_C)
+    # Distribute individuals  randomly to the habitat B
+    n_B_a <- rbinom(1, pop_new[1], split_ratio_B) 
+    n_B_A <- rbinom(1, pop_new[2], split_ratio_B)   
 
-    # Distribute individuals of  pop_new[2] randomly to the new habitats
-    individuals_A <- sample(c("B", "C"), pop_new[2], replace = FALSE)
-    n_B_A <- sum(individuals_A == "B")
-    n_C_A <- sum(individuals_A == "C")
+    # Distribute individuals randomly to the habitat C
+    n_C_a <- pop_new[1] - n_B_a
+    n_C_A <- pop_new[2] - n_B_A
 
     # Calculate the new populatins for B an C 
     pop_new_B <- simulate_one_gen(n_B_a, n_B_A, decay_rate, sel_coeff, mut_rate)
     pop_new_C <- simulate_one_gen(n_C_a, n_C_A, decay_rate, sel_coeff, mut_rate)
     
-    # add the new population sizes to the output vector B
-    pop_vector_B <- rbind(pop_vector,pop_new)
-    # add the new population sizes to the output vector C
-    pop_vector_C <- rbind(pop_vector,pop_new)
+    # add the new population sizes to the output vector
+    pop_vector_B <- rbind(pop_vector_B,pop_new_B)
+    pop_vector_C <- rbind(pop_vector_C,pop_new_C)
     
- }
+    }
+    
+    if (i > split_time + 1) {
+
+    pop_new_B <- simulate_one_gen(
+      pop_new_B[1], pop_new_B[2],
+      decay_rate, sel_coeff, mut_rate
+    )
+
+    pop_new_C <- simulate_one_gen(
+      pop_new_C[1], pop_new_C[2],
+      decay_rate, sel_coeff, mut_rate
+    )
+
+    # Save the results for each generation
+    pop_vector_B <- rbind(pop_vector_B, pop_new_B)
+    pop_vector_C <- rbind(pop_vector_C, pop_new_C)
+
+    # define the row and column names of the output vector
+    rownames(pop_vector_B) <- (0:t_max)[1:length(pop_vector_B[,1])] 
+    rownames(pop_vector_C) <- (0:t_max)[1:length(pop_vector_C[,1])]
+    colnames(pop_vector_B) <- c("a","A")
+    colnames(pop_vector_C) <- c("a","A")
+    
+    # Data frames
+    pop_vector_df <- as.data.frame(pop_vector)
+    pop_vector_B_df <- as.data.frame(pop_vector_B)
+    pop_vector_C_df <- as.data.frame(pop_vector_C)
+    
+  }
     # redefine the current population one generation later
     pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate)
     # add the new population sizes to the output vector
@@ -136,24 +166,27 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   rownames(pop_vector) <- (0:t_max)[1:length(pop_vector[,1])] # note that the vector has to be cut if the simulation stopped early
   colnames(pop_vector) <- c("a","A")
   # return the result
-  return(pop_vector)	
+  # return all three population vectors separately
+  return(list(main = pop_vector_df, B = pop_vector_B_df, C = pop_vector_C_df))
+
+  
 }
-# Test the function an plot the result
+
+# Test the function and plot the result
 # set t_max to a value to be used througout
 max_gen <- 1000
 # create your simulation data
-output <- simulate_pop(100,0,0.1,0.02,0.001,max_gen, 1000, 0.5)
-# show the last few lines of the data table
-print(tail(output))
+output <- simulate_pop(1000,0,0.1,0.2,0.001,max_gen,1000,0.8,0.5)
+
 # plot the output - note that the plot range and the x axis have to be adjusted based on the length of the table
 # determine x axis range 
-x_range <- 0:(length(output[,1])-1)
 # this plots the total population size
-plot(x_range,output[,1]+output[,2],type='l',ylim=c(0,max(output[,1]+output[,2])),xlab = "Generation",ylab = "Population size")
+#plot(output[,1]+output[,2],type='l',ylim=c(0,max(output[,1]+output[,2])),xlab = "Generation",ylab = "Population size")
 # add number of wild type individuals
-lines(x_range,output[,1], col="blue")
+#lines(x_range,output[,1], col="blue")
 # add number of mutant individuals
-lines(x_range,output[,2], col="red")
+#lines(x_range,output[,2], col="red")
+
 ``` 
 
 ## Added to the basic code from Safeeya
@@ -205,7 +238,7 @@ for(rval in r_values){
       # increase counter by one
       i<-i+1
       # run the simulation once
-      one_run <- simulate_pop(init_a,init_A,rval,sval,m_rate,max_gen)
+      one_run <- simulate_pop(init_a,init_A,rval,sval,m_rate,max_gen, 1000, 0.5)
       # determine total population sizes
       total_size <- one_run[,1]+one_run[,2]
       # determine minimum population size
