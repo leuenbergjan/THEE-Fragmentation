@@ -84,7 +84,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   # initiate the variables
   pop_new <- c(N_init_a, N_init_A)
   # Create the time at which the population splits
-  split_time <- 100
+  split_time <- 5
   # Create the vectors for the new habitats
     pop_vector_B <- c(0, 0)
     pop_vector_C <- c(0, 0)
@@ -98,6 +98,18 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
     # Create the new habitats (creating new K)
     K_B <- K * habitat_prop
     K_C <- K * (1 - habitat_prop)
+    
+    split_ratio_B <- rbinom(1,100,0.5)/100
+    split_ratio_C <- 1- split_ratio_B
+    
+   # each individual goes to B with probability split_ratio_B, otherwise to C
+    n_B_a <- rbinom(1, pop_new[1], split_ratio_B)   # wild-type "a" in B
+    n_B_A <- rbinom(1, pop_new[2], split_ratio_B)   # mutant "A" in B
+
+    pop_vector_B <- c(n_B_a, n_B_A)
+    pop_vector_C <- c(pop_new[1] - n_B_a, pop_new[2] - n_B_A)   #
+      
+    
     
     # Distribute individuals of  pop_new[1] randomly to the new habitats
     individuals_a <- sample(c("B", "C"), pop_new[1], replace = TRUE)
@@ -129,8 +141,15 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   # define the row and column names of the output vector
   rownames(pop_vector) <- (0:t_max)[1:length(pop_vector[,1])] # note that the vector has to be cut if the simulation stopped early
   colnames(pop_vector) <- c("a","A")
-  # return the result
-  return(c(pop_vector, pop_vector_B, pop_vector_C))
+  
+  colnames(pop_vector_B) <- c("a","A")
+  
+  colnames(pop_vector_C) <- c("a","A")
+  pop_vector_df <- as.data.frame(pop_vector)
+  pop_vector_B_df <- as.data.frame(pop_vector_B)
+  pop_vector_C_df <- as.data.frame(pop_vector_C)
+
+ return(list(main = pop_vector_df, B = pop_vector_B_df, C = pop_vector_C_df))
   
 }
 
@@ -139,14 +158,12 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
 # set t_max to a value to be used througout
 max_gen <- 1000
 # create your simulation data
-output <- simulate_pop(1000,0,0.1,0.2,0.001,max_gen,1000,0.8)
+output <- simulate_pop(100,0,0.1,0.2,0.001,max_gen,1000,0.8)
 # show the last few lines of the data table
-print(tail(output))
 # plot the output - note that the plot range and the x axis have to be adjusted based on the length of the table
 # determine x axis range 
-#x_range <- 0:(length(output[,1])-1)
 # this plots the total population size
-#plot(x_range,output[,1]+output[,2],type='l',ylim=c(0,max(output[,1]+output[,2])),xlab = "Generation",ylab = "Population size")
+#plot(output[,1]+output[,2],type='l',ylim=c(0,max(output[,1]+output[,2])),xlab = "Generation",ylab = "Population size")
 # add number of wild type individuals
 #lines(x_range,output[,1], col="blue")
 # add number of mutant individuals
