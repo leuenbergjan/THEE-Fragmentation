@@ -144,6 +144,11 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
     colnames(pop_vector_B) <- c("a","A")
     colnames(pop_vector_C) <- c("a","A")
     
+    # Data frames
+    pop_vector_df <- as.data.frame(pop_vector)
+    pop_vector_B_df <- as.data.frame(pop_vector_B)
+    pop_vector_C_df <- as.data.frame(pop_vector_C)
+    
   }
     # redefine the current population one generation later
     pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate)
@@ -158,26 +163,16 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   colnames(pop_vector) <- c("a","A")
   # return the result
   # return all three population vectors separately
-  return(list(
-    population = pop_vector,
-    habitat_B = pop_vector_B,
-    habitat_C = pop_vector_C
-  ))
+  return(list(main = pop_vector_df, B = pop_vector_B_df, C = pop_vector_C_df))
 
   
 }
-
 
 # Test the function and plot the result
 # set t_max to a value to be used througout
 max_gen <- 1000
 # create your simulation data
 output <- simulate_pop(1000,0,0.1,0.2,0.001,max_gen,1000,0.8,0.5)
-# show the last few lines of the data table
-# show the last few lines of the list
-tail(output$population)
-tail(output$habitat_B)
-tail(output$habitat_C)
 
 # plot the output - note that the plot range and the x axis have to be adjusted based on the length of the table
 # determine x axis range 
