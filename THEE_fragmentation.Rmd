@@ -82,13 +82,12 @@ print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 
 
 ```{r}
-simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop, split_ratio) {
+simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop, split_ratio, split_time) {
   # Create the vector in which to save the results
   pop_vector <- c(N_init_a, N_init_A)
   # initiate the variables
   pop_new <- c(N_init_a, N_init_A)
-  # Create the time at which the population splits
-  split_time <- 20
+  
   # Create the vectors for the new habitats
   pop_vector_B <- c(0, 0)
   pop_vector_C <- c(0, 0)
@@ -176,7 +175,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
 # set t_max to a value to be used througout
 max_gen <- 1000
 # create your simulation data
-output <- simulate_pop(1000,0,0.1,0.2,0.001,max_gen,1000,0.8,0.5)
+output <- simulate_pop(1000,0,0.1,0.2,0.001,max_gen,1000,0.8,0.5,20)
 
 # plot the output - note that the plot range and the x axis have to be adjusted based on the length of the table
 # determine x axis range 
