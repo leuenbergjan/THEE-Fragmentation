@@ -149,14 +149,14 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
     }
     
     # Continue simulating habitat A only until split_time
-if (i < split_time) {
+if (i <= split_time) {
   
     # redefine the current population one generation later
     pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate,K)
     # add the new population sizes to the output vector
     pop_vector <- rbind(pop_vector,pop_new)
     # condition to stop the simulation before t_max: either the population exceeds 1.5 times the original population size, or it goes extinct
-    if (pop_new[1]+pop_new[2]>=1.5*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
+    if (pop_new[1]+pop_new[2]>=2*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
 }
     
  }
@@ -173,8 +173,17 @@ if (i < split_time) {
 
   
 }
+```
 
-output <- simulate_pop(1000,0,0.1,0.2,0.001,max_gen,1000,0.8,0.5,20)
+
+```{r}
+# ============================================================
+# Plot functions for the evolutionary rescue simulation
+# with habitat fragmentation
+# ============================================================
+
+# ---- 1. Overview plot: main population before the split,
+#         habitats B and C after the split, legend outside ----
 plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
 
   main <- output$main
@@ -198,42 +207,106 @@ plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
   x_max <- if (is.null(xlim_max)) max(c(gen_main, gen_B)) else xlim_max
   y_max <- max(c(K, tot_main, tot_B, tot_C), na.rm = TRUE)
 
-  # empty plot frame
+  # make room on the right for the legend, restore settings afterwards
+  old_par <- par(mar = c(5, 4, 4, 11))
+  on.exit(par(old_par))
+
   plot(NA, xlim = c(0, x_max), ylim = c(0, y_max * 1.05),
        xlab = "Generation", ylab = "Population size",
        main = "Evolutionary rescue with habitat fragmentation")
 
-  # --- carrying capacities ---
-  # K of the original habitat: only until the split
+  # carrying capacities: K only until the split, then K_B and K_C
   segments(0, K, split_time, K, col = "black", lty = 2, lwd = 2)
-  # K_B and K_C after the split
   segments(split_time, K_B, x_max, K_B, col = "darkgreen",  lty = 2, lwd = 2)
   segments(split_time, K_C, x_max, K_C, col = "darkorange", lty = 2, lwd = 2)
 
-  # --- population trajectories ---
+  # population trajectories
   lines(gen_main, tot_main, col = "black", lwd = 2)
   if (length(tot_B) > 0) lines(gen_B, tot_B, col = "darkgreen",  lwd = 2)
   if (length(tot_C) > 0) lines(gen_C, tot_C, col = "darkorange", lwd = 2)
 
-  # --- split time ---
+  # split time
   abline(v = split_time, col = "red", lty = 3, lwd = 2)
 
-  legend("topright", bty = "n", cex = 0.85,
+  # legend outside, at the top right corner of the plot region
+  legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
+         xjust = 0, yjust = 1, cex = 0.85,
          legend = c("Total pop. (before split)", "Habitat B", "Habitat C",
                     "K (before split)", "K_B", "K_C", "Split time"),
          col = c("black", "darkgreen", "darkorange",
                  "black", "darkgreen", "darkorange", "red"),
          lty = c(1, 1, 1, 2, 2, 2, 3), lwd = 2)
 }
-max_gen    <- 1000
-K          <- 1000
-split_time <- 20
 
-output <- simulate_pop(1000, 0, 0.1, 0.2, 0.001, max_gen, K, 0.8, 0.5, split_time)
+# ---- 2. Single habitat panel (used for B and C) ----
+plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL) {
 
-plot_split(output, K = K, habitat_prop = 0.8, split_time = split_time)
-plot_split(output, K = K, habitat_prop = 0.8, split_time = split_time, xlim_max = 150)
-``` 
+  if (is.null(df) || nrow(df) == 0) {
+    plot.new()
+    title(main = paste(title, "- no data (population ended before the split)"))
+    return(invisible(NULL))
+  }
+
+  gens  <- split_time + seq_len(nrow(df))
+  tot   <- df$a + df$A
+  x_max <- if (is.null(xlim_max)) max(gens) else xlim_max
+  y_max <- max(c(K_hab, tot), na.rm = TRUE)
+
+  plot(NA, xlim = c(split_time, x_max), ylim = c(0, y_max * 1.05),
+       xlab = "Generation", ylab = "Population size", main = title)
+
+  abline(h = K_hab, col = col_tot, lty = 2, lwd = 2)       # K of this habitat
+  abline(v = split_time, col = "red", lty = 3, lwd = 2)    # split time
+
+  lines(gens, tot,  col = col_tot, lwd = 2)  # total
+  lines(gens, df$a, col = "blue",  lwd = 2)  # wild type
+  lines(gens, df$A, col = "red",   lwd = 2)  # mutant
+
+  legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
+         xjust = 0, yjust = 1, cex = 0.85,
+         legend = c("Total", "Wild type (a)", "Mutant (A)", "K", "Split time"),
+         col = c(col_tot, "blue", "red", col_tot, "red"),
+         lty = c(1, 1, 1, 2, 3), lwd = 2)
+}
+
+# ---- 3. Two panels: habitat B on top, habitat C below ----
+plot_habitats <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
+
+  K_B <- K * habitat_prop
+  K_C <- K * (1 - habitat_prop)
+
+  # two panels stacked, with room on the right for the legends
+  old_par <- par(mfrow = c(2, 1), mar = c(4, 4, 3, 11))
+  on.exit(par(old_par))
+
+  plot_habitat(output$B, K_B, split_time, "Habitat B", "darkgreen",  xlim_max)
+  plot_habitat(output$C, K_C, split_time, "Habitat C", "darkorange", xlim_max)
+}
+
+# ============================================================
+# Usage
+# (simulate_one_gen and simulate_pop must be defined first)
+# ============================================================
+max_gen      <- 1000
+K            <- 1000
+habitat_prop <- 0.8
+split_time   <- 50
+
+output <- simulate_pop(800, 0, 0.1, 0.2, 0.01, max_gen, K,
+                       habitat_prop, 0.5, split_time)
+
+# overview plot
+plot_split(output, K = K, habitat_prop = habitat_prop, split_time = split_time)
+
+# panels for habitat B and C
+plot_habitats(output, K = K, habitat_prop = habitat_prop, split_time = split_time)
+
+# zoomed in on the first 150 generations
+plot_split(output, K = K, habitat_prop = habitat_prop,
+           split_time = split_time, xlim_max = 150)
+plot_habitats(output, K = K, habitat_prop = habitat_prop,
+              split_time = split_time, xlim_max = 150)
+```
 
 ## Added to the basic code from Safeeya
 First of all `split_time` was defined within the function but before the for loop. It can be defined within the function because the parameter is defined every time randomly.  Within the for loop a if function had to be added to trigger the fragmentation event. The fragmentation is triggered when `i == split_time + 1`. The +1 is necessary because of the different counts of i. This was tested with the plot (41 is actauuly 40 when counting with i). 
