@@ -124,7 +124,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
     
     }
     
-    if (i >= split_time + 1) {
+    if (i > split_time + 1) {
 
     pop_new_B <- simulate_one_gen(
       pop_new_B[1], pop_new_B[2],
@@ -149,7 +149,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
     }
     
     # Continue simulating habitat A only until split_time
-if (i <= split_time) {
+if (i < split_time) {
   
     # redefine the current population one generation later
     pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate,K)
