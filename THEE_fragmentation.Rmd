@@ -156,7 +156,7 @@ if (i <= split_time) {
     # add the new population sizes to the output vector
     pop_vector <- rbind(pop_vector,pop_new)
     # condition to stop the simulation before t_max: either the population exceeds 1.5 times the original population size, or it goes extinct
-    if (pop_new[1]+pop_new[2]>=200*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
+    if (pop_new[1]+pop_new[2]>=1.5*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
 }
     
  }
@@ -347,7 +347,7 @@ init_A <- 0
 m_rate <- 0.001
 max_gen <- 1000
 # determine how often to run the simulation for each set of parameters
-no_replicates <- 100
+no_replicates <- 10
 
 # set parameters to vary
 split_time <- c(10,30,50)
