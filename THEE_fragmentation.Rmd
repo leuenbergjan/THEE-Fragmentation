@@ -89,8 +89,8 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   pop_new <- c(N_init_a, N_init_A)
   
   # Create the vectors for the new habitats
-  pop_vector_B <- c(0, 0)
-  pop_vector_C <- c(0, 0)
+  pop_vector_B <- NULL
+  pop_vector_C <- NULL
   
   # run the simulation until generation t_max
   for (i in 1:t_max) {
