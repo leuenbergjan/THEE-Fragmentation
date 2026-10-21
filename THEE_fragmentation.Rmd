@@ -156,7 +156,7 @@ if (i <= split_time) {
     # add the new population sizes to the output vector
     pop_vector <- rbind(pop_vector,pop_new)
     # condition to stop the simulation before t_max: either the population exceeds 1.5 times the original population size, or it goes extinct
-    if (pop_new[1]+pop_new[2]>=2*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
+    if (pop_new[1]+pop_new[2]>=200*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
 }
     
  }
@@ -182,8 +182,8 @@ if (i <= split_time) {
 # with habitat fragmentation
 # ============================================================
 
-# ---- 1. Overview plot: main population before the split,
-#         habitats B and C after the split, legend outside ----
+# ---- 1. Overview plot: wild type and mutant before the split,
+#         total of habitats B and C after the split, legend outside ----
 plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
 
   main <- output$main
@@ -193,19 +193,22 @@ plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
   K_B <- K * habitat_prop
   K_C <- K * (1 - habitat_prop)
 
-  # total population sizes
-  tot_main <- main$a + main$A
-  tot_B    <- B$a + B$A
-  tot_C    <- C$a + C$A
+  # population sizes before the split (wild type and mutant separately)
+  wt_main  <- main$a
+  mut_main <- main$A
+
+  # total population sizes after the split
+  tot_B <- B$a + B$A
+  tot_C <- C$a + C$A
 
   # generation numbers
-  gen_main <- 0:(length(tot_main) - 1)
+  gen_main <- 0:(length(wt_main) - 1)
   gen_B    <- split_time + seq_along(tot_B)
   gen_C    <- split_time + seq_along(tot_C)
 
   # axis ranges
   x_max <- if (is.null(xlim_max)) max(c(gen_main, gen_B)) else xlim_max
-  y_max <- max(c(K, tot_main, tot_B, tot_C), na.rm = TRUE)
+  y_max <- max(c(K, wt_main, mut_main, tot_B, tot_C), na.rm = TRUE)
 
   # make room on the right for the legend, restore settings afterwards
   old_par <- par(mar = c(5, 4, 4, 11))
@@ -220,22 +223,26 @@ plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
   segments(split_time, K_B, x_max, K_B, col = "darkgreen",  lty = 2, lwd = 2)
   segments(split_time, K_C, x_max, K_C, col = "darkorange", lty = 2, lwd = 2)
 
-  # population trajectories
-  lines(gen_main, tot_main, col = "black", lwd = 2)
+  # before the split: wild type and mutant
+  lines(gen_main, wt_main,  col = "blue",      lwd = 2)
+  lines(gen_main, mut_main, col = "firebrick", lwd = 2)
+
+  # after the split: total of habitat B and C
   if (length(tot_B) > 0) lines(gen_B, tot_B, col = "darkgreen",  lwd = 2)
   if (length(tot_C) > 0) lines(gen_C, tot_C, col = "darkorange", lwd = 2)
 
   # split time
-  abline(v = split_time, col = "red", lty = 3, lwd = 2)
+  abline(v = split_time, col = "grey40", lty = 3, lwd = 2)
 
   # legend outside, at the top right corner of the plot region
   legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
-         legend = c("Total pop. (before split)", "Habitat B", "Habitat C",
+         legend = c("Wild type (before split)", "Mutant (before split)",
+                    "Habitat B (total)", "Habitat C (total)",
                     "K (before split)", "K_B", "K_C", "Split time"),
-         col = c("black", "darkgreen", "darkorange",
-                 "black", "darkgreen", "darkorange", "red"),
-         lty = c(1, 1, 1, 2, 2, 2, 3), lwd = 2)
+         col = c("blue", "firebrick", "darkgreen", "darkorange",
+                 "black", "darkgreen", "darkorange", "grey40"),
+         lty = c(1, 1, 1, 1, 2, 2, 2, 3), lwd = 2)
 }
 
 # ---- 2. Single habitat panel (used for B and C) ----
@@ -256,16 +263,16 @@ plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL)
        xlab = "Generation", ylab = "Population size", main = title)
 
   abline(h = K_hab, col = col_tot, lty = 2, lwd = 2)       # K of this habitat
-  abline(v = split_time, col = "red", lty = 3, lwd = 2)    # split time
+  abline(v = split_time, col = "grey40", lty = 3, lwd = 2) # split time
 
-  lines(gens, tot,  col = col_tot, lwd = 2)  # total
-  lines(gens, df$a, col = "blue",  lwd = 2)  # wild type
-  lines(gens, df$A, col = "red",   lwd = 2)  # mutant
+  lines(gens, tot,  col = col_tot,     lwd = 2)  # total
+  lines(gens, df$a, col = "blue",      lwd = 2)  # wild type
+  lines(gens, df$A, col = "firebrick", lwd = 2)  # mutant
 
   legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
          legend = c("Total", "Wild type (a)", "Mutant (A)", "K", "Split time"),
-         col = c(col_tot, "blue", "red", col_tot, "red"),
+         col = c(col_tot, "blue", "firebrick", col_tot, "grey40"),
          lty = c(1, 1, 1, 2, 3), lwd = 2)
 }
 
@@ -292,8 +299,8 @@ K            <- 1000
 habitat_prop <- 0.8
 split_time   <- 50
 
-output <- simulate_pop(800, 0, 0.1, 0.2, 0.01, max_gen, K,
-                       habitat_prop, 0.5, split_time)
+output <- simulate_pop(600, 0, 0.01, 0.2, 0.001, max_gen, K,
+                       habitat_prop, 0.8, split_time)
 
 # overview plot
 plot_split(output, K = K, habitat_prop = habitat_prop, split_time = split_time)
@@ -306,7 +313,10 @@ plot_split(output, K = K, habitat_prop = habitat_prop,
            split_time = split_time, xlim_max = 150)
 plot_habitats(output, K = K, habitat_prop = habitat_prop,
               split_time = split_time, xlim_max = 150)
+
 ```
+
+
 
 ## Added to the basic code from Safeeya
 First of all `split_time` was defined within the function but before the for loop. It can be defined within the function because the parameter is defined every time randomly.  Within the for loop a if function had to be added to trigger the fragmentation event. The fragmentation is triggered when `i == split_time + 1`. The +1 is necessary because of the different counts of i. This was tested with the plot (41 is actauuly 40 when counting with i). 
