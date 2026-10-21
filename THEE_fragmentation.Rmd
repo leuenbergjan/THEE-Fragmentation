@@ -48,7 +48,6 @@ We want to observe the numbers of wild-type and mutant individuals over time. As
 ```{r}
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   # total population size and per-capita growth rates without competition
-  K<-1000
   N_tot <- N_a + N_A
   rho_a <- -decay_rate
   rho_A <- sel_coeff - decay_rate
@@ -58,8 +57,7 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   # draw offspring according to Poisson distribution
   offsp_a <- rpois(1, mean_a)
   offsp_A <- rpois(1, mean_A)
-  # print(offsp_a)
-  # print(offsp_A)
+  
   # draw new mutants according to Poisson distribution
   mut_a_to_A <- rpois(1, offsp_a * mut_rate)
   
@@ -73,6 +71,7 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
  
 # Test the function
 print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
+
 
 
 
