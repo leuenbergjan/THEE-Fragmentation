@@ -89,8 +89,8 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   pop_new <- c(N_init_a, N_init_A)
   
   # Create the vectors for the new habitats
-  pop_vector_B <- c(0, 0)
-  pop_vector_C <- c(0, 0)
+  pop_vector_B <- NULL
+  pop_vector_C <- NULL
   
   # run the simulation until generation t_max
   for (i in 1:t_max) {
@@ -116,8 +116,8 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
     n_C_A <- pop_new[2] - n_B_A
 
     # Calculate the new populatins for B an C 
-    pop_new_B <- simulate_one_gen(n_B_a, n_B_A, decay_rate, sel_coeff, mut_rate)
-    pop_new_C <- simulate_one_gen(n_C_a, n_C_A, decay_rate, sel_coeff, mut_rate)
+    pop_new_B <- simulate_one_gen(n_B_a, n_B_A, decay_rate, sel_coeff, mut_rate, K_B)
+    pop_new_C <- simulate_one_gen(n_C_a, n_C_A, decay_rate, sel_coeff, mut_rate, K_C)
     
     # add the new population sizes to the output vector
     pop_vector_B <- rbind(pop_vector_B,pop_new_B)
@@ -129,12 +129,12 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
 
     pop_new_B <- simulate_one_gen(
       pop_new_B[1], pop_new_B[2],
-      decay_rate, sel_coeff, mut_rate
+      decay_rate, sel_coeff, mut_rate,K_B
     )
 
     pop_new_C <- simulate_one_gen(
       pop_new_C[1], pop_new_C[2],
-      decay_rate, sel_coeff, mut_rate
+      decay_rate, sel_coeff, mut_rate,K_C
     )
 
     # Save the results for each generation
@@ -153,7 +153,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
 if (i <= split_time) {
   
     # redefine the current population one generation later
-    pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate)
+    pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate,K)
     # add the new population sizes to the output vector
     pop_vector <- rbind(pop_vector,pop_new)
     # condition to stop the simulation before t_max: either the population exceeds 1.5 times the original population size, or it goes extinct
