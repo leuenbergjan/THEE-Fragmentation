@@ -440,6 +440,15 @@ rescue_prob$n <- aggregate(replicate ~ st + hp, data = data_table, FUN = length)
 print(tail(data_table))
 print(rescue_prob)
 
+# Rescue Probability für jede Split Time berechnen
+rescue_summary <- aggregate(
+  rescued ~ st + population,
+  data = data_table,
+  FUN = mean
+)
+
+# Spaltennamen ändern
+names(rescue_summary)[names(rescue_summary) == "rescued"] <- "rescue_probability"
 library(ggplot2)
 
 ggplot(rescue_summary,
