@@ -268,10 +268,22 @@ plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL)
   lines(gens, tot,  col = col_tot,     lwd = 2)  # total
   lines(gens, df$a, col = "blue",      lwd = 2)  # wild type
   lines(gens, df$A, col = "firebrick", lwd = 2)  # mutant
+  
+  
 
   legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
          legend = c("Total", "Wild type (a)", "Mutant (A)", "K", "Split time"),
+         col = c(col_tot, "blue", "firebrick", col_tot, "grey40"),
+         lty = c(1, 1, 1, 2, 3), lwd = 2)
+  
+  ##adding the starting population
+    legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
+         xjust = 0, yjust = 1, cex = 0.85,
+         legend = c("Total",
+                    paste0("Wild type (a), start ", df$a[1]),
+                    paste0("Mutant (A), start ", df$A[1]),
+                    "K", "Split time"),
          col = c(col_tot, "blue", "firebrick", col_tot, "grey40"),
          lty = c(1, 1, 1, 2, 3), lwd = 2)
 }
@@ -298,9 +310,10 @@ max_gen      <- 1000
 K            <- 1000
 habitat_prop <- 0.8
 split_time   <- 50
+split_ratio  <- 0.8
 
 output <- simulate_pop(600, 0, 0.01, 0.2, 0.001, max_gen, K,
-                       habitat_prop, 0.8, split_time)
+                       habitat_prop, split_ratio , split_time)
 
 # overview plot
 plot_split(output, K = K, habitat_prop = habitat_prop, split_time = split_time)
@@ -428,9 +441,8 @@ for(st in split_time){
   }
 }
 
-# show the first lines of the output
-print(head(data_table))
-
+# show the last lines of the output
+print(tail(data_table))
 
 ``` 
 
