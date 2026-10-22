@@ -46,6 +46,8 @@ In this notebook, we are implementing simulations of evolutionary rescue by a si
 ## Simulate one generation of population size change
 We want to observe the numbers of wild-type and mutant individuals over time. As first step, we simulate one generation of the population. At time $t$, the population has $N_a$ wild-type individuals and $N_A$ mutant individuals. First, these reproduce. This is modeled by drawing a Poisson random variable according to the expected absolute number $N_a \cdot (1-r)$ of wild-type individuals, where $r$ is the decay rate of the wild type, and $N_A \cdot (1-r+s)$ of mutant individuals, where $s$ is the selective advantage of the mutant over the wild time. Then mutation from $a$ to $A$ occurs as a Poisson random variable according to the given mutation rate. This defines the composition of the population at time $t+1$.
 ```{r}
+set.seed(57)
+
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   # total population size and per-capita growth rates without competition
   N_tot <- N_a + N_A
@@ -354,98 +356,89 @@ As you can see if you simulate and plot the output several times, there is a lot
 - ...
 
 ```{r}
-# set some parameters to fixed values
+# fixed parameters
 init_a <- 600
 init_A <- 0
 m_rate <- 0.001
-max_gen <- 1000
-# determine how often to run the simulation for each set of parameters
-no_replicates <- 100
+max_gen_analysis <- 1000
+K_analysis <- 1000
+no_replicates <- 100          # more replicates give more precise probabilities
+max_attempts <- 5000
+rescue_frac <- 1              # rescue = A >= rescue_frac * K of the habitat
 
-# set parameters to vary
-split_time <- c(10,20,30,40,50,75,100)
-habitat_prop <- c(0.5)
+# parameters to vary
+split_times   <- c(10, 20, 30, 40, 50, 75)
+habitat_props <- c(0.5)
 
-# initialize data table - where to collect the results
-# Initialize an empty data frame
-data_table <- data.frame(
-  st = numeric(),
-  hp = numeric(),
-  replicate = integer(),
-  population = character(),
-  min_gen = numeric(),
-  no_min = numeric()
-)
-# run the simulation across all chosen parameters
-# loop over decay rates
-for(st in split_time){
-  # loop over selection coefficients
-  for(hp in habitat_prop){
-    # different way of running many simulations: make replicates using "repeat" function with a counter i
-    # reset counter
-    i<-1
+results <- list()             # collects one row per replicate
+
+for (st in split_times) {
+  for (hp in habitat_props) {
+
+    K_B <- K_analysis * hp
+    K_C <- K_analysis * (1 - hp)
+
+    i <- 0
+    attempts <- 0
     repeat {
-      # increase counter by one
-      i<-i+1
-      # run the simulation once
+      attempts <- attempts + 1
+      if (attempts > max_attempts) {
+        warning(paste("Too many failed runs for st =", st, "hp =", hp))
+        break
+      }
+
       one_run <- simulate_pop(
-  init_a, init_A,
-  decay_rate = 0.01,
-  sel_coeff = 0.2,
-  mut_rate = m_rate,
-  t_max = max_gen,
-  K = 1000,
-  habitat_prop = hp,
-  split_ratio = 0.5,
-  split_time = st
-)
-      #removing the ones thath dont make it to split time
-       if (nrow(one_run$B) == 0 || nrow(one_run$C) == 0) next
-      # determine total population sizes
-      total_size_B <- one_run$B$a + one_run$B$A
-      total_size_C <- one_run$C$a + one_run$C$A
-      # determine minimum population size
-      min_size_B <- min(total_size_B)
-      min_size_C <- min(total_size_C)
-      # determine (first) generation at which this population size occurred
-      min_gen_B <- as.numeric(which(total_size_B==min_size_B)[1])
-      min_gen_C <- as.numeric(which(total_size_C==min_size_C)[1])
-      # enter the data into the table
-      # Store results for population B
-      data_table <- rbind(
-        data_table,
-        data.frame(
-          st = st,
-          hp = hp,
-          replicate = i,
-          population = "B",
-          min_gen = min_gen_B,
-          no_min = min_size_B
-        )
+        init_a, init_A,
+        decay_rate = 0.01,
+        sel_coeff = 0.2,
+        mut_rate = m_rate,
+        t_max = max_gen_analysis,
+        K = K_analysis,
+        habitat_prop = hp,
+        split_ratio = 0.5,
+        split_time = st
       )
-      # Store results for population C
-      data_table <- rbind(
-        data_table,
-        data.frame(
-          st = st,
-          hp = hp,
-          replicate = i,
-          population = "C",
-          min_gen = min_gen_C,
-          no_min = min_size_C
-        )
+
+      # skip runs that ended before the split time
+      if (nrow(one_run$B) == 0 || nrow(one_run$C) == 0) next
+      i <- i + 1
+
+      # rescue: mutant population reaches the carrying capacity of the habitat
+      reached_B <- one_run$B$A >= rescue_frac * K_B
+      reached_C <- one_run$C$A >= rescue_frac * K_C
+
+      rescued_B <- any(reached_B)
+      rescued_C <- any(reached_C)
+
+      results[[length(results) + 1]] <- data.frame(
+        st = st,
+        hp = hp,
+        replicate = i,
+        rescued_B = rescued_B,
+        rescued_C = rescued_C,
+        rescued_any  = rescued_B | rescued_C,
+        rescued_both = rescued_B & rescued_C,
+        # first generation (after split) at which A reached K, NA if never
+        gen_B = if (rescued_B) which(reached_B)[1] else NA_integer_,
+        gen_C = if (rescued_C) which(reached_C)[1] else NA_integer_
       )
-      
-      # note that we add the varying parameters (decay rate and selection coefficient) to the table too
-      # stop the repeated computation after no_replicates times
-      if(i>no_replicates) break
+
+      if (i >= no_replicates) break
     }
   }
 }
 
-# show the last lines of the output
-print(tail(data_table))
+data_table <- do.call(rbind, results)
 
+# rescue probability = fraction of replicates that were rescued
+rescue_prob <- aggregate(
+  cbind(rescued_B, rescued_C, rescued_any, rescued_both) ~ st + hp,
+  data = data_table, FUN = mean
+)
+rescue_prob$n <- aggregate(replicate ~ st + hp, data = data_table, FUN = length)$replicate
+
+print(tail(data_table))
+print(rescue_prob)
 ``` 
 
 ### Questions
