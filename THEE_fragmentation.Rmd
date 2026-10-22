@@ -268,10 +268,22 @@ plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL)
   lines(gens, tot,  col = col_tot,     lwd = 2)  # total
   lines(gens, df$a, col = "blue",      lwd = 2)  # wild type
   lines(gens, df$A, col = "firebrick", lwd = 2)  # mutant
+  
+  
 
   legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
          legend = c("Total", "Wild type (a)", "Mutant (A)", "K", "Split time"),
+         col = c(col_tot, "blue", "firebrick", col_tot, "grey40"),
+         lty = c(1, 1, 1, 2, 3), lwd = 2)
+  
+  ##adding the starting population
+    legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
+         xjust = 0, yjust = 1, cex = 0.85,
+         legend = c("Total",
+                    paste0("Wild type (a), start ", df$a[1]),
+                    paste0("Mutant (A), start ", df$A[1]),
+                    "K", "Split time"),
          col = c(col_tot, "blue", "firebrick", col_tot, "grey40"),
          lty = c(1, 1, 1, 2, 3), lwd = 2)
 }
@@ -298,9 +310,10 @@ max_gen      <- 1000
 K            <- 1000
 habitat_prop <- 0.8
 split_time   <- 50
+split_ratio  <- 0.8
 
 output <- simulate_pop(600, 0, 0.01, 0.2, 0.001, max_gen, K,
-                       habitat_prop, 0.8, split_time)
+                       habitat_prop, split_ratio , split_time)
 
 # overview plot
 plot_split(output, K = K, habitat_prop = habitat_prop, split_time = split_time)
@@ -350,8 +363,8 @@ max_gen <- 1000
 no_replicates <- 10
 
 # set parameters to vary
-split_time <- c(10,30,50)
-habitat_prop <- c(0.1,0.25,0.5)
+split_time <- c(50)
+habitat_prop <- c(0.1)
 
 # initialize data table - where to collect the results
 data_table <- c()
@@ -390,6 +403,7 @@ for(st in split_time){
       # enter the data into the table
       data_table <- rbind(data_table,c(st,hp,min_gen_B,min_size_B))
       data_table <- rbind(data_table,c(st,hp,min_gen_C,min_size_C))
+      
       # note that we add the varying parameters (decay rate and selection coefficient) to the table too
       # stop the repeated computation after no_replicates times
       if(i>no_replicates) break
@@ -399,7 +413,7 @@ for(st in split_time){
 # define column names of data table
 colnames(data_table) <- c("st","hp","min_gen","no_min")
 # show the first lines of the output
-print(head(data_table))
+print(tail(data_table))
 ``` 
 
 ### Questions
