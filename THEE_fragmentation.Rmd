@@ -310,7 +310,7 @@ max_gen      <- 1000
 K            <- 1000
 habitat_prop <- 0.8
 split_time   <- 50
-split_ratio  <- 0.8
+split_ratio  <- 0.5
 
 output <- simulate_pop(600, 0, 0.01, 0.2, 0.001, max_gen, K,
                        habitat_prop, split_ratio , split_time)
@@ -360,11 +360,11 @@ init_A <- 0
 m_rate <- 0.001
 max_gen <- 1000
 # determine how often to run the simulation for each set of parameters
-no_replicates <- 10
+no_replicates <- 100
 
 # set parameters to vary
-split_time <- c(10,20,50)
-habitat_prop <- c(0.1,0.25, 0.5)
+split_time <- c(10,20,30,40,50,75,100)
+habitat_prop <- c(0.5)
 
 # initialize data table - where to collect the results
 # Initialize an empty data frame
@@ -399,6 +399,8 @@ for(st in split_time){
   split_ratio = 0.5,
   split_time = st
 )
+      #removing the ones thath dont make it to split time
+       if (nrow(one_run$B) == 0 || nrow(one_run$C) == 0) next
       # determine total population sizes
       total_size_B <- one_run$B$a + one_run$B$A
       total_size_C <- one_run$C$a + one_run$C$A
