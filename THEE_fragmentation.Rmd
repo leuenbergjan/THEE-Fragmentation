@@ -342,7 +342,7 @@ As you can see if you simulate and plot the output several times, there is a lot
 
 ```{r}
 # set some parameters to fixed values
-init_a <- 100
+init_a <- 600
 init_A <- 0
 m_rate <- 0.001
 max_gen <- 1000
@@ -350,11 +350,19 @@ max_gen <- 1000
 no_replicates <- 10
 
 # set parameters to vary
-split_time <- c(10,30,50)
-habitat_prop <- c(0.1,0.25,0.5)
+split_time <- c(10,20,50)
+habitat_prop <- c(0.1,0.25, 0.5)
 
 # initialize data table - where to collect the results
-data_table <- c()
+# Initialize an empty data frame
+data_table <- data.frame(
+  st = numeric(),
+  hp = numeric(),
+  replicate = integer(),
+  population = character(),
+  min_gen = numeric(),
+  no_min = numeric()
+)
 # run the simulation across all chosen parameters
 # loop over decay rates
 for(st in split_time){
@@ -388,18 +396,42 @@ for(st in split_time){
       min_gen_B <- as.numeric(which(total_size_B==min_size_B)[1])
       min_gen_C <- as.numeric(which(total_size_C==min_size_C)[1])
       # enter the data into the table
-      data_table <- rbind(data_table,c(st,hp,min_gen_B,min_size_B))
-      data_table <- rbind(data_table,c(st,hp,min_gen_C,min_size_C))
+      # Store results for population B
+      data_table <- rbind(
+        data_table,
+        data.frame(
+          st = st,
+          hp = hp,
+          replicate = i,
+          population = "B",
+          min_gen = min_gen_B,
+          no_min = min_size_B
+        )
+      )
+      # Store results for population C
+      data_table <- rbind(
+        data_table,
+        data.frame(
+          st = st,
+          hp = hp,
+          replicate = i,
+          population = "C",
+          min_gen = min_gen_C,
+          no_min = min_size_C
+        )
+      )
+      
       # note that we add the varying parameters (decay rate and selection coefficient) to the table too
       # stop the repeated computation after no_replicates times
       if(i>no_replicates) break
     }
   }
 }
-# define column names of data table
-colnames(data_table) <- c("st","hp","min_gen","no_min")
+
 # show the first lines of the output
 print(head(data_table))
+
+
 ``` 
 
 ### Questions
