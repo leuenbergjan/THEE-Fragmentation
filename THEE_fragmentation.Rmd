@@ -12,33 +12,49 @@ output:
 This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate habitats (B and C) of different size, each with its own carrying capacity.
 
 **Biological scenario**
+
 - A haploid population consists of wild-type individuals (**a**) and, possibly, mutant individuals (**A**).
 - A sudden environmental change makes the wild type unfit: it **declines** at rate `decay_rate`.
 - The mutant is **beneficial** (advantage `sel_coeff`) and can grow in the new environment, but it is initially rare or absent. If absent, it has to arise by mutation from the wild type.
 - The population is *rescued* if the mutant spreads before the wild type (and with it the whole population) goes extinct.
+-The Habitat gets seperatated at a defined time called `split_time`.Individuals are randomly distributed, each habitat has a smaller carrying capacity, and both then evolve independently.
 
--the Habitat gets seperatated
+**Research Questions**
+
+-	Is evolutionary rescue possible in the Fragmented habitats?
+    -	What is the impact of split_time on ER?
+    -	What is the impact of the habitat porportions on ER?
 
 
-***
+
+## 1.1 Overview of the code
+
+1. `simulate_one_gen()`: simulates **one generation** (reproduction with logistic growth + mutation) for one habitat.
+2. `simulate_pop()`: runs a **full simulation**: one habitat until `split_time`, then two habitats (B and C) afterwards.
+3. Plot functions (`plot_split()`, `plot_habitat()`, `plot_habitats()`): visualise a single simulation run.
+4. `run_scenarios()` and `to_long()`: repeat the simulation many times for different parameter values and summaries the **rescue probability**.
+5. Three analyses: split time varies, habitat proportion varies, and both.
+
+## 1.2 Parameters and variables
+
+| Name | Meaning |
+|---|---|
+| `N_a`, `N_A` | current size of the wild-type / mutant population (change over time) |
+| `N_init_a`, `N_init_A` | initial sizes of wild type (positive integer) and mutant (non-negative integer) |
+| `decay_rate` | detrimental effect of the environment on the wild type (> 0 so that extinction is possible) |
+| `sel_coeff` | selective advantage of the mutant (should be > `decay_rate` to allow rescue) |
+| `mut_rate` | mutation rate from wild type to mutant (> 0 and small) |
+| `t_max` | maximum number of generations simulated (a setting, not a model parameter) |
+| `split_time` | generation at which the fragmentation happens (integer > 0) |
+| `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1) |
+| `habitat_prop` | share of the total carrying capacity given to habitat B (between 0 and 1); habitat C gets `1 - habitat_prop` |
+| `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitats |
 
 ## Simulating evolutionary rescue in discrete time
 
 In this notebook, we are implementing simulations of evolutionary rescue by a single mutation in discrete time, as discussed and analyzed in the work by Orr & Unckless. The model is as follows: a haploid population starts with a given number of wild-type and mutant individuals. Because of a sudden environmental change, the wild type is unfit and declines in the new environment. The mutant is beneficial and can survive and expand in the new environment, but it starts at a low (or zero) frequency in the total population. In order to rescue the population, it has to outcompete the wild type. If the mutant is not present at time 0, it has to appear through mutation and then spread in the population before extinction occurs.
 
-## List of variables and parameters
-- $N_a$ current size of the wild-type (a) population (changes over time)
-- $N_A$ current size of the mutant (A) population (changes over time)
-- `N_init_a` initial population size of wild-type population (should be a positive integer)
-- `N_init_A` initial population size of the mutant population (should be a non-negative integer)
-- `decay_rate` detrimental effect of the environment on the wild type (i.e., the wild-type population decays at this rate; should be >0 to induce potential extinction)
-- `sel_coeff` selective advantage of the mutant over the wild type (should be >decay_rate to allow for evolutionary rescue)
-- `mut_rate` mutation rate from the wild type to the mutant genotype (should be >0 and small)
-- `t_max` number of generations after which to stop the simulation (should be an integer >0; this is not a model parameter but a setting for the simulations). In the code presented here, the simulation stops automatically if the population goes extinct, or if it recovers and exceeds 2 times the original total population size, so `t_max` can be set to a large value without creating extremely long simulation times.
-- `split_time` parameter which define the time point at which the fragmentation will appear	(integer >0).
-- `split_ratio` randomly distributes the population when the split time occurs (parameter between 1-0).
-- `habitat_prop` parameter defining into which proportions the  habitat will be split	(between 1-0). This value will give only the size of the bigger habitat (0.8), the smaller habitat will be calculated from it.
-- `K`	carrying capacity	limiting growth of the populations, and has the same proportion as habitats	(integer >0).
+
 
 ## Simulate one generation of population size change
 We want to observe the numbers of wild-type and mutant individuals over time. As first step, we simulate one generation of the population. At time $t$, the population has $N_a$ wild-type individuals and $N_A$ mutant individuals. First, these reproduce. This is modeled by drawing a Poisson random variable according to the expected absolute number $N_a \cdot (1-r)$ of wild-type individuals, where $r$ is the decay rate of the wild type, and $N_A \cdot (1-r+s)$ of mutant individuals, where $s$ is the selective advantage of the mutant over the wild time. Then mutation from $a$ to $A$ occurs as a Poisson random variable according to the given mutation rate. This defines the composition of the population at time $t+1$.
