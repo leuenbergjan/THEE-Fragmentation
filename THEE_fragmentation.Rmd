@@ -390,7 +390,7 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 100     # more replicates give more precise probabilities
+no_replicates    <- 10     # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat
 
@@ -557,6 +557,35 @@ ggplot(long3, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
        fill = "Rescue\nprobability") +
   theme_minimal()
 
+# =======================================================================
+# ANALYSIS 4: both vary (bar plots percentage)
+# =======================================================================
+outcome_cols <- c("Both rescued"    = "#2a9d8f",
+                  "Only B rescued"  = "darkgreen",
+                  "Only C rescued"  = "darkorange",
+                  "Neither rescued" = "grey75")
+
+plot_outcomes <- function(dat, x_var, x_label, title) {
+  dat <- dat %>%
+    mutate(outcome = case_when(
+      rescued_both ~ "Both rescued",
+      rescued_B    ~ "Only B rescued",
+      rescued_C    ~ "Only C rescued",
+      TRUE         ~ "Neither rescued"),
+      outcome = factor(outcome, levels = names(outcome_cols)[c(4, 3, 2, 1)]))
+  
+  ggplot(dat, aes(x = factor(.data[[x_var]]), fill = outcome)) +
+    geom_bar(position = "fill") +          # each bar sums to 1 (= 100 %)
+    scale_fill_manual(values = outcome_cols) +
+    labs(title = title, x = x_label, y = "Proportion of replicates", fill = "Outcome") +
+    theme_minimal()
+}
+
+plot_outcomes(res1$data, "st", "Split time", "Outcome vs. split time (habitat proportion = 0.5)")
+plot_outcomes(res2$data, "hp", "Habitat proportion (B)", "Outcome vs. habitat proportion (split time = 30)")
+plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat proportion") +
+  facet_wrap(~ hp, labeller = label_both)
+#bettter legends
 ``` 
 
 
