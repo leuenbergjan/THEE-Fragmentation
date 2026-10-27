@@ -390,7 +390,7 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 100     # more replicates give more precise probabilities
+no_replicates    <- 100    # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat
 
