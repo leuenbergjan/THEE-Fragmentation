@@ -2,7 +2,7 @@
 ## THEE Research Practical 2026
 
 **Authors:** Jan Leuenberger & Safeeya Ramis  
-**Date:** October 13, 2026
+**Date:** October 27, 2026
 
 ## Overview
 
