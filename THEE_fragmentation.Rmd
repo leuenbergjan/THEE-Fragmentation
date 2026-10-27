@@ -10,18 +10,7 @@ output:
 
 This notebook is meant to introduce you to simulations and calculations using R. In the following, we will simulate the evolutionary rescue model introduced in the lecture.
 
-## Your tasks
 
-Read through the code and execute it (using the "play" or "run" or "knit/preview" buttons - you might have to install some extra packages for the latter). Then "tackle" the following questions: 
-
-* Do you understand what each line means? Which lines are (particularly) confusing?
-* Check out the questions following each code block and try to answer them.
-
-## Troubleshooting
-
-1. If it all looks very confusing right now and you cannot answer any of the questions, do not despair! We will go through everything step by step during the practical and you will soon become familiar with such code. Note that we do **not** expect you to be able to answer all these questions today!
-2. If you cannot execute the code at all, tell us as soon as you can, so we can try to fix this together. Everyone should be able to run the code on their computer - it's not sufficient to peak onto your neighbor's screen.
-3. A great tool to understand what a line of code does is to print the output line by line, using the `print()` command. Be aware that in long loops this can create quite a mess of output.
 
 ***
 
@@ -37,10 +26,10 @@ In this notebook, we are implementing simulations of evolutionary rescue by a si
 - `decay_rate` detrimental effect of the environment on the wild type (i.e., the wild-type population decays at this rate; should be >0 to induce potential extinction)
 - `sel_coeff` selective advantage of the mutant over the wild type (should be >decay_rate to allow for evolutionary rescue)
 - `mut_rate` mutation rate from the wild type to the mutant genotype (should be >0 and small)
-- `t_max` number of generations after which to stop the simulation (should be an integer >0; this is not a model parameter but a setting for the simulations). In the code presented here, the simulation stops automatically if the population goes extinct, or if it recovers and exceeds 1.5 times the original total population size, so `t_max` can be set to a large value without creating extremely long simulation times.
+- `t_max` number of generations after which to stop the simulation (should be an integer >0; this is not a model parameter but a setting for the simulations). In the code presented here, the simulation stops automatically if the population goes extinct, or if it recovers and exceeds 2 times the original total population size, so `t_max` can be set to a large value without creating extremely long simulation times.
 - `split_time` parameter which define the time point at which the fragmentation will appear	(integer >0).
-- `split_population` randomly distributes the population when the split time occurs (parameter between 1-0).
-- `habitat_prop` parameter defining into which proportions the  habitat will be splitted	(between 1-0). This value will give only the size of the bigger habitat (0.8), the smaller habitat will be calculatet from it.
+- `split_ratio` randomly distributes the population when the split time occurs (parameter between 1-0).
+- `habitat_prop` parameter defining into which proportions the  habitat will be split	(between 1-0). This value will give only the size of the bigger habitat (0.8), the smaller habitat will be calculated from it.
 - `K`	carrying capacity	limiting growth of the populations, and has the same proportion as habitats	(integer >0).
 
 ## Simulate one generation of population size change
@@ -158,7 +147,7 @@ if (i <= split_time) {
     # add the new population sizes to the output vector
     pop_vector <- rbind(pop_vector,pop_new)
     # condition to stop the simulation before t_max: either the population exceeds 1.5 times the original population size, or it goes extinct
-    if (pop_new[1]+pop_new[2]>=1.5*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
+    if (pop_new[1]+pop_new[2]>=2*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
 }
     
  }
@@ -340,12 +329,6 @@ Then two new habitats are created: `K_B` and `K_C`. The prportion of the new hab
 
 For these two steps the parameters `habitat_prop` and `K_A` have to be added to the arglist of function...
 
-### Questions
-* What is the difference between `pop_vector` and `pop_new`?
-* What is the condition that breaks the loop good for? What are its disadvantages?
-Avoid very high numbers and also a lot of zero when they are extinct. disadvantage, don't show recovery again or future behavior.
-* What does the function `tail` do?
-Showing the last results of a list, is showing the tail of the list.
 
 ## A small analysis
 As you can see if you simulate and plot the output several times, there is a lot of stochasticity/variation in the outcome. Therefore, to get interpretable results, we have to run the simulation many times and summarize the outcome depending on the question of our study. Here I am showing an example in which we record the time and the value of the lowest population size (or the time of extinction, if the population size eventually goes to 0). Usually, we want to study this for a range of model parameters; here I am varying the decay rate and the selection coefficient. Other (maybe more interesting) features to study would be the following:
@@ -356,144 +339,191 @@ As you can see if you simulate and plot the output several times, there is a lot
 - ...
 
 ```{r}
-# fixed parameters
-init_a <- 600
-init_A <- 0
-m_rate <- 0.001
-max_gen_analysis <- 1000
-K_analysis <- 1000
-no_replicates <- 100          # more replicates give more precise probabilities
-max_attempts <- 5000
-rescue_frac <- 1              # rescue = A >= rescue_frac * K of the habitat
-
-# parameters to vary
-split_times   <- c(10, 20, 30, 40, 50, 75)
-habitat_props <- c(0.5)
-
-results <- list()             # collects one row per replicate
-
-for (st in split_times) {
-  for (hp in habitat_props) {
-
-    K_B <- K_analysis * hp
-    K_C <- K_analysis * (1 - hp)
-
-    i <- 0
-    attempts <- 0
-    repeat {
-      attempts <- attempts + 1
-      if (attempts > max_attempts) {
-        warning(paste("Too many failed runs for st =", st, "hp =", hp))
-        break
-      }
-
-      one_run <- simulate_pop(
-        init_a, init_A,
-        decay_rate = 0.01,
-        sel_coeff = 0.2,
-        mut_rate = m_rate,
-        t_max = max_gen_analysis,
-        K = K_analysis,
-        habitat_prop = hp,
-        split_ratio = 0.5,
-        split_time = st
-      )
-
-      # skip runs that ended before the split time
-      if (nrow(one_run$B) == 0 || nrow(one_run$C) == 0) next
-      i <- i + 1
-
-      # rescue: mutant population reaches the carrying capacity of the habitat
-      reached_B <- one_run$B$A >= rescue_frac * K_B
-      reached_C <- one_run$C$A >= rescue_frac * K_C
-
-      rescued_B <- any(reached_B)
-      rescued_C <- any(reached_C)
-
-      results[[length(results) + 1]] <- data.frame(
-        st = st,
-        hp = hp,
-        replicate = i,
-        rescued_B = rescued_B,
-        rescued_C = rescued_C,
-        rescued_any  = rescued_B | rescued_C,
-        rescued_both = rescued_B & rescued_C,
-        # first generation (after split) at which A reached K, NA if never
-        gen_B = if (rescued_B) which(reached_B)[1] else NA_integer_,
-        gen_C = if (rescued_C) which(reached_C)[1] else NA_integer_
-      )
-
-      if (i >= no_replicates) break
-    }
-  }
-}
-
-data_table <- do.call(rbind, results)
-
-# rescue probability = fraction of replicates that were rescued
-rescue_prob <- aggregate(
-  cbind(rescued_B, rescued_C, rescued_any, rescued_both) ~ st + hp,
-  data = data_table, FUN = mean
-)
-rescue_prob$n <- aggregate(replicate ~ st + hp, data = data_table, FUN = length)$replicate
-
-print(tail(data_table))
-print(rescue_prob)
-
-
 library(ggplot2)
 library(tidyr)
 library(dplyr)
 
-rescue_summary <- rescue_prob %>%
-  select(st, hp, rescued_B, rescued_C, rescued_both) %>%
-  pivot_longer(
-    cols = c(rescued_B, rescued_C, rescued_both),
-    names_to = "population",
-    values_to = "rescue_probability"
-  ) %>%
-  mutate(
-    population = recode(
-      population,
-      rescued_B = "Population B",
-      rescued_C = "Population C",
-      rescued_both = "Both populations"
-    )
-  )
+# ---- fixed parameters --------------------------------------------------
+init_a           <- 600
+init_A           <- 0
+m_rate           <- 0.001
+max_gen_analysis <- 1000
+K_analysis       <- 1000
+no_replicates    <- 100     # more replicates give more precise probabilities
+max_attempts     <- 5000
+rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat
 
-ggplot(
-  rescue_summary,
-  aes(
-    x = st,
-    y = rescue_probability,
-    color = population,
-    group = population
-  )
-) +
+# ---- core function: your loop, wrapped so it can be reused -------------
+run_scenarios <- function(split_times, habitat_props) {
+  results <- list()
+  
+  for (st in split_times) {
+    for (hp in habitat_props) {
+      
+      K_B <- K_analysis * hp
+      K_C <- K_analysis * (1 - hp)
+      
+      i <- 0
+      attempts <- 0
+      repeat {
+        attempts <- attempts + 1
+        if (attempts > max_attempts) {
+          warning(paste("Too many failed runs for st =", st, "hp =", hp))
+          break
+        }
+        
+        one_run <- simulate_pop(
+          init_a, init_A,
+          decay_rate   = 0.01,
+          sel_coeff    = 0.2,
+          mut_rate     = m_rate,
+          t_max        = max_gen_analysis,
+          K            = K_analysis,
+          habitat_prop = hp,
+          split_ratio  = 0.5,
+          split_time   = st
+        )
+        
+        # skip runs that ended before the split time
+        if (nrow(one_run$B) == 0 || nrow(one_run$C) == 0) next
+        i <- i + 1
+        
+        reached_B <- one_run$B$A >= rescue_frac * K_B
+        reached_C <- one_run$C$A >= rescue_frac * K_C
+        rescued_B <- any(reached_B)
+        rescued_C <- any(reached_C)
+        
+        results[[length(results) + 1]] <- data.frame(
+          st = st,
+          hp = hp,
+          replicate = i,
+          rescued_B = rescued_B,
+          rescued_C = rescued_C,
+          rescued_any  = rescued_B | rescued_C,
+          rescued_both = rescued_B & rescued_C,
+          gen_B = if (rescued_B) which(reached_B)[1] else NA_integer_,
+          gen_C = if (rescued_C) which(reached_C)[1] else NA_integer_
+        )
+        
+        if (i >= no_replicates) break
+      }
+    }
+  }
+  
+  data_table <- do.call(rbind, results)
+  
+  # rescue probability per scenario, with binomial standard error
+  rescue_prob <- data_table %>%
+    group_by(st, hp) %>%
+    summarise(
+      n = n(),
+      across(c(rescued_B, rescued_C, rescued_any, rescued_both), mean),
+      .groups = "drop"
+    )
+  
+  list(data = data_table, prob = rescue_prob)
+}
+
+# ---- helper: long format with SE for plotting --------------------------
+to_long <- function(rescue_prob) {
+  rescue_prob %>%
+    pivot_longer(
+      cols = c(rescued_B, rescued_C, rescued_both),
+      names_to = "population",
+      values_to = "rescue_probability"
+    ) %>%
+    mutate(
+      se = sqrt(rescue_probability * (1 - rescue_probability) / n),
+      population = recode(
+        population,
+        rescued_B    = "Population B",
+        rescued_C    = "Population C",
+        rescued_both = "Both populations"
+      )
+    )
+}
+
+# =======================================================================
+# ANALYSIS 1: split time varies, habitat proportion fixed
+# =======================================================================
+res1 <- run_scenarios(
+  split_times   = c(10, 20, 30, 50, 75, 100),
+  habitat_props = 0.5
+)
+long1 <- to_long(res1$prob)
+print(res1$prob)
+
+ggplot(long1, aes(x = st, y = rescue_probability,
+                  color = population, group = population)) +
   geom_line(linewidth = 1) +
   geom_point(size = 3) +
-  scale_x_continuous(breaks = split_times) +
-  scale_y_continuous(
-    limits = c(0, 1),
-    breaks = seq(0, 1, by = 0.1)
-  ) +
-  labs(
-    title = "Rescue Probability Depending on Split Time",
-    x = "Split Time",
-    y = "Rescue Probability",
-    color = "Population"
-  ) +
+  geom_errorbar(aes(ymin = pmax(0, rescue_probability - se),
+                    ymax = pmin(1, rescue_probability + se)),
+                width = 2) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
+  labs(title = "Rescue probability vs. split time (habitat proportion = 0.5)",
+       x = "Split time", y = "Rescue probability", color = "Population") +
   theme_minimal()
+
+# =======================================================================
+# ANALYSIS 2: habitat proportion varies, split time fixed
+# =======================================================================
+res2 <- run_scenarios(
+  split_times   = 30,
+  habitat_props = c(0.1, 0.2, 0.3, 0.4, 0.5)
+)
+long2 <- to_long(res2$prob)
+print(res2$prob)
+
+ggplot(long2, aes(x = hp, y = rescue_probability,
+                  color = population, group = population)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(0, rescue_probability - se),
+                    ymax = pmin(1, rescue_probability + se)),
+                width = 0.02) +
+  scale_x_continuous(breaks = seq(0.1, 0.9, 0.1)) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
+  labs(title = "Rescue probability vs. habitat proportion (split time = 30)",
+       x = "Habitat proportion (B)", y = "Rescue probability",
+       color = "Population") +
+  theme_minimal()
+
+# =======================================================================
+# ANALYSIS 3: both vary (full grid)
+# =======================================================================
+res3 <- run_scenarios(
+  split_times   = c(10, 30, 50, 100),
+  habitat_props = c(0.1, 0.25, 0.5)
+)
+long3 <- to_long(res3$prob)
+print(res3$prob)
+
+# heatmap: one panel per population
+ggplot(long3, aes(x = factor(hp), y = factor(st), fill = rescue_probability)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", rescue_probability)), size = 3.5) +
+  facet_wrap(~ population) +
+  scale_fill_viridis_c(limits = c(0, 1), option = "C") +
+  labs(title = "Rescue probability by split time and habitat proportion",
+       x = "Habitat proportion (B)", y = "Split time",
+       fill = "Rescue\nprobability") +
+  theme_minimal()
+
+# lines: split time on x, one line per habitat proportion
+# bar plot: split time on x, one bar per habitat proportion (with standard errors)
+ggplot(long3, aes(x = factor(st), y = rescue_probability, fill = factor(hp))) +
+ geom_col(position = position_dodge(width = 0.9), width = 0.8) +
+ geom_errorbar(aes(ymin = pmax(0, rescue_probability - se),
+                   ymax = pmin(1, rescue_probability + se)),
+               position = position_dodge(width = 0.9), width = 0.25) +
+   facet_wrap(~ population) +
+   scale_y_continuous(limits = c(0, 1)) +
+   labs(title = "Rescue probability vs. split time, by habitat proportion",
+        x = "Split time", y = "Rescue probability",
+       fill = "Habitat\nproportion") +
+   theme_minimal()
 
 ``` 
 
-### Questions
-* Why does this code block run much more slowly than the others?
-A lot of repeats are slowing down the programm.
-* Why is it useful to define the parameters at the beginning (e.g. `init_a=100`) and use their names rather than the numbers throughout the rest of the code?
-Don't have to change the numbers in th whole scribt can change only once.
-* What does the function `which` do?
-Indices the TRUE
 
-## Next steps
-So, where do you go from here? Of course you won't just stare at these tables (at least not forever). Visualization would be a good step to see how the minimum population size varies with the decay rate and the selection coefficient. And you might want to include only the cases in which rescue happens, and also extract the rescue probability in parallel. However, the idea is that you pick a question that you find (more) interesting and implement modified versions of this code to address your question of choice.
