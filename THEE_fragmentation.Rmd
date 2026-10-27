@@ -500,29 +500,21 @@ long3 <- to_long(res3$prob)
 print(res3$prob)
 
 # heatmap: one panel per population
-ggplot(long3, aes(x = factor(hp), y = factor(st), fill = rescue_probability)) +
+# label showing the proportion of BOTH habitats on two lines, e.g. "B 0.1" over "C 0.9"
+hp_values <- sort(unique(long3$hp))
+long3 <- long3 %>%
+  mutate(hp_label = factor(hp, levels = hp_values,
+                           labels = paste0("B ", hp_values, "\nC ", 1 - hp_values)))
+
+ggplot(long3, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
   geom_tile(color = "white") +
   geom_text(aes(label = sprintf("%.2f", rescue_probability)), size = 3.5) +
   facet_wrap(~ population) +
   scale_fill_viridis_c(limits = c(0, 1), option = "C") +
   labs(title = "Rescue probability by split time and habitat proportion",
-       x = "Habitat proportion (B)", y = "Split time",
+       x = "Habitat proportion", y = "Split time",
        fill = "Rescue\nprobability") +
   theme_minimal()
-
-# lines: split time on x, one line per habitat proportion
-# bar plot: split time on x, one bar per habitat proportion (with standard errors)
-ggplot(long3, aes(x = factor(st), y = rescue_probability, fill = factor(hp))) +
- geom_col(position = position_dodge(width = 0.9), width = 0.8) +
- geom_errorbar(aes(ymin = pmax(0, rescue_probability - se),
-                   ymax = pmin(1, rescue_probability + se)),
-               position = position_dodge(width = 0.9), width = 0.25) +
-   facet_wrap(~ population) +
-   scale_y_continuous(limits = c(0, 1)) +
-   labs(title = "Rescue probability vs. split time, by habitat proportion",
-        x = "Split time", y = "Rescue probability",
-       fill = "Habitat\nproportion") +
-   theme_minimal()
 
 ``` 
 
