@@ -70,6 +70,8 @@ To provide an overview of the various files in the repository, they are briefly 
 | `Base Model.Rmd` | Base model provided from the banklab which can be knitted to get an .html or .pdf format of it. |
 | `README.md` | Md file creating this explanation for the repository. |
 | `THEE_fragmentation.Rmd` | The report notebook of our project which runs the simulations and include the actual code used for the project. |
+| `AI promts.pdf` | This file should give transparency of the use of AI during our project, showing all the AI prompts. |
+| `THEE_fragmentation.pdf` | The knitted pdf version of our report. |
 
 ## Structure overview of the code
 
@@ -86,6 +88,13 @@ The report notebook is broadly organized into the following sections:
 
 The actual code can be found in the Model & Methods section and contains four rough junks:
 
+1\. Calculations for one generation of the population
+
+2\. Trajectory of the population over time
+
+3\. Generation of plots showing the trajectory
+
+4\. Analysis with varying model parameters
 
 ## Questions
 
