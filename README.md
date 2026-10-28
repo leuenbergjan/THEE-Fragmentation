@@ -60,7 +60,7 @@ To provide an overview of the various files in the repository, they are briefly 
 
 | Name | Meaning |
 |------------------------------------|------------------------------------|
-| `.gitignore` | Files which are not needed and not important for the project |
-| `Base Model.Rmd` | Base model provided from the banklab which can be knitted to get an .html or .pdf format of it |
-| `README.md` | Md file creating this explanation for the repository |
-| `THEE_fragmentation.Rmd` | Md file creating this explanation for the repository |
+| `.gitignore` | Files which are not needed and not important for the project, they can be ignored. |
+| `Base Model.Rmd` | Base model provided from the banklab which can be knitted to get an .html or .pdf format of it. |
+| `README.md` | Md file creating this explanation for the repository. |
+| `THEE_fragmentation.Rmd` | The actual code of our project which runs the simulations and include the report. |
