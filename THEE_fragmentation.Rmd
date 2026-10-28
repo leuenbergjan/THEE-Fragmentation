@@ -1,17 +1,27 @@
 ---
-title: "Basic model of evolutionary rescue in discrete time"
+title: "Evolutionary rescue under habitat fragmentation"
 author: "Jan Leuenberger & Safeeya Ramis"
-date: "2026-10-27"
+date: "2026-10-28"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
-# 1. Introduction
+# Abstract
+
+
+# Introduction
+
+
+**Research Questions**
+
+-	Is evolutionary rescue possible in the Fragmented habitats?
+    -	What is the impact of split_time on ER?
+    -	What is the impact of the habitat porportions on ER?
+
+## Methodology
 
 This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of varieng  sizes, each with its own carrying capacity.
-
-
 
 **Biological scenario**
 
@@ -20,14 +30,6 @@ This report documents a stochastic simulation of **evolutionary rescue** in disc
 - The mutant is **beneficial** (advantage `sel_coeff`) and can grow in the new environment, but it is initially rare or absent. If absent, it has to arise by mutation from the wild type.
 - The population is *rescued* if the mutant spreads before the wild type (and with it the whole population) goes extinct.
 -The Habitat gets seperatated at a defined time called `split_time`.Individuals are randomly distributed, each habitat has a smaller carrying capacity, and both then evolve independently.
-
-**Research Questions**
-
--	Is evolutionary rescue possible in the Fragmented habitats?
-    -	What is the impact of split_time on ER?
-    -	What is the impact of the habitat porportions on ER?
-
-
 
 ## 1.1 Overview of the code
 
