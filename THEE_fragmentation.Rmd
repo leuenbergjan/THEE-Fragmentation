@@ -9,7 +9,7 @@ output:
 ---
 # 1. Introduction
 
-This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate habitats (B and C) of different size, each with its own carrying capacity.
+This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of different size, each with its own carrying capacity.
 
 **Biological scenario**
 
@@ -58,6 +58,23 @@ In this notebook, we are implementing simulations of evolutionary rescue by a si
 
 ## Simulate one generation of population size change
 We want to observe the numbers of wild-type and mutant individuals over time. As first step, we simulate one generation of the population. At time $t$, the population has $N_a$ wild-type individuals and $N_A$ mutant individuals. First, these reproduce. This is modeled by drawing a Poisson random variable according to the expected absolute number $N_a \cdot (1-r)$ of wild-type individuals, where $r$ is the decay rate of the wild type, and $N_A \cdot (1-r+s)$ of mutant individuals, where $s$ is the selective advantage of the mutant over the wild time. Then mutation from $a$ to $A$ occurs as a Poisson random variable according to the given mutation rate. This defines the composition of the population at time $t+1$.
+
+1. **Expected offspring (logistic growth).** Without competition, the per-capita growth rates are
+
+   - wild type: $\rho_a = -r$ (negative, so the type declines), with $r$ = `decay_rate`
+   - mutant: $\rho_A = s - r$ (positive if $s > r$), with $s$ = `sel_coeff`
+
+   Competition is added by a **density-dependent term**: the growth factor of each type is reduced by $\rho_A \cdot N_{tot}/K$. The expected number of offspring is therefore
+
+   $$\bar N_a = N_a\,\max\!\left(0,\;1+\rho_a-\rho_A \tfrac{N_{tot}}{K}\right), \qquad \bar N_A = N_A\,\max\!\left(0,\;1+\rho_A-\rho_A \tfrac{N_{tot}}{K}\right)$$
+
+   When $N_{tot}$ approaches $K$, the mutant's growth factor approaches 1 (population stays constant) and the wild type keeps declining. When $N_{tot} > K$ the mutant would shrink back towards $K$. The `max(0, ...)` prevents negative expected values, which `rpois()` cannot handle.
+
+2. **Demographic stochasticity.** The actual number of offspring is drawn from a **Poisson distribution** whose mean is the expected value above. This is what makes every run different.
+
+3. **Mutation.** Of the wild-type offspring, a Poisson-distributed number (mean `offsp_a * mut_rate`) mutates to type A. These are subtracted from the wild type and added to the mutants.
+
+The function returns a vector `c(N_a_new, N_A_new)`.
 ```{r}
 set.seed(57)
 
@@ -92,11 +109,6 @@ print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 
 ``` 
 
-**Less common functions used**
-
-- `set.seed(57)`: initialises R's random number generator. With the same seed, all "random" draws are repeated identically, so results can be reproduced. Without it every knit gives different numbers.
-- `rpois(n, lambda)`: draws `n` random numbers from a Poisson distribution with mean `lambda`. The Poisson distribution describes counts of independent events, which is a natural model for the number of offspring.
-- `max(0, x)`: returns the larger of the two values, used here as a floor at 0.
 
 
 ```{r}
@@ -194,15 +206,7 @@ if (i <= split_time) {
 }
 ```
 
-**Less common functions used**
 
-- `rbinom(n, size, prob)`: draws `n` random numbers from a binomial distribution, i.e. the number of "successes" among `size` independent trials, each with success probability `prob`. Here: how many of the individuals are assigned to habitat B.
-- `rbind(x, y)`: "row-bind", appends `y` as a new row below `x`. Starting from `NULL`, the first `rbind` creates the matrix. This is how the time series grows by one row per generation.
-- `rownames()` / `colnames()`: set the labels of the rows / columns of a matrix. `(0:t_max)[1:length(...)]` creates the generation numbers and cuts them to the actual number of rows.
-- `break`: leaves the `for` loop immediately (used for early stopping).
-- `|`: element-wise logical "or" (here equivalent to `||` since both sides are single values).
-- `as.data.frame()`: converts a matrix into a data frame, so columns can be accessed with `$` (e.g. `output$B$A`). `as.data.frame(NULL)` gives an empty data frame with 0 rows, which is how we detect runs that ended before the split.
-- `list(main = ..., B = ..., C = ...)`: returns several objects of different size in one named container.
 ```{r}
 # ============================================================
 # Plot functions for the evolutionary rescue simulation
@@ -392,7 +396,7 @@ max_gen_analysis <- 1000
 K_analysis       <- 1000
 no_replicates    <- 100    # more replicates give more precise probabilities
 max_attempts     <- 5000
-rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat
+rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat, changeable 
 
 # ---- core function: your loop, wrapped so it can be reused -------------
 run_scenarios <- function(split_times, habitat_props) {
@@ -415,7 +419,7 @@ run_scenarios <- function(split_times, habitat_props) {
         
         one_run <- simulate_pop(
           init_a, init_A,
-          decay_rate   = 0.1,
+          decay_rate   = 0.01,
           sel_coeff    = 0.2,
           mut_rate     = m_rate,
           t_max        = max_gen_analysis,
@@ -587,5 +591,51 @@ plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat 
   facet_wrap(~ hp, labeller = label_both)
 #bettter legends
 ``` 
+# =======================================================================
+# Appendix
+# =======================================================================
+
+
+**Less common functions used**
+
+- `set.seed(57)`: initialises R's random number generator. With the same seed, all "random" draws are repeated identically, so results can be reproduced. Without it every knit gives different numbers.
+- `rpois(n, lambda)`: draws `n` random numbers from a Poisson distribution with mean `lambda`. The Poisson distribution describes counts of independent events, which is a natural model for the number of offspring.
+- `max(0, x)`: returns the larger of the two values, used here as a floor at 0.
+- `rbinom(n, size, prob)`: draws `n` random numbers from a binomial distribution, i.e. the number of "successes" among `size` independent trials, each with success probability `prob`. Here: how many of the individuals are assigned to habitat B.
+- `rbind(x, y)`: "row-bind", appends `y` as a new row below `x`. Starting from `NULL`, the first `rbind` creates the matrix. This is how the time series grows by one row per generation.
+- `rownames()` / `colnames()`: set the labels of the rows / columns of a matrix. `(0:t_max)[1:length(...)]` creates the generation numbers and cuts them to the actual number of rows.
+- `break`: leaves the `for` loop immediately (used for early stopping).
+- `|`: element-wise logical "or" (here equivalent to `||` since both sides are single values).
+- `as.data.frame()`: converts a matrix into a data frame, so columns can be accessed with `$` (e.g. `output$B$A`). `as.data.frame(NULL)` gives an empty data frame with 0 rows, which is how we detect runs that ended before the split.
+- `list(main = ..., B = ..., C = ...)`: returns several objects of different size in one named container.
+- `par()`: sets global graphics parameters. `mar` = margins (bottom, left, top, right) in lines; `mfrow = c(2, 1)` = a grid of 2 rows × 1 column of plots. `par()` returns the *old* values, which we save in `old_par`.
+- `on.exit(par(old_par))`: registers code that runs automatically when the function ends, restoring the original graphics settings so that later plots are not affected.
+- `segments(x0, y0, x1, y1)`: draws a straight line between two points; used for the carrying-capacity lines that only span part of the x-axis.
+- `legend()`: adds a legend. `par("usr")` returns the plot region's coordinates (x-min, x-max, y-min, y-max), so `par("usr")[2]` and `[4]` are the top-right corner. `xpd = TRUE` allows drawing outside the plot region, `bty = "n"` removes the legend box, `xjust`/`yjust` set which corner of the legend is anchored at that point.
+- `seq_along(x)` / `seq_len(n)`: safe ways to create `1, 2, ..., length(x)` or `1, ..., n` (they return an empty sequence for empty input, unlike `1:length(x)`).
+- `if (...) a else b` used as an expression: `x_max <- if (is.null(xlim_max)) ... else ...` assigns one of two values.
+- `plot.new()` + `title()`: create a blank plot and add a title, used as a placeholder when there is no data.
+- `invisible(NULL)`: returns `NULL` without printing it.
+- `paste0()`: joins strings without separator, used to put the starting numbers in the legend.
+- `repeat { ... }`: an endless loop that is left only with `break`. Used here because we do not know in advance how many attempts are needed to get enough valid runs.
+- `next`: skips the rest of the current loop iteration and goes to the next one.
+- `any(x)`: `TRUE` if at least one element of the logical vector `x` is `TRUE`.
+- `which(x)[1]`: `which()` returns the positions of all `TRUE` elements; `[1]` takes the first, i.e. the **first generation** at which the threshold was reached. Note this counts rows after the split (row 1 = first generation after the split).
+- `NA_integer_`: a missing value of integer type (a plain `NA` could create type conflicts when binding rows).
+- `results[[length(results) + 1]] <- ...`: appends an element to the end of a list.
+- `do.call(rbind, results)`: calls `rbind` with the list elements as separate arguments, i.e. stacks all data frames in the list into one big table.
+- `%>%` (pipe): passes the result on the left as the first argument of the function on the right, so operations can be read top to bottom.
+- `group_by(st, hp)`: tells `dplyr` to do the following calculations separately for each combination of `st` and `hp`.
+- `summarise(...)`: collapses each group into a single row. `n()` counts the rows in the group; `across(cols, mean)` applies `mean` to several columns at once; `.groups = "drop"` removes the grouping afterwards.
+- `pivot_longer()`: turns several columns into two (`names_to` gets the old column names, `values_to` the values). One row per scenario and population results, as `ggplot2` needs..
+- `ggplot(data, aes(...)) + geom_*()`: `ggplot2` builds a plot in layers. `aes()` maps data columns to visual properties (x, y, colour, fill), and each `geom_` adds a layer: `geom_line`, `geom_point`, `geom_errorbar` (error bars), `geom_tile` (coloured rectangles), `geom_text` (printed numbers).
+- `pmax()` / `pmin()`: *parallel* maximum / minimum, applied element by element to a vector (unlike `max()`, which returns a single number). Used to keep error bars inside [0, 1].
+- `scale_y_continuous(limits, breaks)`: sets the axis range and tick positions. `seq(from, to, by)` generates the tick values.
+- `labs()`: sets titles and axis/legend labels. `theme_minimal()`: applies a clean plot theme.
+- `facet_wrap(~ population)`: splits the plot into one panel per value of `population`.
+- `scale_fill_viridis_c(option = "C")`: a continuous colour scale (viridis palette), readable also for colour-blind people.
+- `factor(x, levels, labels)`: converts values into a categorical variable with a fixed order and custom display labels. `factor(st)` makes the split time a category so that tiles are evenly spaced.
+- `sprintf("%.2f", x)`: formats a number as text with 2 decimals.
+- `sort(unique(x))`: the distinct values of `x` in ascending order.
 
 
