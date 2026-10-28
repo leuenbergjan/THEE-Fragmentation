@@ -60,6 +60,7 @@ If they have not been installed yet, you can do this as follows by using the com
 
 \- `install.packages("dplyr")`
 
+Please note that this project was created with the R version 4.5.2 (2025-10-31 ucrt), which might be needed to run the code properly.
 ### Files and functions
 
 To provide an overview of the various files in the repository, they are briefly listed and explained below:
