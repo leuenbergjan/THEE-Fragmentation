@@ -1,9 +1,6 @@
----
+------------------------------------------------------------------------
 
-editor_options: 
-  markdown: 
-    wrap: 72
----
+editor_options: markdown: wrap: 72 ---
 
 # Evolutionary rescue under the influence of habitat fragmentation
 
@@ -49,9 +46,15 @@ Following you will find a table containing the most important variables and para
 
 To run the code, the following packages are required. - ggplot2 - tidyr - dplyr
 
-If they have not been installed yet, you can do this as follows by using the command `install.packages`: - `install.packages("ggplot2")` - `install.packages("tidyr")` - `install.packages("dplyr")`
+If they have not been installed yet, you can do this as follows by using the command `install.packages`:
 
-## File and function
+\- `install.packages("ggplot2")`
+
+\- `install.packages("tidyr")`
+
+\- `install.packages("dplyr")`
+
+## Files and functions
 
 To provide an overview of the various files in the repository, they are briefly listed and explained below:
 
