@@ -9,7 +9,9 @@ output:
 ---
 # 1. Introduction
 
-This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of different size, each with its own carrying capacity.
+This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of varieng  sizes, each with its own carrying capacity.
+
+
 
 **Biological scenario**
 
@@ -394,7 +396,7 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 100    # more replicates give more precise probabilities
+no_replicates    <- 1    # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat, changeable 
 
@@ -591,9 +593,8 @@ plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat 
   facet_wrap(~ hp, labeller = label_both)
 #bettter legends
 ``` 
-# =======================================================================
 # Appendix
-# =======================================================================
+--------------------------------
 
 
 **Less common functions used**
