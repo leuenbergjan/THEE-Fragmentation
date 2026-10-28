@@ -9,7 +9,7 @@ editor_options: markdown: wrap: 72 ---
 **Authors:** Jan Leuenberger & Safeeya Ramis\
 **Date:** October 28, 2026
 
-## Overview
+### Overview
 
 This project analyzes the probability of evolutionary rescue under habitat fragmentation and was conducted as part of the Theoretical Research Practical at the University of Bern.
 
@@ -17,7 +17,7 @@ In this scenario, the main habitat, containing a population with wild-type allel
 
 The Base code for this project was provided by the [banklab](https://github.com/banklab/THEErp2025).
 
-## Main Questions
+### Main Questions
 
 The main questions we want to answer regarding evolutionary rescue under habitat fragmentation are:
 
@@ -25,7 +25,7 @@ The main questions we want to answer regarding evolutionary rescue under habitat
 - What is the impact of the splitting time on evolutionary rescue?
 - What is the impact of the habitat proportion on evolutionary rescue?
 
-## Variables & Parameters
+### Variables & Parameters
 
 Following you will find a table containing the most important variables and parameters used in our model:
 
@@ -42,7 +42,7 @@ Following you will find a table containing the most important variables and para
 | `habitat_prop` | share of the total carrying capacity given to habitat B (between 0 and 1); habitat C gets `1 - habitat_prop` |
 | `K` | carrying capacity of the original (unsplitted) habitat; limits growth and is divided after the splitting time point among B and C in the same proportions as the habitats |
 
-## Packages needed
+### Packages needed
 
 To run the code, the following packages are required.
 
@@ -60,20 +60,21 @@ If they have not been installed yet, you can do this as follows by using the com
 
 \- `install.packages("dplyr")`
 
-## Files and functions
+### Files and functions
 
 To provide an overview of the various files in the repository, they are briefly listed and explained below:
 
 | Name | Meaning |
 |------------------------------------|------------------------------------|
 | `.gitignore` | Files which are not needed and not important for the project, they can be ignored. |
-| `Base Model.Rmd` | Base model provided from the banklab which can be knitted to get an .html or .pdf format of it. |
+| `Base Model.Rmd` | Base model provided from the [banklab](https://github.com/banklab/THEErp2025) which can be knitted to get an .html or .pdf format of it. |
 | `README.md` | Md file creating this explanation for the repository. |
 | `THEE_fragmentation.Rmd` | The report notebook of our project which runs the simulations and include the actual code used for the project. |
 | `AI promts.pdf` | This file should give transparency of the use of AI during our project, showing all the AI prompts. |
 | `THEE_fragmentation.pdf` | The knitted pdf version of our report. |
+| `Habitat fragmentation.pptx` | Might be not uploaded yet, but will show the presentation for the project. |
 
-## Structure overview of the code
+### Structure overview of the code
 
 The report notebook is broadly organized into the following sections:
 
@@ -96,7 +97,7 @@ The actual code can be found in the Model & Methods section and contains four ro
 
 4\. Analysis with varying model parameters
 
-## Questions
+### Help
 
 For further questions and explanations you are welcome to contact the authors via e-mail:
 
