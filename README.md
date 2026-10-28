@@ -7,11 +7,11 @@ editor_options: markdown: wrap: 72 ---
 ## THEE Research Practical 2026
 
 **Authors:** Jan Leuenberger & Safeeya Ramis\
-**Date:** October 27, 2026
+**Date:** October 28, 2026
 
 ## Overview
 
-This project analyzes the probability of evolutionary rescue under habitat fragmentation and was conducted as part of the Theoretical Research Practical.
+This project analyzes the probability of evolutionary rescue under habitat fragmentation and was conducted as part of the Theoretical Research Practical at the University of Bern.
 
 In this scenario, the main habitat, containing a population with wild-type allele and a beneficial mutant allele will be divided into two separate habitats at a certain time point. The simulations are then used to assess whether the populations in the new habitats will experience evolutionary rescue, and also whether only one or both of the habitats will be rescued.
 
@@ -21,13 +21,13 @@ The Base code for this project was provided by the [banklab](https://github.com/
 
 The main questions we want to answer regarding evolutionary rescue under habitat fragmentation are:
 
-- Is evolutionary rescue possible in the Fragmented habitats?
-- What is the impact of split_time on ER?
-- What is the impact of the habitat proportions on ER?
+- Is evolutionary rescue possible in the fragmented habitats?
+- What is the impact of the splitting time on evolutionary rescue?
+- What is the impact of the habitat proportion on evolutionary rescue?
 
 ## Variables & Parameters
 
-Following you will find a table containing the most important variables and parameters:
+Following you will find a table containing the most important variables and parameters used in our model:
 
 | Name | Meaning |
 |------------------------------------|------------------------------------|
@@ -40,13 +40,19 @@ Following you will find a table containing the most important variables and para
 | `split_time` | generation at which the fragmentation happens (integer \> 0) |
 | `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1) |
 | `habitat_prop` | share of the total carrying capacity given to habitat B (between 0 and 1); habitat C gets `1 - habitat_prop` |
-| `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitats |
+| `K` | carrying capacity of the original (unsplitted) habitat; limits growth and is divided after the splitting time point among B and C in the same proportions as the habitats |
 
 ## Packages needed
 
-To run the code, the following packages are required. - ggplot2 - tidyr - dplyr
+To run the code, the following packages are required.
 
-If they have not been installed yet, you can do this as follows by using the command `install.packages`:
+\- ggplot2
+
+\- tidyr
+
+\- dplyr
+
+If they have not been installed yet, you can do this as follows by using the command `install.packages(...)`:
 
 \- `install.packages("ggplot2")`
 
@@ -63,4 +69,27 @@ To provide an overview of the various files in the repository, they are briefly 
 | `.gitignore` | Files which are not needed and not important for the project, they can be ignored. |
 | `Base Model.Rmd` | Base model provided from the banklab which can be knitted to get an .html or .pdf format of it. |
 | `README.md` | Md file creating this explanation for the repository. |
-| `THEE_fragmentation.Rmd` | The actual code of our project which runs the simulations and include the report. |
+| `THEE_fragmentation.Rmd` | The report notebook of our project which runs the simulations and include the actual code used for the project. |
+
+## Structure overview of the code
+
+The report notebook is broadly organized into the following sections:
+
+- Title
+- Authors
+- Abstract
+- Introduction
+- Model & Methods
+- Results
+- Discussion
+- References
+
+The actual code can be found in the Model & Methods section and contains four rough junks:
+
+
+## Questions
+
+For further questions and explanations you are welcome to contact the authors via e-mail:
+
+- [safeeya.mohamedramis\@students.unibe.ch](mailto:safeeya.mohamedramis@students.unibe.ch){.email}
+- [jan.leuenberger1\@students.unibe.ch](mailto:jan.leuenberger1@students.unibe.ch){.email}
