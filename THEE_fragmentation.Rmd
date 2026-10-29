@@ -1,17 +1,27 @@
 ---
-title: "Basic model of evolutionary rescue in discrete time"
+title: "Evolutionary rescue under habitat fragmentation"
 author: "Jan Leuenberger & Safeeya Ramis"
-date: "2026-10-27"
+date: "2026-10-28"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
-# 1. Introduction
+# Abstract
+
+
+# Introduction
+
+
+**Research Questions**
+
+-	Is evolutionary rescue possible in the Fragmented habitats?
+    -	What is the impact of split_time on ER?
+    -	What is the impact of the habitat porportions on ER?
+
+## Methodology
 
 This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of varieng  sizes, each with its own carrying capacity.
-
-
 
 **Biological scenario**
 
@@ -37,7 +47,6 @@ library(tidyr)
 library(dplyr)
 #libraries used for our code / use install.packages(c(ggplot2,tidyr,dplyr))
 ```
-
 
 
 
@@ -400,94 +409,117 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 100   # more replicates give more precise probabilities
+no_replicates    <- 1   # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat, changeable 
 
 # ---- core function: your loop, wrapped so it can be reused -------------
-run_scenarios <- function(split_times, habitat_props) {
+run_scenarios <- function(split_times, habitat_props, split_ratios) {
   results <- list()
   
   for (st in split_times) {
     for (hp in habitat_props) {
-      
-      K_B <- K_analysis * hp
-      K_C <- K_analysis * (1 - hp)
-      
-      i <- 0
-      attempts <- 0
-      repeat {
-        attempts <- attempts + 1
-        if (attempts > max_attempts) {
-          warning(paste("Too many failed runs for st =", st, "hp =", hp))
-          break
-        }
+      for (sr in split_ratios) {
         
-        one_run <- simulate_pop(
-          init_a, init_A,
-          decay_rate   = 0.1,
-          sel_coeff    = 0.2,
-          mut_rate     = m_rate,
-          t_max        = max_gen_analysis,
-          K            = K_analysis,
-          habitat_prop = hp,
-          split_ratio  = 0.5,
-          split_time   = st,
-          migrate
+        K_B <- K_analysis * hp
+        K_C <- K_analysis * (1 - hp)
+        
+        i <- 0
+        attempts <- 0
+        
+        repeat {
+          attempts <- attempts + 1
           
-        )
-        
-        # skip runs that ended before the split time
-        if (nrow(one_run$B) == 0 || nrow(one_run$C) == 0) next
-        i <- i + 1
-        
-        reached_B <- one_run$B$A >= rescue_frac * K_B
-        reached_C <- one_run$C$A >= rescue_frac * K_C
-        rescued_B <- any(reached_B)
-        rescued_C <- any(reached_C)
-        
-        results[[length(results) + 1]] <- data.frame(
-          st = st,
-          hp = hp,
-          replicate = i,
-          rescued_B = rescued_B,
-          rescued_C = rescued_C,
-          rescued_any  = rescued_B | rescued_C,
-          rescued_both = rescued_B & rescued_C,
-          gen_B = if (rescued_B) which(reached_B)[1] else NA_integer_,
-          gen_C = if (rescued_C) which(reached_C)[1] else NA_integer_
-        )
-        
-        if (i >= no_replicates) break
+          if (attempts > max_attempts) {
+            warning(paste(
+              "Too many failed runs for st =", st,
+              "hp =", hp,
+              "sr =", sr
+            ))
+            break
+          }
+          
+          one_run <- simulate_pop(
+            init_a, init_A,
+            decay_rate   = 0.1,
+            sel_coeff    = 0.2,
+            mut_rate     = m_rate,
+            t_max        = max_gen_analysis,
+            K            = K_analysis,
+            habitat_prop = hp,
+            split_ratio  = sr,
+            split_time   = st,
+            migrate
+          )
+          
+          # Skip runs that ended before the split time
+          if (nrow(one_run$B) == 0 || nrow(one_run$C) == 0) next
+          
+          i <- i + 1
+          
+          reached_B <- one_run$B$A >= rescue_frac * K_B
+          reached_C <- one_run$C$A >= rescue_frac * K_C
+          
+          rescued_B <- any(reached_B)
+          rescued_C <- any(reached_C)
+          
+          results[[length(results) + 1]] <- data.frame(
+            st = st,
+            hp = hp,
+            sr = sr,
+            replicate = i,
+            rescued_B = rescued_B,
+            rescued_C = rescued_C,
+            rescued_any = rescued_B | rescued_C,
+            rescued_both = rescued_B & rescued_C,
+            gen_B = if (rescued_B) which(reached_B)[1] else NA_integer_,
+            gen_C = if (rescued_C) which(reached_C)[1] else NA_integer_
+          )
+          
+          if (i >= no_replicates) break
+        }
       }
     }
   }
   
+  # Combine all simulation results
+  if (length(results) == 0) {
+    stop("No valid simulation results were obtained.")
+  }
+  
   data_table <- do.call(rbind, results)
   
-  # rescue probability per scenario, with binomial standard error
+  # Rescue probability per scenario
   rescue_prob <- data_table %>%
-    group_by(st, hp) %>%
-    summarise(
-      n = n(),
-      across(c(rescued_B, rescued_C, rescued_any, rescued_both), mean),
+    dplyr::group_by(st, hp, sr) %>%
+    dplyr::summarise(
+      n = dplyr::n(),
+      dplyr::across(
+        c(rescued_B, rescued_C, rescued_any, rescued_both),
+        mean
+      ),
       .groups = "drop"
     )
   
-  list(data = data_table, prob = rescue_prob)
+  return(list(
+    data = data_table,
+    prob = rescue_prob
+  ))
 }
 
-# ---- helper: long format with SE for plotting --------------------------
+
+# ---- helper: long format with standard error for plotting ----
+
 to_long <- function(rescue_prob) {
   rescue_prob %>%
-    pivot_longer(
+    tidyr::pivot_longer(
       cols = c(rescued_B, rescued_C, rescued_both),
       names_to = "population",
       values_to = "rescue_probability"
     ) %>%
-    mutate(
+    dplyr::mutate(
       se = sqrt(rescue_probability * (1 - rescue_probability) / n),
-      population = recode(
+      population = dplyr::recode(
         population,
         rescued_B    = "Population B",
         rescued_C    = "Population C",
@@ -501,7 +533,8 @@ to_long <- function(rescue_prob) {
 # =======================================================================
 res1 <- run_scenarios(
   split_times   = c(10, 20, 30, 50, 75, 100),
-  habitat_props = 0.5
+  habitat_props = 0.5,
+  split_ratios = 0.5
 )
 long1 <- to_long(res1$prob)
 print(res1$prob)
@@ -523,7 +556,8 @@ ggplot(long1, aes(x = st, y = rescue_probability,
 # =======================================================================
 res2 <- run_scenarios(
   split_times   = 30,
-  habitat_props = c(0.1, 0.2, 0.3, 0.4, 0.5)
+  habitat_props = c(0.1, 0.2, 0.3, 0.4, 0.5),
+  split_ratios = 0.5
 )
 long2 <- to_long(res2$prob)
 print(res2$prob)
@@ -543,11 +577,50 @@ ggplot(long2, aes(x = hp, y = rescue_probability,
   theme_minimal()
 
 # =======================================================================
-# ANALYSIS 3: both vary (full grid)
+# ANALYSIS 3: split ratio varies, habitat proportion fixed
+# =======================================================================
+
+res2 <- run_scenarios(
+  split_times   = 30,  # fix split time
+  habitat_props = 0.5,
+  split_ratios  = c(0.1, 0.2, 0.3, 0.4, 0.5)
+)
+
+long2 <- to_long(res2$prob)
+
+print(res2$prob)
+
+ggplot(long2, aes(x = sr, y = rescue_probability,
+                  color = population, group = population)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(
+      ymin = pmax(0, rescue_probability - se),
+      ymax = pmin(1, rescue_probability + se)
+    ),
+    width = 0.02
+  ) +
+  scale_x_continuous(breaks = seq(0.2, 0.8, 0.1)) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, 0.1)
+  ) +
+  labs(
+    title = "Rescue probability vs. split ratio (habitat proportion = 0.5)",
+    x = "Split ratio (sr)",
+    y = "Rescue probability",
+    color = "Population"
+  ) +
+  theme_minimal()
+
+# =======================================================================
+# ANALYSIS 4: both vary (full grid)
 # =======================================================================
 res3 <- run_scenarios(
   split_times   = c(10, 30, 50, 100),
-  habitat_props = c(0.1, 0.25, 0.5)
+  habitat_props = c(0.1, 0.25, 0.5),
+  split_ratios = 0.5
 )
 long3 <- to_long(res3$prob)
 print(res3$prob)
@@ -570,7 +643,39 @@ ggplot(long3, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
   theme_minimal(base_size= 16)
 
 # =======================================================================
-# ANALYSIS 4: both vary (bar plots percentage)
+# ANALYSIS 5: split time and split ratio vary (full grid)
+# =======================================================================
+
+res3 <- run_scenarios(
+  split_times   = c(10, 30, 50, 100),
+  habitat_props = 0.5,
+  split_ratios  = c(0.1, 0.25, 0.5)
+)
+
+long3 <- to_long(res3$prob)
+
+print(res3$prob)
+
+# Heatmap: one panel per population
+ggplot(long3, aes(x = factor(sr), y = factor(st),
+                  fill = rescue_probability)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", rescue_probability)),
+            size = 3.5) +
+  facet_wrap(~ population) +
+  scale_fill_viridis_c(limits = c(0, 1), option = "C") +
+  labs(
+    title = "Rescue probability by split time and split ratio",
+    x = "Split ratio (sr)",
+    y = "Split time (st)",
+    fill = "Rescue\nprobability"
+  ) +
+  theme_minimal()
+
+if (FALSE) {
+  # If (FALSE) is here used to skip the following plots, without using # in every line.
+# =======================================================================
+# ANALYSIS 6: both vary (bar plots percentage)
 # =======================================================================
 outcome_cols <- c("Both rescued"    = "#2a9d8f",
                   "Only B rescued"  = "darkgreen",
@@ -578,7 +683,7 @@ outcome_cols <- c("Both rescued"    = "#2a9d8f",
                   "Neither rescued" = "grey75")
 
 plot_outcomes <- function(dat, x_var, x_label, title) {
-  dat <- dat %>%
+    dat <- dat %>%
     mutate(outcome = case_when(
       rescued_both ~ "Both rescued",
       rescued_B    ~ "Only B rescued",
@@ -597,6 +702,7 @@ plot_outcomes(res1$data, "st", "Split time", "Outcome vs. split time (habitat pr
 plot_outcomes(res2$data, "hp", "Habitat proportion (B)", "Outcome vs. habitat proportion (split time = 30)")
 plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat proportion") +
   facet_wrap(~ hp, labeller = label_both)
+}
 
 ``` 
 # Appendix
