@@ -18,14 +18,26 @@ This report documents a stochastic simulation of **evolutionary rescue** in disc
 - A haploid population consists of wild-type individuals (**a**) and, possibly, mutant individuals (**A**).
 - A sudden environmental change makes the wild type unfit: it **declines** at rate `decay_rate`.
 - The mutant is **beneficial** (advantage `sel_coeff`) and can grow in the new environment, but it is initially rare or absent. If absent, it has to arise by mutation from the wild type.
-- The population is *rescued* if the mutant spreads before the wild type (and with it the whole population) goes extinct.
--The Habitat gets seperatated at a defined time called `split_time`.Individuals are randomly distributed, each habitat has a smaller carrying capacity, and both then evolve independently.
+- The population is **rescued** if the mutant spreads before the wild type (and with it the whole population) goes extinct.
+- The Habitat gets seperatated at a defined time called **split_time**.Individuals are randomly distributed, each habitat has a smaller carrying capacity, and both then evolve independently.
 
 **Research Questions**
 
 -	Is evolutionary rescue possible in the Fragmented habitats?
-    -	What is the impact of split_time on ER?
-    -	What is the impact of the habitat porportions on ER?
+-	What is the impact of split_time on ER?
+-	What is the impact of the habitat porportions on ER?
+
+
+
+```{r Set-up, echo= FALSE, error= FALSE,message = FALSE,warning = FALSE}
+set.seed(57)
+#set the seed for repruducibility
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+#libraries used for our code / use install.packages(c(ggplot2,tidyr,dplyr))
+```
+
 
 
 
@@ -63,24 +75,24 @@ We want to observe the numbers of wild-type and mutant individuals over time. As
 
 1. **Expected offspring (logistic growth).** Without competition, the per-capita growth rates are
 
-   - wild type: $\rho_a = -r$ (negative, so the type declines), with $r$ = `decay_rate`
-   - mutant: $\rho_A = s - r$ (positive if $s > r$), with $s$ = `sel_coeff`
+- wild type: $\rho_a = -r$ (negative, so the type declines), with $r$ = `decay_rate`
+- mutant: $\rho_A = s - r$ (positive if $s > r$), with $s$ = `sel_coeff`
 
-   Competition is added by a **density-dependent term**: the growth factor of each type is reduced by $\rho_A \cdot N_{tot}/K$. The expected number of offspring is therefore
+Carryign capacity is added by a **density-dependent term**: the growth factor of each type is reduced by $\rho_A \cdot N_{tot}/K$. The expected number of offspring is therefore
 
-   $$\bar N_a = N_a\,\max\!\left(0,\;1+\rho_a-\rho_A \tfrac{N_{tot}}{K}\right), \qquad \bar N_A = N_A\,\max\!\left(0,\;1+\rho_A-\rho_A \tfrac{N_{tot}}{K}\right)$$
+$$\bar N_a = N_a\,\max\!\left(0,\;1+\rho_a-\rho_A \tfrac{N_{tot}}{K}\right), \qquad \bar N_A = N_A\,\max\!\left(0,\;1+\rho_A-\rho_A \tfrac{N_{tot}}{K}\right)$$
 
-   When $N_{tot}$ approaches $K$, the mutant's growth factor approaches 1 (population stays constant) and the wild type keeps declining. When $N_{tot} > K$ the mutant would shrink back towards $K$. The `max(0, ...)` prevents negative expected values, which `rpois()` cannot handle.
+When $N_{tot}$ approaches $K$, the mutant's growth factor approaches 1 (population stays constant) and the wild type keeps declining. When $N_{tot} > K$ the mutant would shrink back towards $K$. The `max(0, ...)` prevents negative expected values, which `rpois()` cannot handle.
 
 2. **Demographic stochasticity.** The actual number of offspring is drawn from a **Poisson distribution** whose mean is the expected value above. This is what makes every run different.
 
 3. **Mutation.** Of the wild-type offspring, a Poisson-distributed number (mean `offsp_a * mut_rate`) mutates to type A. These are subtracted from the wild type and added to the mutants.
 
 The function returns a vector `c(N_a_new, N_A_new)`.
-```{r}
-set.seed(57)
 
+```{r SImulation for one Generation}
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
+  
   # total population size and per-capita growth rates without competition
   N_tot <- N_a + N_A
   rho_a <- -decay_rate
@@ -91,30 +103,24 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   # draw offspring according to Poisson distribution
   offsp_a <- rpois(1, mean_a)
   offsp_A <- rpois(1, mean_A)
-  
   # draw new mutants according to Poisson distribution
   mut_a_to_A <- rpois(1, offsp_a * mut_rate)
-  
   # determine new population sizes of wild type and mutant
   N_a_new <- offsp_a - mut_a_to_A
   N_A_new <-  offsp_A + mut_a_to_A
+  #
   
   return(c(N_a_new, N_A_new))
 }
-
- 
 # Test the function
-print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
-
-
-
+#print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 
 ``` 
 
 
 
-```{r}
-simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop, split_ratio, split_time) {
+```{r simulating whole poulation}
+simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop, split_ratio, split_time,migrate) {
   # Create the vector in which to save the results
   pop_vector <- c(N_init_a, N_init_A)
   # initiate the variables
@@ -127,89 +133,101 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   # run the simulation until generation t_max
   for (i in 1:t_max) {
     
-     # Time when the fragmentation occur
+    # Time when the fragmentation occur
     if (i == split_time + 1) {
       
-    # Create the new habitats (creating new K)
-    K_B <- K * habitat_prop
-    K_C <- K * (1 - habitat_prop)
-    
-    #create the ratio of the splitting
-    split_ratio_B <- split_ratio
-    split_ratio_C <- (1 - split_ratio_B)
-    # print(split_ratio_B)
-    # print(split_ratio_C)
-    # Distribute individuals  randomly to the habitat B
-    n_B_a <- rbinom(1, pop_new[1], split_ratio_B) 
-    n_B_A <- rbinom(1, pop_new[2], split_ratio_B)   
-
-    # Distribute individuals randomly to the habitat C
-    n_C_a <- pop_new[1] - n_B_a
-    n_C_A <- pop_new[2] - n_B_A
-
-    # Calculate the new populatins for B an C 
-    pop_new_B <- simulate_one_gen(n_B_a, n_B_A, decay_rate, sel_coeff, mut_rate, K_B)
-    pop_new_C <- simulate_one_gen(n_C_a, n_C_A, decay_rate, sel_coeff, mut_rate, K_C)
-    
-    # add the new population sizes to the output vector
-    pop_vector_B <- rbind(pop_vector_B,pop_new_B)
-    pop_vector_C <- rbind(pop_vector_C,pop_new_C)
-    
+      # Create the new habitats (creating new K)
+      K_B <- K * habitat_prop
+      K_C <- K * (1 - habitat_prop)
+      
+      #create the ratio of the splitting
+      split_ratio_B <- split_ratio
+      split_ratio_C <- (1 - split_ratio_B)
+      # print(split_ratio_B)
+      # print(split_ratio_C)
+      # Distribute individuals  randomly to the habitat B
+      n_B_a <- rbinom(1, pop_new[1], split_ratio_B) 
+      n_B_A <- rbinom(1, pop_new[2], split_ratio_B)   
+      
+      # Distribute individuals randomly to the habitat C
+      n_C_a <- pop_new[1] - n_B_a
+      n_C_A <- pop_new[2] - n_B_A
+      
+      # Calculate the new populatins for B an C 
+      pop_new_B <- simulate_one_gen(n_B_a, n_B_A, decay_rate, sel_coeff, mut_rate, K_B)
+      pop_new_C <- simulate_one_gen(n_C_a, n_C_A, decay_rate, sel_coeff, mut_rate, K_C)
+      
+      
+      # add the new population sizes to the output vector
+      pop_vector_B <- rbind(pop_vector_B,pop_new_B)
+      pop_vector_C <- rbind(pop_vector_C,pop_new_C)
+      
+      
     }
     
     if (i > split_time + 1) {
-
-    pop_new_B <- simulate_one_gen(
-      pop_new_B[1], pop_new_B[2],
-      decay_rate, sel_coeff, mut_rate,K_B
-    )
-
-    pop_new_C <- simulate_one_gen(
-      pop_new_C[1], pop_new_C[2],
-      decay_rate, sel_coeff, mut_rate,K_C
-    )
-
-    # Save the results for each generation
-    pop_vector_B <- rbind(pop_vector_B, pop_new_B)
-    pop_vector_C <- rbind(pop_vector_C, pop_new_C)
-
-    # define the row and column names of the output vector
-    rownames(pop_vector_B) <- (0:t_max)[1:length(pop_vector_B[,1])] 
-    rownames(pop_vector_C) <- (0:t_max)[1:length(pop_vector_C[,1])]
-    colnames(pop_vector_B) <- c("a","A")
-    colnames(pop_vector_C) <- c("a","A")
-    
+      
+      pop_new_B <- simulate_one_gen(
+        pop_new_B[1], pop_new_B[2],
+        decay_rate, sel_coeff, mut_rate,K_B
+      )
+      
+      pop_new_C <- simulate_one_gen(
+        pop_new_C[1], pop_new_C[2],
+        decay_rate, sel_coeff, mut_rate,K_C
+      )
+      #migration 
+      migrateB_vec <- c(rbinom(1, pop_new_B[1], migrate),
+                        rbinom(1, pop_new_B[2], migrate))
+      migrateC_vec <- c(rbinom(1, pop_new_C[1], migrate),
+                        rbinom(1, pop_new_C[2], migrate))
+      
+      pop_new_B <- pop_new_B - migrateB_vec + migrateC_vec
+      pop_new_C <- pop_new_C - migrateC_vec + migrateB_vec
+        
+        
+        
+        # Save the results for each generation
+        pop_vector_B <- rbind(pop_vector_B, pop_new_B)
+      pop_vector_C <- rbind(pop_vector_C, pop_new_C)
+      
+      # define the row and column names of the output vector
+      rownames(pop_vector_B) <- (0:t_max)[1:length(pop_vector_B[,1])] 
+      rownames(pop_vector_C) <- (0:t_max)[1:length(pop_vector_C[,1])]
+      colnames(pop_vector_B) <- c("a","A")
+      colnames(pop_vector_C) <- c("a","A")
+      
     }
     
     # Continue simulating habitat A only until split_time
-if (i <= split_time) {
-  
-    # redefine the current population one generation later
-    pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate,K)
-    # add the new population sizes to the output vector
-    pop_vector <- rbind(pop_vector,pop_new)
-    # condition to stop the simulation before t_max: either the population exceeds 2 times the original population size, or it goes extinct
-    if (pop_new[1]+pop_new[2]>=2*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
-}
+    if (i <= split_time) {
+      
+      # redefine the current population one generation later
+      pop_new <- simulate_one_gen(pop_new[1],pop_new[2], decay_rate, sel_coeff, mut_rate,K)
+      # add the new population sizes to the output vector
+      pop_vector <- rbind(pop_vector,pop_new)
+      # condition to stop the simulation before t_max: either the population exceeds 2 times the original population size, or it goes extinct
+      if (pop_new[1]+pop_new[2]>=2*(N_init_a+ N_init_A) | pop_new[1]+pop_new[2]==0) break
+    }
     
- }
+  }
   # define the row and column names of the output vector
   rownames(pop_vector) <- (0:t_max)[1:length(pop_vector[,1])] # note that the vector has to be cut if the simulation stopped early
   colnames(pop_vector) <- c("a","A")
   
   # Data frames
-    pop_vector_df <- as.data.frame(pop_vector)
-    pop_vector_B_df <- as.data.frame(pop_vector_B)
-    pop_vector_C_df <- as.data.frame(pop_vector_C)
+  pop_vector_df <- as.data.frame(pop_vector)
+  pop_vector_B_df <- as.data.frame(pop_vector_B)
+  pop_vector_C_df <- as.data.frame(pop_vector_C)
   # return all three population vectors separately
   return(list(main = pop_vector_df, B = pop_vector_B_df, C = pop_vector_C_df))
-
+  
   
 }
 ```
 
 
-```{r}
+```{r plotting function model}
 # ============================================================
 # Plot functions for the evolutionary rescue simulation
 # with habitat fragmentation
@@ -218,55 +236,55 @@ if (i <= split_time) {
 # ---- 1. Overview plot: wild type and mutant before the split,
 #         total of habitats B and C after the split, legend outside ----
 plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
-
+  
   main <- output$main
   B    <- output$B
   C    <- output$C
-
+  
   K_B <- K * habitat_prop
   K_C <- K * (1 - habitat_prop)
-
+  
   # population sizes before the split (wild type and mutant separately)
   wt_main  <- main$a
   mut_main <- main$A
-
+  
   # total population sizes after the split
   tot_B <- B$a + B$A
   tot_C <- C$a + C$A
-
+  
   # generation numbers
   gen_main <- 0:(length(wt_main) - 1)
   gen_B    <- split_time + seq_along(tot_B)
   gen_C    <- split_time + seq_along(tot_C)
-
+  
   # axis ranges
   x_max <- if (is.null(xlim_max)) max(c(gen_main, gen_B)) else xlim_max
   y_max <- max(c(K, wt_main, mut_main, tot_B, tot_C), na.rm = TRUE)
-
+  
   # make room on the right for the legend, restore settings afterwards
   old_par <- par(mar = c(5, 4, 4, 11))
   on.exit(par(old_par))
-
+  
   plot(NA, xlim = c(0, x_max), ylim = c(0, y_max * 1.05),
        xlab = "Generation", ylab = "Population size",
        main = "Evolutionary rescue with habitat fragmentation")
-
+  
   # carrying capacities: K only until the split, then K_B and K_C
   segments(0, K, split_time, K, col = "black", lty = 2, lwd = 2)
   segments(split_time, K_B, x_max, K_B, col = "darkgreen",  lty = 2, lwd = 2)
   segments(split_time, K_C, x_max, K_C, col = "darkorange", lty = 2, lwd = 2)
-
+  
   # before the split: wild type and mutant
   lines(gen_main, wt_main,  col = "blue",      lwd = 2)
   lines(gen_main, mut_main, col = "firebrick", lwd = 2)
-
+  
   # after the split: total of habitat B and C
   if (length(tot_B) > 0) lines(gen_B, tot_B, col = "darkgreen",  lwd = 2)
   if (length(tot_C) > 0) lines(gen_C, tot_C, col = "darkorange", lwd = 2)
-
+  
   # split time
   abline(v = split_time, col = "grey40", lty = 3, lwd = 2)
-
+  
   # legend outside, at the top right corner of the plot region
   legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
@@ -280,30 +298,30 @@ plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
 
 # ---- 2. Single habitat panel (used for B and C) ----
 plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL) {
-
+  
   if (is.null(df) || nrow(df) == 0) {
     plot.new()
     title(main = paste(title, "- no data (population ended before the split)"))
     return(invisible(NULL))
   }
-
+  
   gens  <- split_time + seq_len(nrow(df))
   tot   <- df$a + df$A
   x_max <- if (is.null(xlim_max)) max(gens) else xlim_max
   y_max <- max(c(K_hab, tot), na.rm = TRUE)
-
+  
   plot(NA, xlim = c(split_time, x_max), ylim = c(0, y_max * 1.05),
        xlab = "Generation", ylab = "Population size", main = title)
-
+  
   abline(h = K_hab, col = col_tot, lty = 2, lwd = 2)       # K of this habitat
   abline(v = split_time, col = "grey40", lty = 3, lwd = 2) # split time
-
+  
   lines(gens, tot,  col = col_tot,     lwd = 2)  # total
   lines(gens, df$a, col = "blue",      lwd = 2)  # wild type
   lines(gens, df$A, col = "firebrick", lwd = 2)  # mutant
   
   
-
+  
   legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
          legend = c("Total", "Wild type (a)", "Mutant (A)", "K", "Split time"),
@@ -311,7 +329,7 @@ plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL)
          lty = c(1, 1, 1, 2, 3), lwd = 2)
   
   ##adding the starting population
-    legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
+  legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
          legend = c("Total",
                     paste0("Wild type (a), start ", df$a[1]),
@@ -323,14 +341,14 @@ plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL)
 
 # ---- 3. Two panels: habitat B on top, habitat C below ----
 plot_habitats <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
-
+  
   K_B <- K * habitat_prop
   K_C <- K * (1 - habitat_prop)
-
+  
   # two panels stacked, with room on the right for the legends
   old_par <- par(mfrow = c(2, 1), mar = c(4, 4, 3, 11))
   on.exit(par(old_par))
-
+  
   plot_habitat(output$B, K_B, split_time, "Habitat B", "darkgreen",  xlim_max)
   plot_habitat(output$C, K_C, split_time, "Habitat C", "darkorange", xlim_max)
 }
@@ -344,9 +362,10 @@ K            <- 1000
 habitat_prop <- 0.8
 split_time   <- 50
 split_ratio  <- 0.5
+migrate      <- 0.01
 
 output <- simulate_pop(600, 0, 0.01, 0.2, 0.001, max_gen, K,
-                       habitat_prop, split_ratio , split_time)
+                       habitat_prop, split_ratio , split_time,migrate)
 
 # overview plot
 plot_split(output, K = K, habitat_prop = habitat_prop, split_time = split_time)
@@ -361,20 +380,8 @@ plot_habitats(output, K = K, habitat_prop = habitat_prop,
               split_time = split_time, xlim_max = 150)
 
 ```
-**Less common functions used**
 
-- `par()`: sets global graphics parameters. `mar` = margins (bottom, left, top, right) in lines; `mfrow = c(2, 1)` = a grid of 2 rows × 1 column of plots. `par()` returns the *old* values, which we save in `old_par`.
-- `on.exit(par(old_par))`: registers code that runs automatically when the function ends, restoring the original graphics settings so that later plots are not affected.
-- `plot(NA, ...)`: draws an empty coordinate system (nothing is plotted for `NA`); lines and segments are then added manually.
-- `segments(x0, y0, x1, y1)`: draws a straight line between two points; used for the carrying-capacity lines that only span part of the x-axis.
-- `abline(v = ..., h = ...)`: draws an infinite vertical (`v`) or horizontal (`h`) line.
-- `lines(x, y)`: adds a line connecting the points to an existing plot.
-- `legend()`: adds a legend. `par("usr")` returns the plot region's coordinates (x-min, x-max, y-min, y-max), so `par("usr")[2]` and `[4]` are the top-right corner. `xpd = TRUE` allows drawing outside the plot region, `bty = "n"` removes the legend box, `xjust`/`yjust` set which corner of the legend is anchored at that point.
-- `seq_along(x)` / `seq_len(n)`: safe ways to create `1, 2, ..., length(x)` or `1, ..., n` (they return an empty sequence for empty input, unlike `1:length(x)`).
-- `if (...) a else b` used as an expression: `x_max <- if (is.null(xlim_max)) ... else ...` assigns one of two values.
-- `plot.new()` + `title()`: create a blank plot and add a title, used as a placeholder when there is no data.
-- `invisible(NULL)`: returns `NULL` without printing it.
-- `paste0()`: joins strings without separator, used to put the starting numbers in the legend.
+
 
 
 ## A small analysis
@@ -385,10 +392,7 @@ As you can see if you simulate and plot the output several times, there is a lot
 - time until the population has recovered in case it becomes rescued, dependent on mutation rate and selection coefficient
 - ...
 
-```{r}
-library(ggplot2)
-library(tidyr)
-library(dplyr)
+```{r analyses}
 
 # ---- fixed parameters --------------------------------------------------
 init_a           <- 600
@@ -396,7 +400,7 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 1    # more replicates give more precise probabilities
+no_replicates    <- 100   # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat, changeable 
 
@@ -421,14 +425,16 @@ run_scenarios <- function(split_times, habitat_props) {
         
         one_run <- simulate_pop(
           init_a, init_A,
-          decay_rate   = 0.01,
+          decay_rate   = 0.1,
           sel_coeff    = 0.2,
           mut_rate     = m_rate,
           t_max        = max_gen_analysis,
           K            = K_analysis,
           habitat_prop = hp,
           split_ratio  = 0.5,
-          split_time   = st
+          split_time   = st,
+          migrate
+          
         )
         
         # skip runs that ended before the split time
@@ -508,9 +514,9 @@ ggplot(long1, aes(x = st, y = rescue_probability,
                     ymax = pmin(1, rescue_probability + se)),
                 width = 2) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
-  labs(title = "Rescue probability vs. split time (habitat proportion = 0.5)",
+  labs(title = "Rescue prob. for split time habitat proportion = 0.5",
        x = "Split time", y = "Rescue probability", color = "Population") +
-  theme_minimal()
+  theme_minimal(base_size = 16)
 
 # =======================================================================
 # ANALYSIS 2: habitat proportion varies, split time fixed
@@ -531,7 +537,7 @@ ggplot(long2, aes(x = hp, y = rescue_probability,
                 width = 0.02) +
   scale_x_continuous(breaks = seq(0.1, 0.9, 0.1)) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
-  labs(title = "Rescue probability vs. habitat proportion (split time = 30)",
+  labs(title = "Rescue Prob. for habitat proportions (split time = 30)",
        x = "Habitat proportion (B)", y = "Rescue probability",
        color = "Population") +
   theme_minimal()
@@ -561,7 +567,7 @@ ggplot(long3, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
   labs(title = "Rescue probability by split time and habitat proportion",
        x = "Habitat proportion", y = "Split time",
        fill = "Rescue\nprobability") +
-  theme_minimal()
+  theme_minimal(base_size= 16)
 
 # =======================================================================
 # ANALYSIS 4: both vary (bar plots percentage)
@@ -584,17 +590,20 @@ plot_outcomes <- function(dat, x_var, x_label, title) {
     geom_bar(position = "fill") +          # each bar sums to 1 (= 100 %)
     scale_fill_manual(values = outcome_cols) +
     labs(title = title, x = x_label, y = "Proportion of replicates", fill = "Outcome") +
-    theme_minimal()
+    theme_minimal((base_size= 16))
 }
 
 plot_outcomes(res1$data, "st", "Split time", "Outcome vs. split time (habitat proportion = 0.5)")
 plot_outcomes(res2$data, "hp", "Habitat proportion (B)", "Outcome vs. habitat proportion (split time = 30)")
 plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat proportion") +
   facet_wrap(~ hp, labeller = label_both)
-#bettter legends
+
 ``` 
 # Appendix
 --------------------------------
+```{r}
+"Built with `r getRversion()`" 
+```
 
 
 **Less common functions used**
@@ -638,5 +647,6 @@ plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat 
 - `factor(x, levels, labels)`: converts values into a categorical variable with a fixed order and custom display labels. `factor(st)` makes the split time a category so that tiles are evenly spaced.
 - `sprintf("%.2f", x)`: formats a number as text with 2 decimals.
 - `sort(unique(x))`: the distinct values of `x` in ascending order.
+
 
 
