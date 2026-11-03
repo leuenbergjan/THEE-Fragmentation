@@ -22,13 +22,13 @@ Based on this reflection, the following questions emerged, which we intended to 
 
 - Is evolutionary rescue possible in fragmented habitats if the habitats are separated at a certain time point after the ER processes have already begun?
 
-- How does the timing of habitat fragmentation affect evolutionary rescue?
+  - How does the timing of habitat fragmentation affect evolutionary rescue?
 
-- How does the timing of habitat fragmentation affect evolutionary rescue?
+  - How does the timing of habitat fragmentation affect evolutionary rescue?
 
-- What impact does the distribution of individuals across habitats have on evolutionary rescue?
+  - What impact does the distribution of individuals across habitats have on evolutionary rescue?
 
-- What would happen if migration between the isolated fragmented habitats were possible?
+  - What would happen if migration between the isolated fragmented habitats were possible?
 
 # Methodology
 
