@@ -33,23 +33,56 @@ Based on this reflection, the following questions emerged, which we intended to 
 
 It is important to analyze these questions in more detail because habitat fragmentation represents an increasing threat to populations, which can occur at any time. Furthermore, from a conservation perspective, it is important to understand the impact of splitting time, habitat size, and individual distribution on evolutionary rescue in order to ensure the survival of the populations.
 
+This report will document a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical, which was extend with different parameters to answer the questions listed above. Therefore, an explanation of the model is provided in the Methods section, followed by a presentation of the results obtained and a subsequent discussion.
+
 # Methodology
 
-This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of varieng sizes, each with its own carrying capacity.
+The base model of Orr & Unckless, which was provided from the banklab recreating a biological scenario on which we built on. In this scenario a haploid population consists of wild-type individuals (**a**) and, possibly, mutant individuals (**A**). A sudden environmental change has a negative efefect on the wild type and makes it unfit, which is why it starts to **decline**. The mutant allele is **beneficial** and is able to grow under the new environmental conditions, but it is initially rare or absent. If it's absent, it has to arise first by mutation from the wild type. The population is then **rescued** if the mutant spreads before the wild type goes extinct.
 
-**Biological scenario**
+To assess the impact of **habitat fragmentation** on ER, we extended the model by adding a additional biological scenario, where the habitat, in which the population is located (called habitat A), gets separated after a defined number of generations into **two isolated habitats** (called habitat B and C) of defined sizes. Based on that, the following equation must be considered with regard to the habitat sizes:$(A_size = B_size + C_size)$. Each habitat has also its own carrying capacity (**K**) related to its size: $(K_A = K_B + K_C)$. At a **separation time** individuals of the population A are distributed then into the two new habitats B and C and both will then evolve independently. Since our aim was also to investigate what happens when **migration** is possible, after the splitting event migration ??????????
 
-- A haploid population consists of wild-type individuals (**a**) and, possibly, mutant individuals (**A**).
-- A sudden environmental change makes the wild type unfit: it **declines** at rate `decay_rate`.
-- The mutant is **beneficial** (advantage `sel_coeff`) and can grow in the new environment, but it is initially rare or absent. If absent, it has to arise by mutation from the wild type.
-- The population is **rescued** if the mutant spreads before the wild type (and with it the whole population) goes extinct.
-- The Habitat gets seperatated at a defined time called **split_time**.Individuals are randomly distributed, each habitat has a smaller carrying capacity, and both then evolve independently.
+## Parameters and variables
 
-**Research Questions**
+Overall, we have expanded the base model therefore with five parameters; `split_time, habitat_prop, split_ratio, K` and `migration`. All the other parameters and variables were already set in the based model. The table below provides brief explanations of the respective parameters and variables.
 
-- Is evolutionary rescue possible in the Fragmented habitats?
-- What is the impact of split_time on ER?
-- What is the impact of the habitat porportions on ER?
+**Taken from the base model:**
+
+| Name | Meaning |
+|------------------------------------|------------------------------------|
+| `N_a`, `N_A` | current size of the wild-type / mutant population (change over time) |
+| `N_init_a`, `N_init_A` | initial sizes of wild type (positive integer) and mutant (non-negative integer) |
+| `decay_rate` | detrimental effect of the environment on the wild type (\> 0 so that extinction is possible) |
+| `sel_coeff` | selective advantage of the mutant (should be \> `decay_rate` to allow rescue) |
+| `mut_rate` | mutation rate from wild type to mutant (\> 0 and small) |
+| `t_max` | maximum number of generations simulated (a setting, not a model parameter) |
+
+**Added to expand the model:**
+
+| Name | Meaning |
+|------------------------------------|------------------------------------|
+| `split_time` | generation at which the fragmentation happens (integer \> 0) |
+| `habitat_prop` | defining size of the new habitat B and therefor also it's carrying capacity (between 0 and 1); habitat C gets `1 - habitat_prop` |
+| `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1): habitat C gets `1 - split_ratio` |
+| `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitat size |
+| `migrate` | ??? |
+
+### Example
+
+To ensure that there is no confusion and that the parameters and variables are clear, here is a brief example:
+
+| Parameters     | values   |
+|----------------|----------|
+| `N_a`, `N_A`   | 200, 100 |
+| `split_time`   | 30       |
+| `habitat_prop` | 0.8      |
+| `split_ratio`  | 0.7      |
+| `K`            | 1000     |
+| `migrate`      | ?        |
+
+The carrying capacity of habitat A is set at 1000 individuals. Based on the `habitat_prop` we know that habitat B is able to carry 800 individuals $(K * habitat_{prop})$ and habitat C is able to carry 200 individuals $(K*(1-habitat_{prop}))$. From the `split_ratio` we know that 140 wild type individuals and 70 mutant individuals are located within the habitat B $(N_{a} * split_{time})$ & $(N_{A} * split_{time})$. In habitat C we will then be able to find 60 wild type individuals and 30 mutant individuals $(N_{a} * (1- split_{time})$ & $(N_{A} * (1- split_{time}))$. Migration ?????
+
+## Model/Simulation
+
 
 ```{r Set-up, echo= FALSE, error= FALSE,message = FALSE,warning = FALSE}
 set.seed(57)
