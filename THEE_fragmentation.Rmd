@@ -16,7 +16,7 @@ The Anthropocene is characterized by a wide variety of changes and threats that 
 
 Because ER is often viewed as a solution to environmental change and pressure, we thought about what influence a major environmental threat such as **habitat fragmentation**; *“the process by which habitats are transformed into smaller patches isolated from each other […]”* (Cheptou et al., 2017) might have on an ER process that has already begun.
 
-##Research Questions
+## Research Questions
 
 Based on this reflection, the following questions emerged, which we intended to explore in more detail as part of a three-week theoretical practical course at the University of Bern:
 
@@ -29,6 +29,8 @@ Based on this reflection, the following questions emerged, which we intended to 
   - What impact does the distribution of individuals across habitats have on evolutionary rescue?
 
   - What would happen if migration between the isolated fragmented habitats were possible?
+
+It is important to analyze these questions in more detail because habitat fragmentation represents an increasing threat to populations, which can occur at any time. Furthermore, from a conservation perspective, it is important to understand the impact of splitting time, habitat size, and individual distribution on evolutionary rescue in order to ensure the survival of the populations.
 
 # Methodology
 
