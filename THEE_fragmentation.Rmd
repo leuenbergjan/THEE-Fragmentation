@@ -7,21 +7,34 @@ output:
   html_document:
     df_print: paged
 ---
-# Abstract
 
+# Abstract
 
 # Introduction
 
+The Anthropocene is characterized by a wide variety of changes and threats that affect nearly all wildlife populations. These human-induced pressures are having an increasingly negative impact on the stability and growth of populations and are leading to a continuous decline in the individual numbers within the populations. In times like these, the idea of **evolutionary rescue** (ER) is becoming increasingly important. *“ER occurs when genetic adaptation allows a population to recover from demographic effects initiated by environmental change that would otherwise cause extirpation”* (Gonzalez et al., 2013) and therefore leads back to an increase in the number of individuals within a population.
 
-**Research Questions**
+Because ER is often viewed as a solution to environmental change and pressure, we thought about what influence a major environmental threat such as **habitat fragmentation**; *“the process by which habitats are transformed into smaller patches isolated from each other […]”* (Cheptou et al., 2017) might have on an ER process that has already begun.
 
--	Is evolutionary rescue possible in the Fragmented habitats?
-    -	What is the impact of split_time on ER?
-    -	What is the impact of the habitat porportions on ER?
+## Research Questions
 
-## Methodology
+Based on this reflection, the following questions emerged, which we intended to explore in more detail as part of a three-week theoretical practical course at the University of Bern:
 
-This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of varieng  sizes, each with its own carrying capacity.
+- Is evolutionary rescue possible in fragmented habitats if the habitats are separated at a certain time point after the ER processes have already begun?
+
+  - How does the timing of habitat fragmentation affect evolutionary rescue?
+
+  - How does the timing of habitat fragmentation affect evolutionary rescue?
+
+  - What impact does the distribution of individuals across habitats have on evolutionary rescue?
+
+  - What would happen if migration between the isolated fragmented habitats were possible?
+
+It is important to analyze these questions in more detail because habitat fragmentation represents an increasing threat to populations, which can occur at any time. Furthermore, from a conservation perspective, it is important to understand the impact of splitting time, habitat size, and individual distribution on evolutionary rescue in order to ensure the survival of the populations.
+
+# Methodology
+
+This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of varieng sizes, each with its own carrying capacity.
 
 **Biological scenario**
 
@@ -33,11 +46,9 @@ This report documents a stochastic simulation of **evolutionary rescue** in disc
 
 **Research Questions**
 
--	Is evolutionary rescue possible in the Fragmented habitats?
--	What is the impact of split_time on ER?
--	What is the impact of the habitat porportions on ER?
-
-
+- Is evolutionary rescue possible in the Fragmented habitats?
+- What is the impact of split_time on ER?
+- What is the impact of the habitat porportions on ER?
 
 ```{r Set-up, echo= FALSE, error= FALSE,message = FALSE,warning = FALSE}
 set.seed(57)
@@ -48,9 +59,8 @@ library(dplyr)
 #libraries used for our code / use install.packages(c(ggplot2,tidyr,dplyr))
 ```
 
-
-
 ## 1.1 Overview of the code
+
 
 1. `simulate_one_gen()`: simulates **one generation** (reproduction with logistic growth + mutation) for one habitat.
 2. `simulate_pop()`: runs a **full simulation**: one habitat until `split_time`, then two habitats (B and C) afterwards.
@@ -58,27 +68,35 @@ library(dplyr)
 4. `run_scenarios()` and `to_long()`: repeat the simulation many times for different parameter values and summaries the **rescue probability**.
 5. Four analyses: split time varies, habitat proportion varies and migration rates
 
+
 ## 1.2 Parameters and variables
 
 | Name | Meaning |
-|---|---|
+|------------------------------------|------------------------------------|
 | `N_a`, `N_A` | current size of the wild-type / mutant population (change over time) |
 | `N_init_a`, `N_init_A` | initial sizes of wild type (positive integer) and mutant (non-negative integer) |
-| `decay_rate` | detrimental effect of the environment on the wild type (> 0 so that extinction is possible) |
-| `sel_coeff` | selective advantage of the mutant (should be > `decay_rate` to allow rescue) |
-| `mut_rate` | mutation rate from wild type to mutant (> 0 and small) |
+| `decay_rate` | detrimental effect of the environment on the wild type (\> 0 so that extinction is possible) |
+| `sel_coeff` | selective advantage of the mutant (should be \> `decay_rate` to allow rescue) |
+| `mut_rate` | mutation rate from wild type to mutant (\> 0 and small) |
 | `t_max` | maximum number of generations simulated (a setting, not a model parameter) |
-| `split_time` | generation at which the fragmentation happens (integer > 0) |
+| `split_time` | generation at which the fragmentation happens (integer \> 0) |
 | `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1) |
 | `habitat_prop` | share of the total carrying capacity given to habitat B (between 0 and 1); habitat C gets `1 - habitat_prop` |
 | `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitats |
 
 
 
+=======
+## Simulating evolutionary rescue in discrete time
+
+In this notebook, we are implementing simulations of evolutionary rescue by a single mutation in discrete time, as discussed and analyzed in the work by Orr & Unckless. The model is as follows: a haploid population starts with a given number of wild-type and mutant individuals. Because of a sudden environmental change, the wild type is unfit and declines in the new environment. The mutant is beneficial and can survive and expand in the new environment, but it starts at a low (or zero) frequency in the total population. In order to rescue the population, it has to outcompete the wild type. If the mutant is not present at time 0, it has to appear through mutation and then spread in the population before extinction occurs.
+
+
 ## Simulate one generation of population size change
+
 We want to observe the numbers of wild-type and mutant individuals over time. As first step, we simulate one generation of the population. At time $t$, the population has $N_a$ wild-type individuals and $N_A$ mutant individuals. First, these reproduce. This is modeled by drawing a Poisson random variable according to the expected absolute number $N_a \cdot (1-r)$ of wild-type individuals, where $r$ is the decay rate of the wild type, and $N_A \cdot (1-r+s)$ of mutant individuals, where $s$ is the selective advantage of the mutant over the wild time. Then mutation from $a$ to $A$ occurs as a Poisson random variable according to the given mutation rate. This defines the composition of the population at time $t+1$.
 
-1. **Expected offspring (logistic growth).** Without competition, the per-capita growth rates are
+1.  **Expected offspring (logistic growth).** Without competition, the per-capita growth rates are
 
 - wild type: $\rho_a = -r$ (negative, so the type declines), with $r$ = `decay_rate`
 - mutant: $\rho_A = s - r$ (positive if $s > r$), with $s$ = `sel_coeff`
@@ -89,9 +107,9 @@ $$\bar N_a = N_a\,\max\!\left(0,\;1+\rho_a-\rho_A \tfrac{N_{tot}}{K}\right), \qq
 
 When $N_{tot}$ approaches $K$, the mutant's growth factor approaches 1 (population stays constant) and the wild type keeps declining. When $N_{tot} > K$ the mutant would shrink back towards $K$. The `max(0, ...)` prevents negative expected values, which `rpois()` cannot handle.
 
-2. **Demographic stochasticity.** The actual number of offspring is drawn from a **Poisson distribution** whose mean is the expected value above. This is what makes every run different.
+2.  **Demographic stochasticity.** The actual number of offspring is drawn from a **Poisson distribution** whose mean is the expected value above. This is what makes every run different.
 
-3. **Mutation.** Of the wild-type offspring, a Poisson-distributed number (mean `offsp_a * mut_rate`) mutates to type A. These are subtracted from the wild type and added to the mutants.
+3.  **Mutation.** Of the wild-type offspring, a Poisson-distributed number (mean `offsp_a * mut_rate`) mutates to type A. These are subtracted from the wild type and added to the mutants.
 
 The function returns a vector `c(N_a_new, N_A_new)`.
 
@@ -120,10 +138,14 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
 # Test the function
 #print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 
+
 ``` 
 
 
 ## Simulate population changes and implementing habitat fragmentation
+=======
+```
+
 
 
 
@@ -230,7 +252,6 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   return(list(main = pop_vector_df, B = pop_vector_B_df, C = pop_vector_C_df))
 }
 ```
-
 
 ```{r plotting function model}
 # ============================================================
@@ -389,10 +410,8 @@ plot_habitats(output, K = K, habitat_prop = habitat_prop,
 
 ```
 
-
-
-
 ## A small analysis
+
 As you can see if you simulate and plot the output several times, there is a lot of stochasticity/variation in the outcome. Therefore, to get interpretable results, we have to run the simulation many times and summarize the outcome depending on the question of our study. Here I am showing an example in which we record the time and the value of the lowest population size (or the time of extinction, if the population size eventually goes to 0). Usually, we want to study this for a range of model parameters; here I am varying the decay rate and the selection coefficient. Other (maybe more interesting) features to study would be the following:
 
 - rescue probability dependent on initial frequency and selection coefficient
@@ -460,8 +479,8 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
           reached_B <- one_run$B$A >= rescue_frac * K_B
           reached_C <- one_run$C$A >= rescue_frac * K_C
           
-          rescued_B <- any(reached_B)
-          rescued_C <- any(reached_C)
+          rescued_B <- reached_B[length(reached_B)]
+          rescued_C <- reached_C[length(reached_C)]
           
           results[[length(results) + 1]] <- data.frame(
             st = st,
@@ -705,13 +724,13 @@ plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat 
   facet_wrap(~ hp, labeller = label_both)
 }
 
-``` 
-# Appendix
---------------------------------
+```
+
+## \# Appendix
+
 ```{r}
 "Built with `r getRversion()`" 
 ```
-
 
 **Less common functions used**
 
@@ -754,6 +773,3 @@ plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat 
 - `factor(x, levels, labels)`: converts values into a categorical variable with a fixed order and custom display labels. `factor(st)` makes the split time a category so that tiles are evenly spaced.
 - `sprintf("%.2f", x)`: formats a number as text with 2 decimals.
 - `sort(unique(x))`: the distinct values of `x` in ascending order.
-
-
-
