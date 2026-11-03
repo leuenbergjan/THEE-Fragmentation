@@ -56,7 +56,7 @@ library(dplyr)
 2. `simulate_pop()`: runs a **full simulation**: one habitat until `split_time`, then two habitats (B and C) afterwards.
 3. Plot functions (`plot_split()`, `plot_habitat()`, `plot_habitats()`): visualise a single simulation run.
 4. `run_scenarios()` and `to_long()`: repeat the simulation many times for different parameter values and summaries the **rescue probability**.
-5. Three analyses: split time varies, habitat proportion varies, and both.
+5. Four analyses: split time varies, habitat proportion varies and migration rates
 
 ## 1.2 Parameters and variables
 
@@ -72,10 +72,6 @@ library(dplyr)
 | `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1) |
 | `habitat_prop` | share of the total carrying capacity given to habitat B (between 0 and 1); habitat C gets `1 - habitat_prop` |
 | `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitats |
-
-## Simulating evolutionary rescue in discrete time
-
-In this notebook, we are implementing simulations of evolutionary rescue by a single mutation in discrete time, as discussed and analyzed in the work by Orr & Unckless. The model is as follows: a haploid population starts with a given number of wild-type and mutant individuals. Because of a sudden environmental change, the wild type is unfit and declines in the new environment. The mutant is beneficial and can survive and expand in the new environment, but it starts at a low (or zero) frequency in the total population. In order to rescue the population, it has to outcompete the wild type. If the mutant is not present at time 0, it has to appear through mutation and then spread in the population before extinction occurs.
 
 
 
@@ -127,8 +123,11 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
 ``` 
 
 
+## Simulate population changes and implementing habitat fragmentation
 
-```{r simulating whole poulation}
+
+
+```{r simulating whole population}
 simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop, split_ratio, split_time,migrate) {
   # Create the vector in which to save the results
   pop_vector <- c(N_init_a, N_init_A)
@@ -178,14 +177,13 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
       
       pop_new_B <- simulate_one_gen(
         pop_new_B[1], pop_new_B[2],
-        decay_rate, sel_coeff, mut_rate,K_B
-      )
+        decay_rate, sel_coeff, mut_rate,K_B)
       
       pop_new_C <- simulate_one_gen(
         pop_new_C[1], pop_new_C[2],
-        decay_rate, sel_coeff, mut_rate,K_C
-      )
-      #migration 
+        decay_rate, sel_coeff, mut_rate,K_C)
+      
+      # Migration 
       migrateB_vec <- c(rbinom(1, pop_new_B[1], migrate),
                         rbinom(1, pop_new_B[2], migrate))
       migrateC_vec <- c(rbinom(1, pop_new_C[1], migrate),
@@ -196,8 +194,8 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
         
         
         
-        # Save the results for each generation
-        pop_vector_B <- rbind(pop_vector_B, pop_new_B)
+      # Save the results for each generation
+      pop_vector_B <- rbind(pop_vector_B, pop_new_B)
       pop_vector_C <- rbind(pop_vector_C, pop_new_C)
       
       # define the row and column names of the output vector
@@ -230,8 +228,6 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   pop_vector_C_df <- as.data.frame(pop_vector_C)
   # return all three population vectors separately
   return(list(main = pop_vector_df, B = pop_vector_B_df, C = pop_vector_C_df))
-  
-  
 }
 ```
 
@@ -361,7 +357,10 @@ plot_habitats <- function(output, K, habitat_prop, split_time, xlim_max = NULL) 
   plot_habitat(output$B, K_B, split_time, "Habitat B", "darkgreen",  xlim_max)
   plot_habitat(output$C, K_C, split_time, "Habitat C", "darkorange", xlim_max)
 }
+```
 
+
+```{r plotting model}
 # ============================================================
 # Usage
 # (simulate_one_gen and simulate_pop must be defined first)
@@ -409,9 +408,10 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 1   # more replicates give more precise probabilities
+no_replicates    <- 10  # more replicates give more precise probabilities
 max_attempts     <- 5000
-rescue_frac      <- 1       # rescue = A >= rescue_frac * K of the habitat, changeable 
+rescue_frac      <- 1  
+migrate<- 0# rescue = A >= rescue_frac * K of the habitat, changeable 
 
 # ---- core function: your loop, wrapped so it can be reused -------------
 run_scenarios <- function(split_times, habitat_props, split_ratios) {
@@ -488,7 +488,7 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
   }
   
   data_table <- do.call(rbind, results)
-  
+
   # Rescue probability per scenario
   rescue_prob <- data_table %>%
     dplyr::group_by(st, hp, sr) %>%
@@ -508,16 +508,17 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
 }
 
 
-# ---- helper: long format with standard error for plotting ----
+# ---- helperfunction : long format with standard error for plotting ----
 
 to_long <- function(rescue_prob) {
-  rescue_prob %>%
-    tidyr::pivot_longer(
+  rescue_prob %>%         #%>% is the pipe operator. It takes whatever is on its left and passes it as the first argument of the function on its right.
+    tidyr::pivot_longer(   #doing this for ggplot 2 
       cols = c(rescued_B, rescued_C, rescued_both),
       names_to = "population",
-      values_to = "rescue_probability"
+      values_to = "rescue_probability"   
     ) %>%
     dplyr::mutate(
+      #standard error of a proportion
       se = sqrt(rescue_probability * (1 - rescue_probability) / n),
       population = dplyr::recode(
         population,
