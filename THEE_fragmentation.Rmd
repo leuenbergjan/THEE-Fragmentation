@@ -16,7 +16,7 @@ The Anthropocene is characterized by a wide variety of changes and threats that 
 
 Because ER is often viewed as a solution to environmental change and pressure, we thought about what influence a major environmental threat such as **habitat fragmentation**; *“the process by which habitats are transformed into smaller patches isolated from each other […]”* (Cheptou et al., 2017) might have on an ER process that has already begun.
 
-**Research Questions**
+##Research Questions
 
 Based on this reflection, the following questions emerged, which we intended to explore in more detail as part of a three-week theoretical practical course at the University of Bern:
 
@@ -30,7 +30,7 @@ Based on this reflection, the following questions emerged, which we intended to 
 
 - What would happen if migration between the isolated fragmented habitats were possible?
 
-## Methodology
+# Methodology
 
 This report documents a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical. We extended the basic model with **habitat fragmentation**: at a chosen generation (`split_time`) the population is split into two separate and isolated habitats (B and C) of varieng sizes, each with its own carrying capacity.
 
