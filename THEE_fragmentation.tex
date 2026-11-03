@@ -1,0 +1,1242 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Evolutionary rescue under habitat fragmentation},
+  pdfauthor={Jan Leuenberger \& Safeeya Ramis},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Evolutionary rescue under habitat fragmentation}
+\author{Jan Leuenberger \& Safeeya Ramis}
+\date{2026-10-28}
+
+\begin{document}
+\maketitle
+
+\section{Abstract}\label{abstract}
+
+\section{Introduction}\label{introduction}
+
+The Anthropocene is characterized by a wide variety of changes and
+threats that affect nearly all wildlife populations. These human-induced
+pressures are having an increasingly negative impact on the stability
+and growth of populations and are leading to a continuous decline in the
+individual numbers within the populations. In times like these, the idea
+of \textbf{evolutionary rescue} (ER) is becoming increasingly important.
+\emph{``ER occurs when genetic adaptation allows a population to recover
+from demographic effects initiated by environmental change that would
+otherwise cause extirpation''} (Gonzalez et al., 2013) and therefore
+leads back to an increase in the number of individuals within a
+population.
+
+Because ER is often viewed as a solution to environmental change and
+pressure, we thought about what influence a major environmental threat
+such as \textbf{habitat fragmentation}; \emph{``the process by which
+habitats are transformed into smaller patches isolated from each other
+{[}\ldots{]}''} (Cheptou et al., 2017) might have on an ER process that
+has already begun.
+
+\subsection{Research Questions}\label{research-questions}
+
+Based on this reflection, the following questions emerged, which we
+intended to explore in more detail as part of a three-week theoretical
+practical course at the University of Bern:
+
+\begin{itemize}
+\item
+  Is evolutionary rescue possible in fragmented habitats if the habitats
+  are separated at a certain time point after the ER processes have
+  already begun?
+
+  \begin{itemize}
+  \item
+    How does the timing of habitat fragmentation affect evolutionary
+    rescue?
+  \item
+    How does the timing of habitat fragmentation affect evolutionary
+    rescue?
+  \item
+    What impact does the distribution of individuals across habitats
+    have on evolutionary rescue?
+  \item
+    What would happen if migration between the isolated fragmented
+    habitats were possible?
+  \end{itemize}
+\end{itemize}
+
+It is important to analyze these questions in more detail because
+habitat fragmentation represents an increasing threat to populations,
+which can occur at any time. Furthermore, from a conservation
+perspective, it is important to understand the impact of splitting time,
+habitat size, and individual distribution on evolutionary rescue in
+order to ensure the survival of the populations.
+
+\section{Methodology}\label{methodology}
+
+This report documents a stochastic simulation of \textbf{evolutionary
+rescue} in discrete time, based on the model of Orr \& Unckless
+introduced in the practical. We extended the basic model with
+\textbf{habitat fragmentation}: at a chosen generation
+(\texttt{split\_time}) the population is split into two separate and
+isolated habitats (B and C) of varieng sizes, each with its own carrying
+capacity.
+
+\textbf{Biological scenario}
+
+\begin{itemize}
+\tightlist
+\item
+  A haploid population consists of wild-type individuals (\textbf{a})
+  and, possibly, mutant individuals (\textbf{A}).
+\item
+  A sudden environmental change makes the wild type unfit: it
+  \textbf{declines} at rate \texttt{decay\_rate}.
+\item
+  The mutant is \textbf{beneficial} (advantage \texttt{sel\_coeff}) and
+  can grow in the new environment, but it is initially rare or absent.
+  If absent, it has to arise by mutation from the wild type.
+\item
+  The population is \textbf{rescued} if the mutant spreads before the
+  wild type (and with it the whole population) goes extinct.
+\item
+  The Habitat gets seperatated at a defined time called
+  \textbf{split\_time}.Individuals are randomly distributed, each
+  habitat has a smaller carrying capacity, and both then evolve
+  independently.
+\end{itemize}
+
+\textbf{Research Questions}
+
+\begin{itemize}
+\tightlist
+\item
+  Is evolutionary rescue possible in the Fragmented habitats?
+\item
+  What is the impact of split\_time on ER?
+\item
+  What is the impact of the habitat porportions on ER?
+\end{itemize}
+
+\subsection{1.1 Overview of the code}\label{overview-of-the-code}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \texttt{simulate\_one\_gen()}: simulates \textbf{one generation}
+  (reproduction with logistic growth + mutation) for one habitat.
+\item
+  \texttt{simulate\_pop()}: runs a \textbf{full simulation}: one habitat
+  until \texttt{split\_time}, then two habitats (B and C) afterwards.
+\item
+  Plot functions (\texttt{plot\_split()}, \texttt{plot\_habitat()},
+  \texttt{plot\_habitats()}): visualise a single simulation run.
+\item
+  \texttt{run\_scenarios()} and \texttt{to\_long()}: repeat the
+  simulation many times for different parameter values and summaries the
+  \textbf{rescue probability}.
+\item
+  Four analyses: split time varies, habitat proportion varies and
+  migration rates
+\end{enumerate}
+
+\subsection{1.2 Parameters and
+variables}\label{parameters-and-variables}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Name
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Meaning
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{N\_a}, \texttt{N\_A} & current size of the wild-type / mutant
+population (change over time) \\
+\texttt{N\_init\_a}, \texttt{N\_init\_A} & initial sizes of wild type
+(positive integer) and mutant (non-negative integer) \\
+\texttt{decay\_rate} & detrimental effect of the environment on the wild
+type (\textgreater{} 0 so that extinction is possible) \\
+\texttt{sel\_coeff} & selective advantage of the mutant (should be
+\textgreater{} \texttt{decay\_rate} to allow rescue) \\
+\texttt{mut\_rate} & mutation rate from wild type to mutant
+(\textgreater{} 0 and small) \\
+\texttt{t\_max} & maximum number of generations simulated (a setting,
+not a model parameter) \\
+\texttt{split\_time} & generation at which the fragmentation happens
+(integer \textgreater{} 0) \\
+\texttt{split\_ratio} & probability with which each individual is
+assigned to habitat B at the split (between 0 and 1) \\
+\texttt{habitat\_prop} & share of the total carrying capacity given to
+habitat B (between 0 and 1); habitat C gets
+\texttt{1\ -\ habitat\_prop} \\
+\texttt{K} & carrying capacity of the original (unsplit) habitat; limits
+growth and is divided among B and C in the same proportions as the
+habitats \\
+\end{longtable}
+
+\subsection{Simulating evolutionary rescue in discrete
+time}\label{simulating-evolutionary-rescue-in-discrete-time}
+
+In this notebook, we are implementing simulations of evolutionary rescue
+by a single mutation in discrete time, as discussed and analyzed in the
+work by Orr \& Unckless. The model is as follows: a haploid population
+starts with a given number of wild-type and mutant individuals. Because
+of a sudden environmental change, the wild type is unfit and declines in
+the new environment. The mutant is beneficial and can survive and expand
+in the new environment, but it starts at a low (or zero) frequency in
+the total population. In order to rescue the population, it has to
+outcompete the wild type. If the mutant is not present at time 0, it has
+to appear through mutation and then spread in the population before
+extinction occurs.
+
+\subsection{Simulate one generation of population size
+change}\label{simulate-one-generation-of-population-size-change}
+
+We want to observe the numbers of wild-type and mutant individuals over
+time. As first step, we simulate one generation of the population. At
+time \(t\), the population has \(N_a\) wild-type individuals and \(N_A\)
+mutant individuals. First, these reproduce. This is modeled by drawing a
+Poisson random variable according to the expected absolute number
+\(N_a \cdot (1-r)\) of wild-type individuals, where \(r\) is the decay
+rate of the wild type, and \(N_A \cdot (1-r+s)\) of mutant individuals,
+where \(s\) is the selective advantage of the mutant over the wild time.
+Then mutation from \(a\) to \(A\) occurs as a Poisson random variable
+according to the given mutation rate. This defines the composition of
+the population at time \(t+1\).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Expected offspring (logistic growth).} Without competition,
+  the per-capita growth rates are
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  wild type: \(\rho_a = -r\) (negative, so the type declines), with
+  \(r\) = \texttt{decay\_rate}
+\item
+  mutant: \(\rho_A = s - r\) (positive if \(s > r\)), with \(s\) =
+  \texttt{sel\_coeff}
+\end{itemize}
+
+Carryign capacity is added by a \textbf{density-dependent term}: the
+growth factor of each type is reduced by \(\rho_A \cdot N_{tot}/K\). The
+expected number of offspring is therefore
+
+\[\bar N_a = N_a\,\max\!\left(0,\;1+\rho_a-\rho_A \tfrac{N_{tot}}{K}\right), \qquad \bar N_A = N_A\,\max\!\left(0,\;1+\rho_A-\rho_A \tfrac{N_{tot}}{K}\right)\]
+
+When \(N_{tot}\) approaches \(K\), the mutant's growth factor approaches
+1 (population stays constant) and the wild type keeps declining. When
+\(N_{tot} > K\) the mutant would shrink back towards \(K\). The
+\texttt{max(0,\ ...)} prevents negative expected values, which
+\texttt{rpois()} cannot handle.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\item
+  \textbf{Demographic stochasticity.} The actual number of offspring is
+  drawn from a \textbf{Poisson distribution} whose mean is the expected
+  value above. This is what makes every run different.
+\item
+  \textbf{Mutation.} Of the wild-type offspring, a Poisson-distributed
+  number (mean \texttt{offsp\_a\ *\ mut\_rate}) mutates to type A. These
+  are subtracted from the wild type and added to the mutants.
+\end{enumerate}
+
+The function returns a vector \texttt{c(N\_a\_new,\ N\_A\_new)}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{simulate\_one\_gen }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(N\_a, N\_A, decay\_rate, sel\_coeff, mut\_rate, K) \{}
+  
+  \CommentTok{\# total population size and per{-}capita growth rates without competition}
+\NormalTok{  N\_tot }\OtherTok{\textless{}{-}}\NormalTok{ N\_a }\SpecialCharTok{+}\NormalTok{ N\_A}
+\NormalTok{  rho\_a }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{decay\_rate}
+\NormalTok{  rho\_A }\OtherTok{\textless{}{-}}\NormalTok{ sel\_coeff }\SpecialCharTok{{-}}\NormalTok{ decay\_rate}
+  \CommentTok{\# logistic growth: crowding reduces the growth of both types equally (set to 0 if negative)}
+\NormalTok{  mean\_a }\OtherTok{\textless{}{-}}\NormalTok{ N\_a }\SpecialCharTok{*} \FunctionTok{max}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1} \SpecialCharTok{+}\NormalTok{ rho\_a }\SpecialCharTok{{-}}\NormalTok{ rho\_A }\SpecialCharTok{*}\NormalTok{ N\_tot }\SpecialCharTok{/}\NormalTok{ K)}
+\NormalTok{  mean\_A }\OtherTok{\textless{}{-}}\NormalTok{ N\_A }\SpecialCharTok{*} \FunctionTok{max}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1} \SpecialCharTok{+}\NormalTok{ rho\_A }\SpecialCharTok{{-}}\NormalTok{ rho\_A }\SpecialCharTok{*}\NormalTok{ N\_tot }\SpecialCharTok{/}\NormalTok{ K)}
+  \CommentTok{\# draw offspring according to Poisson distribution}
+\NormalTok{  offsp\_a }\OtherTok{\textless{}{-}} \FunctionTok{rpois}\NormalTok{(}\DecValTok{1}\NormalTok{, mean\_a)}
+\NormalTok{  offsp\_A }\OtherTok{\textless{}{-}} \FunctionTok{rpois}\NormalTok{(}\DecValTok{1}\NormalTok{, mean\_A)}
+  \CommentTok{\# draw new mutants according to Poisson distribution}
+\NormalTok{  mut\_a\_to\_A }\OtherTok{\textless{}{-}} \FunctionTok{rpois}\NormalTok{(}\DecValTok{1}\NormalTok{, offsp\_a }\SpecialCharTok{*}\NormalTok{ mut\_rate)}
+  \CommentTok{\# determine new population sizes of wild type and mutant}
+\NormalTok{  N\_a\_new }\OtherTok{\textless{}{-}}\NormalTok{ offsp\_a }\SpecialCharTok{{-}}\NormalTok{ mut\_a\_to\_A}
+\NormalTok{  N\_A\_new }\OtherTok{\textless{}{-}}\NormalTok{  offsp\_A }\SpecialCharTok{+}\NormalTok{ mut\_a\_to\_A}
+  \CommentTok{\#}
+  
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{c}\NormalTok{(N\_a\_new, N\_A\_new))}
+\NormalTok{\}}
+\CommentTok{\# Test the function}
+\CommentTok{\#print(simulate\_one\_gen(100,0,0.1,0.2,0.001,1000))}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Simulate population changes and implementing habitat
+fragmentation}\label{simulate-population-changes-and-implementing-habitat-fragmentation}
+
+The function simulate\_one\_gen() describes a single generation, whereas
+evolutionary rescue unfolds over many. We therefore iterate this step in
+simulate\_pop(), which integrates habitat fragmentation (the population
+is divided into two isolated habitats at a chosen generation) and
+migration (individuals may move between these habitats afterwards). The
+function records the numbers of wild-type and mutant individuals in each
+habitat, so we can determine whether the mutant spreads and rescues the
+population, and how the timing of the split, the relative habitat sizes
+and the migration rate influence this outcome.
+
+The function simulate\_pop() runs the full simulation over t\_max
+generations and has two phases. In the first phase (generations 1 to
+split\_time), the population lives in one habitat with carrying capacity
+K, and each generation is simulated with simulate\_one\_gen(). This
+phase stops early if the population goes extinct or grows to at least
+twice its initial size.
+
+In the second phase, at generation split\_time + 1, the habitat is
+fragmented into two isolated habitats, B and C. Habitat B receives the
+share habitat\_prop of the carrying capacity (K\_B = K * habitat\_prop)
+and habitat C receives the rest (K\_C = K * (1 - habitat\_prop)). The
+existing individuals are distributed randomly: each wild-type and each
+mutant individual is assigned to habitat B with probability split\_ratio
+(using rbinom()) and to habitat C otherwise. From then on both habitats
+are simulated independently, each with its own carrying capacity.
+
+After each generation, migration can occur. Each individual moves to the
+other habitat with probability migrate, drawn separately for wild types
+and mutants. Migration is symmetric in its rate but not in its effect.
+The number of migrants is proportional to the size of the source
+habitat.
+
+The function returns a list of three data frames: main (population sizes
+before the split), and B and C. If the population dies out or reaches
+twice its starting size before the split, B and C are empty.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{simulate\_pop }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(N\_init\_a, N\_init\_A, decay\_rate, sel\_coeff, mut\_rate, t\_max, K, habitat\_prop, split\_ratio, split\_time,migrate) \{}
+  \CommentTok{\# Create the vector in which to save the results}
+\NormalTok{  pop\_vector }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(N\_init\_a, N\_init\_A)}
+  \CommentTok{\# initiate the variables}
+\NormalTok{  pop\_new }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(N\_init\_a, N\_init\_A)}
+  
+  \CommentTok{\# Create the vectors for the new habitats}
+\NormalTok{  pop\_vector\_B }\OtherTok{\textless{}{-}} \ConstantTok{NULL}
+\NormalTok{  pop\_vector\_C }\OtherTok{\textless{}{-}} \ConstantTok{NULL}
+  
+  \CommentTok{\# run the simulation until generation t\_max}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{t\_max) \{}
+    
+    \CommentTok{\# Time when the fragmentation occur}
+    \ControlFlowTok{if}\NormalTok{ (i }\SpecialCharTok{==}\NormalTok{ split\_time }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) \{}
+      
+      \CommentTok{\# Create the new habitats (creating new K)}
+\NormalTok{      K\_B }\OtherTok{\textless{}{-}}\NormalTok{ K }\SpecialCharTok{*}\NormalTok{ habitat\_prop}
+\NormalTok{      K\_C }\OtherTok{\textless{}{-}}\NormalTok{ K }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ habitat\_prop)}
+      
+      \CommentTok{\#create the ratio of the splitting}
+\NormalTok{      split\_ratio\_B }\OtherTok{\textless{}{-}}\NormalTok{ split\_ratio}
+\NormalTok{      split\_ratio\_C }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ split\_ratio\_B)}
+      \CommentTok{\# print(split\_ratio\_B)}
+      \CommentTok{\# print(split\_ratio\_C)}
+      \CommentTok{\# Distribute individuals  randomly to the habitat B}
+\NormalTok{      n\_B\_a }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(}\DecValTok{1}\NormalTok{, pop\_new[}\DecValTok{1}\NormalTok{], split\_ratio\_B) }
+\NormalTok{      n\_B\_A }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(}\DecValTok{1}\NormalTok{, pop\_new[}\DecValTok{2}\NormalTok{], split\_ratio\_B)   }
+      
+      \CommentTok{\# Distribute individuals randomly to the habitat C}
+\NormalTok{      n\_C\_a }\OtherTok{\textless{}{-}}\NormalTok{ pop\_new[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{{-}}\NormalTok{ n\_B\_a}
+\NormalTok{      n\_C\_A }\OtherTok{\textless{}{-}}\NormalTok{ pop\_new[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{{-}}\NormalTok{ n\_B\_A}
+      
+      \CommentTok{\# Calculate the new populatins for B an C }
+\NormalTok{      pop\_new\_B }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_one\_gen}\NormalTok{(n\_B\_a, n\_B\_A, decay\_rate, sel\_coeff, mut\_rate, K\_B)}
+\NormalTok{      pop\_new\_C }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_one\_gen}\NormalTok{(n\_C\_a, n\_C\_A, decay\_rate, sel\_coeff, mut\_rate, K\_C)}
+      
+      
+      \CommentTok{\# add the new population sizes to the output vector}
+\NormalTok{      pop\_vector\_B }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(pop\_vector\_B,pop\_new\_B)}
+\NormalTok{      pop\_vector\_C }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(pop\_vector\_C,pop\_new\_C)}
+      
+      
+\NormalTok{    \}}
+    
+    \ControlFlowTok{if}\NormalTok{ (i }\SpecialCharTok{\textgreater{}}\NormalTok{ split\_time }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) \{}
+      
+\NormalTok{      pop\_new\_B }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_one\_gen}\NormalTok{(}
+\NormalTok{        pop\_new\_B[}\DecValTok{1}\NormalTok{], pop\_new\_B[}\DecValTok{2}\NormalTok{],}
+\NormalTok{        decay\_rate, sel\_coeff, mut\_rate,K\_B)}
+      
+\NormalTok{      pop\_new\_C }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_one\_gen}\NormalTok{(}
+\NormalTok{        pop\_new\_C[}\DecValTok{1}\NormalTok{], pop\_new\_C[}\DecValTok{2}\NormalTok{],}
+\NormalTok{        decay\_rate, sel\_coeff, mut\_rate,K\_C)}
+      
+      \CommentTok{\# Migration }
+\NormalTok{      migrateB\_vec }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{rbinom}\NormalTok{(}\DecValTok{1}\NormalTok{, pop\_new\_B[}\DecValTok{1}\NormalTok{], migrate),}
+                        \FunctionTok{rbinom}\NormalTok{(}\DecValTok{1}\NormalTok{, pop\_new\_B[}\DecValTok{2}\NormalTok{], migrate))}
+\NormalTok{      migrateC\_vec }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{rbinom}\NormalTok{(}\DecValTok{1}\NormalTok{, pop\_new\_C[}\DecValTok{1}\NormalTok{], migrate),}
+                        \FunctionTok{rbinom}\NormalTok{(}\DecValTok{1}\NormalTok{, pop\_new\_C[}\DecValTok{2}\NormalTok{], migrate))}
+      
+\NormalTok{      pop\_new\_B }\OtherTok{\textless{}{-}}\NormalTok{ pop\_new\_B }\SpecialCharTok{{-}}\NormalTok{ migrateB\_vec }\SpecialCharTok{+}\NormalTok{ migrateC\_vec}
+\NormalTok{      pop\_new\_C }\OtherTok{\textless{}{-}}\NormalTok{ pop\_new\_C }\SpecialCharTok{{-}}\NormalTok{ migrateC\_vec }\SpecialCharTok{+}\NormalTok{ migrateB\_vec}
+        
+        
+        
+      \CommentTok{\# Save the results for each generation}
+\NormalTok{      pop\_vector\_B }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(pop\_vector\_B, pop\_new\_B)}
+\NormalTok{      pop\_vector\_C }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(pop\_vector\_C, pop\_new\_C)}
+      
+      \CommentTok{\# define the row and column names of the output vector}
+      \FunctionTok{rownames}\NormalTok{(pop\_vector\_B) }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{0}\SpecialCharTok{:}\NormalTok{t\_max)[}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(pop\_vector\_B[,}\DecValTok{1}\NormalTok{])] }
+      \FunctionTok{rownames}\NormalTok{(pop\_vector\_C) }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{0}\SpecialCharTok{:}\NormalTok{t\_max)[}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(pop\_vector\_C[,}\DecValTok{1}\NormalTok{])]}
+      \FunctionTok{colnames}\NormalTok{(pop\_vector\_B) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{,}\StringTok{"A"}\NormalTok{)}
+      \FunctionTok{colnames}\NormalTok{(pop\_vector\_C) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{,}\StringTok{"A"}\NormalTok{)}
+      
+\NormalTok{    \}}
+    
+    \CommentTok{\# Continue simulating habitat A only until split\_time}
+    \ControlFlowTok{if}\NormalTok{ (i }\SpecialCharTok{\textless{}=}\NormalTok{ split\_time) \{}
+      
+      \CommentTok{\# redefine the current population one generation later}
+\NormalTok{      pop\_new }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_one\_gen}\NormalTok{(pop\_new[}\DecValTok{1}\NormalTok{],pop\_new[}\DecValTok{2}\NormalTok{], decay\_rate, sel\_coeff, mut\_rate,K)}
+      \CommentTok{\# add the new population sizes to the output vector}
+\NormalTok{      pop\_vector }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(pop\_vector,pop\_new)}
+      \CommentTok{\# condition to stop the simulation before t\_max: either the population exceeds 2 times the original population size, or it goes extinct}
+      \ControlFlowTok{if}\NormalTok{ (pop\_new[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{+}\NormalTok{pop\_new[}\DecValTok{2}\NormalTok{]}\SpecialCharTok{\textgreater{}=}\DecValTok{2}\SpecialCharTok{*}\NormalTok{(N\_init\_a}\SpecialCharTok{+}\NormalTok{ N\_init\_A) }\SpecialCharTok{|}\NormalTok{ pop\_new[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{+}\NormalTok{pop\_new[}\DecValTok{2}\NormalTok{]}\SpecialCharTok{==}\DecValTok{0}\NormalTok{) }\ControlFlowTok{break}
+\NormalTok{    \}}
+    
+\NormalTok{  \}}
+  \CommentTok{\# define the row and column names of the output vector}
+  \FunctionTok{rownames}\NormalTok{(pop\_vector) }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{0}\SpecialCharTok{:}\NormalTok{t\_max)[}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(pop\_vector[,}\DecValTok{1}\NormalTok{])] }\CommentTok{\# note that the vector has to be cut if the simulation stopped early}
+  \FunctionTok{colnames}\NormalTok{(pop\_vector) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{,}\StringTok{"A"}\NormalTok{)}
+  
+  \CommentTok{\# Data frames}
+\NormalTok{  pop\_vector\_df }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(pop\_vector)}
+\NormalTok{  pop\_vector\_B\_df }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(pop\_vector\_B)}
+\NormalTok{  pop\_vector\_C\_df }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(pop\_vector\_C)}
+  \CommentTok{\# return all three population vectors separately}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{main =}\NormalTok{ pop\_vector\_df, }\AttributeTok{B =}\NormalTok{ pop\_vector\_B\_df, }\AttributeTok{C =}\NormalTok{ pop\_vector\_C\_df))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Plotting function for the
+model}\label{plotting-function-for-the-model}
+
+To inspect what happens in a single simulation, we define three plot
+functions. plot\_split() shows the whole run: wild type and mutant
+before the split, and the total population of habitats B and C
+afterwards, together with the carrying capacities (K, K\_B, K\_C) and
+the split time. plot\_habitat() draws one habitat in detail, with the
+wild type, the mutant and the total population, and plot\_habitats()
+stacks the panels of B and C so that they can be compared directly.
+These plots serve to check that the simulation behaves as expected, and
+they were used extensively for debugging in the early stages of the
+project. We used base R graphics here, and the plots received very
+positive feedback. Opinions on whether to use base R or ggplot2 for
+plotting are divided, even within the \textbf{THEE} Lab. In the later
+plotting functions we use ggplot2, both as an exercise to learn the
+package and to show that both approaches can produce informative
+figures.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# ============================================================}
+\CommentTok{\# Usage}
+\CommentTok{\# (simulate\_one\_gen and simulate\_pop must be defined first)}
+\CommentTok{\# ============================================================}
+\NormalTok{max\_gen      }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{K            }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{habitat\_prop }\OtherTok{\textless{}{-}} \FloatTok{0.8}
+\NormalTok{split\_time   }\OtherTok{\textless{}{-}} \DecValTok{50}
+\NormalTok{split\_ratio  }\OtherTok{\textless{}{-}} \FloatTok{0.5}
+\NormalTok{migrate      }\OtherTok{\textless{}{-}} \FloatTok{0.01}
+
+\NormalTok{output }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_pop}\NormalTok{(}\DecValTok{600}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FloatTok{0.01}\NormalTok{, }\FloatTok{0.2}\NormalTok{, }\FloatTok{0.001}\NormalTok{, max\_gen, K,}
+\NormalTok{                       habitat\_prop, split\_ratio , split\_time,migrate)}
+
+\CommentTok{\# overview plot}
+\FunctionTok{plot\_split}\NormalTok{(output, }\AttributeTok{K =}\NormalTok{ K, }\AttributeTok{habitat\_prop =}\NormalTok{ habitat\_prop, }\AttributeTok{split\_time =}\NormalTok{ split\_time)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/plotting-model-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# panels for habitat B and C}
+\FunctionTok{plot\_habitats}\NormalTok{(output, }\AttributeTok{K =}\NormalTok{ K, }\AttributeTok{habitat\_prop =}\NormalTok{ habitat\_prop, }\AttributeTok{split\_time =}\NormalTok{ split\_time)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/plotting-model-2.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# zoomed in on the first 150 generations}
+\FunctionTok{plot\_split}\NormalTok{(output, }\AttributeTok{K =}\NormalTok{ K, }\AttributeTok{habitat\_prop =}\NormalTok{ habitat\_prop,}
+           \AttributeTok{split\_time =}\NormalTok{ split\_time, }\AttributeTok{xlim\_max =} \DecValTok{150}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/plotting-model-3.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot\_habitats}\NormalTok{(output, }\AttributeTok{K =}\NormalTok{ K, }\AttributeTok{habitat\_prop =}\NormalTok{ habitat\_prop,}
+              \AttributeTok{split\_time =}\NormalTok{ split\_time, }\AttributeTok{xlim\_max =} \DecValTok{150}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/plotting-model-4.pdf}}
+
+\subsection{A small analysis}\label{a-small-analysis}
+
+As you can see if you simulate and plot the output several times, there
+is a lot of stochasticity/variation in the outcome. Therefore, to get
+interpretable results, we have to run the simulation many times and
+summarize the outcome depending on the question of our study. Here I am
+showing an example in which we record the time and the value of the
+lowest population size (or the time of extinction, if the population
+size eventually goes to 0). Usually, we want to study this for a range
+of model parameters; here I am varying the decay rate and the selection
+coefficient. Other (maybe more interesting) features to study would be
+the following:
+
+\begin{itemize}
+\tightlist
+\item
+  rescue probability dependent on initial frequency and selection
+  coefficient
+\item
+  time at which the rescue mutation occurs first if it rescues, vs.~if
+  it doesn't rescue, dependent on initial population size and mutation
+  rate
+\item
+  time until the population has recovered in case it becomes rescued,
+  dependent on mutation rate and selection coefficient
+\item
+  \ldots{}
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# {-}{-}{-}{-} fixed parameters {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{init\_a           }\OtherTok{\textless{}{-}} \DecValTok{600}
+\NormalTok{init\_A           }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{m\_rate           }\OtherTok{\textless{}{-}} \FloatTok{0.001}
+\NormalTok{max\_gen\_analysis }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{K\_analysis       }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{no\_replicates    }\OtherTok{\textless{}{-}} \DecValTok{1}  \CommentTok{\# more replicates give more precise probabilities}
+\NormalTok{max\_attempts     }\OtherTok{\textless{}{-}} \DecValTok{5000}
+\NormalTok{rescue\_frac      }\OtherTok{\textless{}{-}} \DecValTok{1}  
+\NormalTok{migrate}\OtherTok{\textless{}{-}} \DecValTok{0}\CommentTok{\# rescue = A \textgreater{}= rescue\_frac * K of the habitat, changeable }
+
+\CommentTok{\# {-}{-}{-}{-} core function: your loop, wrapped so it can be reused {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{run\_scenarios }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(split\_times, habitat\_props, split\_ratios) \{}
+\NormalTok{  results }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+  
+  \ControlFlowTok{for}\NormalTok{ (st }\ControlFlowTok{in}\NormalTok{ split\_times) \{}
+    \ControlFlowTok{for}\NormalTok{ (hp }\ControlFlowTok{in}\NormalTok{ habitat\_props) \{}
+      \ControlFlowTok{for}\NormalTok{ (sr }\ControlFlowTok{in}\NormalTok{ split\_ratios) \{}
+        
+\NormalTok{        K\_B }\OtherTok{\textless{}{-}}\NormalTok{ K\_analysis }\SpecialCharTok{*}\NormalTok{ hp}
+\NormalTok{        K\_C }\OtherTok{\textless{}{-}}\NormalTok{ K\_analysis }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ hp)}
+        
+\NormalTok{        i }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{        attempts }\OtherTok{\textless{}{-}} \DecValTok{0}
+        
+        \ControlFlowTok{repeat}\NormalTok{ \{}
+\NormalTok{          attempts }\OtherTok{\textless{}{-}}\NormalTok{ attempts }\SpecialCharTok{+} \DecValTok{1}
+          
+          \ControlFlowTok{if}\NormalTok{ (attempts }\SpecialCharTok{\textgreater{}}\NormalTok{ max\_attempts) \{}
+            \FunctionTok{warning}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}
+              \StringTok{"Too many failed runs for st ="}\NormalTok{, st,}
+              \StringTok{"hp ="}\NormalTok{, hp,}
+              \StringTok{"sr ="}\NormalTok{, sr}
+\NormalTok{            ))}
+            \ControlFlowTok{break}
+\NormalTok{          \}}
+          
+\NormalTok{          one\_run }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_pop}\NormalTok{(}
+\NormalTok{            init\_a, init\_A,}
+            \AttributeTok{decay\_rate   =} \FloatTok{0.1}\NormalTok{,}
+            \AttributeTok{sel\_coeff    =} \FloatTok{0.2}\NormalTok{,}
+            \AttributeTok{mut\_rate     =}\NormalTok{ m\_rate,}
+            \AttributeTok{t\_max        =}\NormalTok{ max\_gen\_analysis,}
+            \AttributeTok{K            =}\NormalTok{ K\_analysis,}
+            \AttributeTok{habitat\_prop =}\NormalTok{ hp,}
+            \AttributeTok{split\_ratio  =}\NormalTok{ sr,}
+            \AttributeTok{split\_time   =}\NormalTok{ st,}
+\NormalTok{            migrate}
+\NormalTok{          )}
+          
+          \CommentTok{\# Skip runs that ended before the split time}
+          \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{nrow}\NormalTok{(one\_run}\SpecialCharTok{$}\NormalTok{B) }\SpecialCharTok{==} \DecValTok{0} \SpecialCharTok{||} \FunctionTok{nrow}\NormalTok{(one\_run}\SpecialCharTok{$}\NormalTok{C) }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\ControlFlowTok{next}
+          
+\NormalTok{          i }\OtherTok{\textless{}{-}}\NormalTok{ i }\SpecialCharTok{+} \DecValTok{1}
+          
+\NormalTok{          reached\_B }\OtherTok{\textless{}{-}}\NormalTok{ one\_run}\SpecialCharTok{$}\NormalTok{B}\SpecialCharTok{$}\NormalTok{A }\SpecialCharTok{\textgreater{}=}\NormalTok{ rescue\_frac }\SpecialCharTok{*}\NormalTok{ K\_B}
+\NormalTok{          reached\_C }\OtherTok{\textless{}{-}}\NormalTok{ one\_run}\SpecialCharTok{$}\NormalTok{C}\SpecialCharTok{$}\NormalTok{A }\SpecialCharTok{\textgreater{}=}\NormalTok{ rescue\_frac }\SpecialCharTok{*}\NormalTok{ K\_C}
+          
+\NormalTok{          rescued\_B }\OtherTok{\textless{}{-}}\NormalTok{ reached\_B[}\FunctionTok{length}\NormalTok{(reached\_B)]}
+\NormalTok{          rescued\_C }\OtherTok{\textless{}{-}}\NormalTok{ reached\_C[}\FunctionTok{length}\NormalTok{(reached\_C)]}
+          
+\NormalTok{          results[[}\FunctionTok{length}\NormalTok{(results) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+            \AttributeTok{st =}\NormalTok{ st,}
+            \AttributeTok{hp =}\NormalTok{ hp,}
+            \AttributeTok{sr =}\NormalTok{ sr,}
+            \AttributeTok{replicate =}\NormalTok{ i,}
+            \AttributeTok{rescued\_B =}\NormalTok{ rescued\_B,}
+            \AttributeTok{rescued\_C =}\NormalTok{ rescued\_C,}
+            \AttributeTok{rescued\_any =}\NormalTok{ rescued\_B }\SpecialCharTok{|}\NormalTok{ rescued\_C,}
+            \AttributeTok{rescued\_both =}\NormalTok{ rescued\_B }\SpecialCharTok{\&}\NormalTok{ rescued\_C,}
+            \AttributeTok{gen\_B =} \ControlFlowTok{if}\NormalTok{ (rescued\_B) }\FunctionTok{which}\NormalTok{(reached\_B)[}\DecValTok{1}\NormalTok{] }\ControlFlowTok{else} \ConstantTok{NA\_integer\_}\NormalTok{,}
+            \AttributeTok{gen\_C =} \ControlFlowTok{if}\NormalTok{ (rescued\_C) }\FunctionTok{which}\NormalTok{(reached\_C)[}\DecValTok{1}\NormalTok{] }\ControlFlowTok{else} \ConstantTok{NA\_integer\_}
+\NormalTok{          )}
+          
+          \ControlFlowTok{if}\NormalTok{ (i }\SpecialCharTok{\textgreater{}=}\NormalTok{ no\_replicates) }\ControlFlowTok{break}
+\NormalTok{        \}}
+\NormalTok{      \}}
+\NormalTok{    \}}
+\NormalTok{  \}}
+  
+  \CommentTok{\# Combine all simulation results}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(results) }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) \{}
+    \FunctionTok{stop}\NormalTok{(}\StringTok{"No valid simulation results were obtained."}\NormalTok{)}
+\NormalTok{  \}}
+  
+\NormalTok{  data\_table }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, results)}
+
+  \CommentTok{\# Rescue probability per scenario}
+\NormalTok{  rescue\_prob }\OtherTok{\textless{}{-}}\NormalTok{ data\_table }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{    dplyr}\SpecialCharTok{::}\FunctionTok{group\_by}\NormalTok{(st, hp, sr) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{    dplyr}\SpecialCharTok{::}\FunctionTok{summarise}\NormalTok{(}
+      \AttributeTok{n =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{n}\NormalTok{(),}
+\NormalTok{      dplyr}\SpecialCharTok{::}\FunctionTok{across}\NormalTok{(}
+        \FunctionTok{c}\NormalTok{(rescued\_B, rescued\_C, rescued\_any, rescued\_both),}
+\NormalTok{        mean}
+\NormalTok{      ),}
+      \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{    )}
+  
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{data =}\NormalTok{ data\_table,}
+    \AttributeTok{prob =}\NormalTok{ rescue\_prob}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+
+\CommentTok{\# {-}{-}{-}{-} helperfunction : long format with standard error for plotting {-}{-}{-}{-}}
+
+\NormalTok{to\_long }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(rescue\_prob) \{}
+\NormalTok{  rescue\_prob }\SpecialCharTok{\%\textgreater{}\%}         \CommentTok{\#\%\textgreater{}\% is the pipe operator. It takes whatever is on its left and passes it as the first argument of the function on its right.}
+\NormalTok{    tidyr}\SpecialCharTok{::}\FunctionTok{pivot\_longer}\NormalTok{(   }\CommentTok{\#doing this for ggplot 2 }
+      \AttributeTok{cols =} \FunctionTok{c}\NormalTok{(rescued\_B, rescued\_C, rescued\_both),}
+      \AttributeTok{names\_to =} \StringTok{"population"}\NormalTok{,}
+      \AttributeTok{values\_to =} \StringTok{"rescue\_probability"}   
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{    dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(}
+      \CommentTok{\#standard error of a proportion}
+      \AttributeTok{se =} \FunctionTok{sqrt}\NormalTok{(rescue\_probability }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ rescue\_probability) }\SpecialCharTok{/}\NormalTok{ n),}
+      \AttributeTok{population =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{recode}\NormalTok{(}
+\NormalTok{        population,}
+        \AttributeTok{rescued\_B    =} \StringTok{"Population B"}\NormalTok{,}
+        \AttributeTok{rescued\_C    =} \StringTok{"Population C"}\NormalTok{,}
+        \AttributeTok{rescued\_both =} \StringTok{"Both populations"}
+\NormalTok{      )}
+\NormalTok{    )}
+\NormalTok{\}}
+
+\CommentTok{\# =======================================================================}
+\CommentTok{\# ANALYSIS 1: split time varies, habitat proportion fixed}
+\CommentTok{\# =======================================================================}
+\NormalTok{res1 }\OtherTok{\textless{}{-}} \FunctionTok{run\_scenarios}\NormalTok{(}
+  \AttributeTok{split\_times   =} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{30}\NormalTok{, }\DecValTok{50}\NormalTok{, }\DecValTok{75}\NormalTok{, }\DecValTok{100}\NormalTok{),}
+  \AttributeTok{habitat\_props =} \FloatTok{0.5}\NormalTok{,}
+  \AttributeTok{split\_ratios =} \FloatTok{0.5}
+\NormalTok{)}
+\NormalTok{long1 }\OtherTok{\textless{}{-}} \FunctionTok{to\_long}\NormalTok{(res1}\SpecialCharTok{$}\NormalTok{prob)}
+\FunctionTok{print}\NormalTok{(res1}\SpecialCharTok{$}\NormalTok{prob)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 6 x 8
+##      st    hp    sr     n rescued_B rescued_C rescued_any rescued_both
+##   <dbl> <dbl> <dbl> <int>     <dbl>     <dbl>       <dbl>        <dbl>
+## 1    10   0.5   0.5     1         0         0           0            0
+## 2    20   0.5   0.5     1         0         1           1            0
+## 3    30   0.5   0.5     1         0         0           0            0
+## 4    50   0.5   0.5     1         1         0           1            0
+## 5    75   0.5   0.5     1         1         1           1            1
+## 6   100   0.5   0.5     1         1         1           1            1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(long1, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ st, }\AttributeTok{y =}\NormalTok{ rescue\_probability,}
+                  \AttributeTok{color =}\NormalTok{ population, }\AttributeTok{group =}\NormalTok{ population)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_errorbar}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =} \FunctionTok{pmax}\NormalTok{(}\DecValTok{0}\NormalTok{, rescue\_probability }\SpecialCharTok{{-}}\NormalTok{ se),}
+                    \AttributeTok{ymax =} \FunctionTok{pmin}\NormalTok{(}\DecValTok{1}\NormalTok{, rescue\_probability }\SpecialCharTok{+}\NormalTok{ se)),}
+                \AttributeTok{width =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{breaks =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\FloatTok{0.1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Rescue prob. for split time habitat proportion = 0.5"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Split time"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Rescue probability"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Population"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{16}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/analyses-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# =======================================================================}
+\CommentTok{\# ANALYSIS 2: habitat proportion varies, split time fixed}
+\CommentTok{\# =======================================================================}
+\NormalTok{res2 }\OtherTok{\textless{}{-}} \FunctionTok{run\_scenarios}\NormalTok{(}
+  \AttributeTok{split\_times   =} \DecValTok{30}\NormalTok{,}
+  \AttributeTok{habitat\_props =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.2}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.4}\NormalTok{, }\FloatTok{0.5}\NormalTok{),}
+  \AttributeTok{split\_ratios =} \FloatTok{0.5}
+\NormalTok{)}
+\NormalTok{long2 }\OtherTok{\textless{}{-}} \FunctionTok{to\_long}\NormalTok{(res2}\SpecialCharTok{$}\NormalTok{prob)}
+\FunctionTok{print}\NormalTok{(res2}\SpecialCharTok{$}\NormalTok{prob)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 5 x 8
+##      st    hp    sr     n rescued_B rescued_C rescued_any rescued_both
+##   <dbl> <dbl> <dbl> <int>     <dbl>     <dbl>       <dbl>        <dbl>
+## 1    30   0.1   0.5     1         0         1           1            0
+## 2    30   0.2   0.5     1         0         0           0            0
+## 3    30   0.3   0.5     1         0         0           0            0
+## 4    30   0.4   0.5     1         0         0           0            0
+## 5    30   0.5   0.5     1         0         0           0            0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(long2, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ hp, }\AttributeTok{y =}\NormalTok{ rescue\_probability,}
+                  \AttributeTok{color =}\NormalTok{ population, }\AttributeTok{group =}\NormalTok{ population)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_errorbar}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =} \FunctionTok{pmax}\NormalTok{(}\DecValTok{0}\NormalTok{, rescue\_probability }\SpecialCharTok{{-}}\NormalTok{ se),}
+                    \AttributeTok{ymax =} \FunctionTok{pmin}\NormalTok{(}\DecValTok{1}\NormalTok{, rescue\_probability }\SpecialCharTok{+}\NormalTok{ se)),}
+                \AttributeTok{width =} \FloatTok{0.02}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks =} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.9}\NormalTok{, }\FloatTok{0.1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{breaks =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\FloatTok{0.1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Rescue Prob. for habitat proportions (split time = 30)"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Habitat proportion (B)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Rescue probability"}\NormalTok{,}
+       \AttributeTok{color =} \StringTok{"Population"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/analyses-2.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# =======================================================================}
+\CommentTok{\# ANALYSIS 3: split ratio varies, habitat proportion fixed}
+\CommentTok{\# =======================================================================}
+
+\NormalTok{res2 }\OtherTok{\textless{}{-}} \FunctionTok{run\_scenarios}\NormalTok{(}
+  \AttributeTok{split\_times   =} \DecValTok{30}\NormalTok{,  }\CommentTok{\# fix split time}
+  \AttributeTok{habitat\_props =} \FloatTok{0.5}\NormalTok{,}
+  \AttributeTok{split\_ratios  =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.2}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.4}\NormalTok{, }\FloatTok{0.5}\NormalTok{)}
+\NormalTok{)}
+
+\NormalTok{long2 }\OtherTok{\textless{}{-}} \FunctionTok{to\_long}\NormalTok{(res2}\SpecialCharTok{$}\NormalTok{prob)}
+
+\FunctionTok{print}\NormalTok{(res2}\SpecialCharTok{$}\NormalTok{prob)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 5 x 8
+##      st    hp    sr     n rescued_B rescued_C rescued_any rescued_both
+##   <dbl> <dbl> <dbl> <int>     <dbl>     <dbl>       <dbl>        <dbl>
+## 1    30   0.5   0.1     1         0         0           0            0
+## 2    30   0.5   0.2     1         0         0           0            0
+## 3    30   0.5   0.3     1         1         0           1            0
+## 4    30   0.5   0.4     1         0         0           0            0
+## 5    30   0.5   0.5     1         0         0           0            0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(long2, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ sr, }\AttributeTok{y =}\NormalTok{ rescue\_probability,}
+                  \AttributeTok{color =}\NormalTok{ population, }\AttributeTok{group =}\NormalTok{ population)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{linewidth =} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_errorbar}\NormalTok{(}
+    \FunctionTok{aes}\NormalTok{(}
+      \AttributeTok{ymin =} \FunctionTok{pmax}\NormalTok{(}\DecValTok{0}\NormalTok{, rescue\_probability }\SpecialCharTok{{-}}\NormalTok{ se),}
+      \AttributeTok{ymax =} \FunctionTok{pmin}\NormalTok{(}\DecValTok{1}\NormalTok{, rescue\_probability }\SpecialCharTok{+}\NormalTok{ se)}
+\NormalTok{    ),}
+    \AttributeTok{width =} \FloatTok{0.02}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks =} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.2}\NormalTok{, }\FloatTok{0.8}\NormalTok{, }\FloatTok{0.1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}
+    \AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+    \AttributeTok{breaks =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\FloatTok{0.1}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Rescue probability vs. split ratio (habitat proportion = 0.5)"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Split ratio (sr)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Rescue probability"}\NormalTok{,}
+    \AttributeTok{color =} \StringTok{"Population"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/analyses-3.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# =======================================================================}
+\CommentTok{\# ANALYSIS 4: both vary (full grid)}
+\CommentTok{\# =======================================================================}
+\NormalTok{res3 }\OtherTok{\textless{}{-}} \FunctionTok{run\_scenarios}\NormalTok{(}
+  \AttributeTok{split\_times   =} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{, }\DecValTok{30}\NormalTok{, }\DecValTok{50}\NormalTok{, }\DecValTok{100}\NormalTok{),}
+  \AttributeTok{habitat\_props =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\FloatTok{0.5}\NormalTok{),}
+  \AttributeTok{split\_ratios =} \FloatTok{0.5}
+\NormalTok{)}
+\NormalTok{long3 }\OtherTok{\textless{}{-}} \FunctionTok{to\_long}\NormalTok{(res3}\SpecialCharTok{$}\NormalTok{prob)}
+\FunctionTok{print}\NormalTok{(res3}\SpecialCharTok{$}\NormalTok{prob)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 12 x 8
+##       st    hp    sr     n rescued_B rescued_C rescued_any rescued_both
+##    <dbl> <dbl> <dbl> <int>     <dbl>     <dbl>       <dbl>        <dbl>
+##  1    10  0.1    0.5     1         1         0           1            0
+##  2    10  0.25   0.5     1         0         0           0            0
+##  3    10  0.5    0.5     1         0         0           0            0
+##  4    30  0.1    0.5     1         0         1           1            0
+##  5    30  0.25   0.5     1         0         0           0            0
+##  6    30  0.5    0.5     1         0         0           0            0
+##  7    50  0.1    0.5     1         0         1           1            0
+##  8    50  0.25   0.5     1         0         0           0            0
+##  9    50  0.5    0.5     1         1         0           1            0
+## 10   100  0.1    0.5     1         0         1           1            0
+## 11   100  0.25   0.5     1         0         0           0            0
+## 12   100  0.5    0.5     1         0         0           0            0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# heatmap: one panel per population}
+\CommentTok{\# label showing the proportion of BOTH habitats on two lines, e.g. "B 0.1" over "C 0.9"}
+\NormalTok{hp\_values }\OtherTok{\textless{}{-}} \FunctionTok{sort}\NormalTok{(}\FunctionTok{unique}\NormalTok{(long3}\SpecialCharTok{$}\NormalTok{hp))}
+\NormalTok{long3 }\OtherTok{\textless{}{-}}\NormalTok{ long3 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{hp\_label =} \FunctionTok{factor}\NormalTok{(hp, }\AttributeTok{levels =}\NormalTok{ hp\_values,}
+                           \AttributeTok{labels =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"B "}\NormalTok{, hp\_values, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{C "}\NormalTok{, }\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ hp\_values)))}
+
+\FunctionTok{ggplot}\NormalTok{(long3, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ hp\_label, }\AttributeTok{y =} \FunctionTok{factor}\NormalTok{(st), }\AttributeTok{fill =}\NormalTok{ rescue\_probability)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_tile}\NormalTok{(}\AttributeTok{color =} \StringTok{"white"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =} \FunctionTok{sprintf}\NormalTok{(}\StringTok{"\%.2f"}\NormalTok{, rescue\_probability)), }\AttributeTok{size =} \FloatTok{3.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ population) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_viridis\_c}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{option =} \StringTok{"C"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Rescue probability by split time and habitat proportion"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Habitat proportion"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Split time"}\NormalTok{,}
+       \AttributeTok{fill =} \StringTok{"Rescue}\SpecialCharTok{\textbackslash{}n}\StringTok{probability"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size=} \DecValTok{16}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/analyses-4.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# =======================================================================}
+\CommentTok{\# ANALYSIS 5: split time and split ratio vary (full grid)}
+\CommentTok{\# =======================================================================}
+
+\NormalTok{res3 }\OtherTok{\textless{}{-}} \FunctionTok{run\_scenarios}\NormalTok{(}
+  \AttributeTok{split\_times   =} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{, }\DecValTok{30}\NormalTok{, }\DecValTok{50}\NormalTok{, }\DecValTok{100}\NormalTok{),}
+  \AttributeTok{habitat\_props =} \FloatTok{0.5}\NormalTok{,}
+  \AttributeTok{split\_ratios  =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\FloatTok{0.5}\NormalTok{)}
+\NormalTok{)}
+
+\NormalTok{long3 }\OtherTok{\textless{}{-}} \FunctionTok{to\_long}\NormalTok{(res3}\SpecialCharTok{$}\NormalTok{prob)}
+
+\FunctionTok{print}\NormalTok{(res3}\SpecialCharTok{$}\NormalTok{prob)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 12 x 8
+##       st    hp    sr     n rescued_B rescued_C rescued_any rescued_both
+##    <dbl> <dbl> <dbl> <int>     <dbl>     <dbl>       <dbl>        <dbl>
+##  1    10   0.5  0.1      1         0         0           0            0
+##  2    10   0.5  0.25     1         0         0           0            0
+##  3    10   0.5  0.5      1         0         0           0            0
+##  4    30   0.5  0.1      1         0         0           0            0
+##  5    30   0.5  0.25     1         0         0           0            0
+##  6    30   0.5  0.5      1         0         0           0            0
+##  7    50   0.5  0.1      1         0         1           1            0
+##  8    50   0.5  0.25     1         1         1           1            1
+##  9    50   0.5  0.5      1         0         1           1            0
+## 10   100   0.5  0.1      1         0         0           0            0
+## 11   100   0.5  0.25     1         0         1           1            0
+## 12   100   0.5  0.5      1         0         1           1            0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Heatmap: one panel per population}
+\FunctionTok{ggplot}\NormalTok{(long3, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{factor}\NormalTok{(sr), }\AttributeTok{y =} \FunctionTok{factor}\NormalTok{(st),}
+                  \AttributeTok{fill =}\NormalTok{ rescue\_probability)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_tile}\NormalTok{(}\AttributeTok{color =} \StringTok{"white"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =} \FunctionTok{sprintf}\NormalTok{(}\StringTok{"\%.2f"}\NormalTok{, rescue\_probability)),}
+            \AttributeTok{size =} \FloatTok{3.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ population) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_viridis\_c}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{option =} \StringTok{"C"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Rescue probability by split time and split ratio"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Split ratio (sr)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Split time (st)"}\NormalTok{,}
+    \AttributeTok{fill =} \StringTok{"Rescue}\SpecialCharTok{\textbackslash{}n}\StringTok{probability"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{THEE_fragmentation_files/figure-latex/analyses-5.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{if}\NormalTok{ (}\ConstantTok{FALSE}\NormalTok{) \{}
+  \CommentTok{\# If (FALSE) is here used to skip the following plots, without using \# in every line.}
+\CommentTok{\# =======================================================================}
+\CommentTok{\# ANALYSIS 6: both vary (bar plots percentage)}
+\CommentTok{\# =======================================================================}
+\NormalTok{outcome\_cols }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Both rescued"}    \OtherTok{=} \StringTok{"\#2a9d8f"}\NormalTok{,}
+                  \StringTok{"Only B rescued"}  \OtherTok{=} \StringTok{"darkgreen"}\NormalTok{,}
+                  \StringTok{"Only C rescued"}  \OtherTok{=} \StringTok{"darkorange"}\NormalTok{,}
+                  \StringTok{"Neither rescued"} \OtherTok{=} \StringTok{"grey75"}\NormalTok{)}
+
+\NormalTok{plot\_outcomes }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(dat, x\_var, x\_label, title) \{}
+\NormalTok{    dat }\OtherTok{\textless{}{-}}\NormalTok{ dat }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{outcome =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      rescued\_both }\SpecialCharTok{\textasciitilde{}} \StringTok{"Both rescued"}\NormalTok{,}
+\NormalTok{      rescued\_B    }\SpecialCharTok{\textasciitilde{}} \StringTok{"Only B rescued"}\NormalTok{,}
+\NormalTok{      rescued\_C    }\SpecialCharTok{\textasciitilde{}} \StringTok{"Only C rescued"}\NormalTok{,}
+      \ConstantTok{TRUE}         \SpecialCharTok{\textasciitilde{}} \StringTok{"Neither rescued"}\NormalTok{),}
+      \AttributeTok{outcome =} \FunctionTok{factor}\NormalTok{(outcome, }\AttributeTok{levels =} \FunctionTok{names}\NormalTok{(outcome\_cols)[}\FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{)]))}
+  
+  \FunctionTok{ggplot}\NormalTok{(dat, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{factor}\NormalTok{(.data[[x\_var]]), }\AttributeTok{fill =}\NormalTok{ outcome)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{position =} \StringTok{"fill"}\NormalTok{) }\SpecialCharTok{+}          \CommentTok{\# each bar sums to 1 (= 100 \%)}
+    \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =}\NormalTok{ outcome\_cols) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =}\NormalTok{ title, }\AttributeTok{x =}\NormalTok{ x\_label, }\AttributeTok{y =} \StringTok{"Proportion of replicates"}\NormalTok{, }\AttributeTok{fill =} \StringTok{"Outcome"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{((}\AttributeTok{base\_size=} \DecValTok{16}\NormalTok{))}
+\NormalTok{\}}
+
+\FunctionTok{plot\_outcomes}\NormalTok{(res1}\SpecialCharTok{$}\NormalTok{data, }\StringTok{"st"}\NormalTok{, }\StringTok{"Split time"}\NormalTok{, }\StringTok{"Outcome vs. split time (habitat proportion = 0.5)"}\NormalTok{)}
+\FunctionTok{plot\_outcomes}\NormalTok{(res2}\SpecialCharTok{$}\NormalTok{data, }\StringTok{"hp"}\NormalTok{, }\StringTok{"Habitat proportion (B)"}\NormalTok{, }\StringTok{"Outcome vs. habitat proportion (split time = 30)"}\NormalTok{)}
+\FunctionTok{plot\_outcomes}\NormalTok{(res3}\SpecialCharTok{$}\NormalTok{data, }\StringTok{"st"}\NormalTok{, }\StringTok{"Split time"}\NormalTok{, }\StringTok{"Outcome by split time and habitat proportion"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ hp, }\AttributeTok{labeller =}\NormalTok{ label\_both)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{\# Appendix}\label{appendix}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\StringTok{"Built with \textasciigrave{}r getRversion()\textasciigrave{}"} 
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Built with `r getRversion()`"
+\end{verbatim}
+
+\textbf{Less common functions used}
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{set.seed(57)}: initialises R's random number generator. With
+  the same seed, all ``random'' draws are repeated identically, so
+  results can be reproduced. Without it every knit gives different
+  numbers.
+\item
+  \texttt{rpois(n,\ lambda)}: draws \texttt{n} random numbers from a
+  Poisson distribution with mean \texttt{lambda}. The Poisson
+  distribution describes counts of independent events, which is a
+  natural model for the number of offspring.
+\item
+  \texttt{max(0,\ x)}: returns the larger of the two values, used here
+  as a floor at 0.
+\item
+  \texttt{rbinom(n,\ size,\ prob)}: draws \texttt{n} random numbers from
+  a binomial distribution, i.e.~the number of ``successes'' among
+  \texttt{size} independent trials, each with success probability
+  \texttt{prob}. Here: how many of the individuals are assigned to
+  habitat B.
+\item
+  \texttt{rbind(x,\ y)}: ``row-bind'', appends \texttt{y} as a new row
+  below \texttt{x}. Starting from \texttt{NULL}, the first
+  \texttt{rbind} creates the matrix. This is how the time series grows
+  by one row per generation.
+\item
+  \texttt{rownames()} / \texttt{colnames()}: set the labels of the rows
+  / columns of a matrix. \texttt{(0:t\_max){[}1:length(...){]}} creates
+  the generation numbers and cuts them to the actual number of rows.
+\item
+  \texttt{break}: leaves the \texttt{for} loop immediately (used for
+  early stopping).
+\item
+  \texttt{\textbar{}}: element-wise logical ``or'' (here equivalent to
+  \texttt{\textbar{}\textbar{}} since both sides are single values).
+\item
+  \texttt{as.data.frame()}: converts a matrix into a data frame, so
+  columns can be accessed with \texttt{\$} (e.g.~\texttt{output\$B\$A}).
+  \texttt{as.data.frame(NULL)} gives an empty data frame with 0 rows,
+  which is how we detect runs that ended before the split.
+\item
+  \texttt{list(main\ =\ ...,\ B\ =\ ...,\ C\ =\ ...)}: returns several
+  objects of different size in one named container.
+\item
+  \texttt{par()}: sets global graphics parameters. \texttt{mar} =
+  margins (bottom, left, top, right) in lines;
+  \texttt{mfrow\ =\ c(2,\ 1)} = a grid of 2 rows × 1 column of plots.
+  \texttt{par()} returns the \emph{old} values, which we save in
+  \texttt{old\_par}.
+\item
+  \texttt{on.exit(par(old\_par))}: registers code that runs
+  automatically when the function ends, restoring the original graphics
+  settings so that later plots are not affected.
+\item
+  \texttt{segments(x0,\ y0,\ x1,\ y1)}: draws a straight line between
+  two points; used for the carrying-capacity lines that only span part
+  of the x-axis.
+\item
+  \texttt{legend()}: adds a legend. \texttt{par("usr")} returns the plot
+  region's coordinates (x-min, x-max, y-min, y-max), so
+  \texttt{par("usr"){[}2{]}} and \texttt{{[}4{]}} are the top-right
+  corner. \texttt{xpd\ =\ TRUE} allows drawing outside the plot region,
+  \texttt{bty\ =\ "n"} removes the legend box,
+  \texttt{xjust}/\texttt{yjust} set which corner of the legend is
+  anchored at that point.
+\item
+  \texttt{seq\_along(x)} / \texttt{seq\_len(n)}: safe ways to create
+  \texttt{1,\ 2,\ ...,\ length(x)} or \texttt{1,\ ...,\ n} (they return
+  an empty sequence for empty input, unlike \texttt{1:length(x)}).
+\item
+  \texttt{if\ (...)\ a\ else\ b} used as an expression:
+  \texttt{x\_max\ \textless{}-\ if\ (is.null(xlim\_max))\ ...\ else\ ...}
+  assigns one of two values.
+\item
+  \texttt{plot.new()} + \texttt{title()}: create a blank plot and add a
+  title, used as a placeholder when there is no data.
+\item
+  \texttt{invisible(NULL)}: returns \texttt{NULL} without printing it.
+\item
+  \texttt{paste0()}: joins strings without separator, used to put the
+  starting numbers in the legend.
+\item
+  \texttt{repeat\ \{\ ...\ \}}: an endless loop that is left only with
+  \texttt{break}. Used here because we do not know in advance how many
+  attempts are needed to get enough valid runs.
+\item
+  \texttt{next}: skips the rest of the current loop iteration and goes
+  to the next one.
+\item
+  \texttt{any(x)}: \texttt{TRUE} if at least one element of the logical
+  vector \texttt{x} is \texttt{TRUE}.
+\item
+  \texttt{which(x){[}1{]}}: \texttt{which()} returns the positions of
+  all \texttt{TRUE} elements; \texttt{{[}1{]}} takes the first, i.e.~the
+  \textbf{first generation} at which the threshold was reached. Note
+  this counts rows after the split (row 1 = first generation after the
+  split).
+\item
+  \texttt{NA\_integer\_}: a missing value of integer type (a plain
+  \texttt{NA} could create type conflicts when binding rows).
+\item
+  \texttt{results{[}{[}length(results)\ +\ 1{]}{]}\ \textless{}-\ ...}:
+  appends an element to the end of a list.
+\item
+  \texttt{do.call(rbind,\ results)}: calls \texttt{rbind} with the list
+  elements as separate arguments, i.e.~stacks all data frames in the
+  list into one big table.
+\item
+  \texttt{\%\textgreater{}\%} (pipe): passes the result on the left as
+  the first argument of the function on the right, so operations can be
+  read top to bottom.
+\item
+  \texttt{group\_by(st,\ hp)}: tells \texttt{dplyr} to do the following
+  calculations separately for each combination of \texttt{st} and
+  \texttt{hp}.
+\item
+  \texttt{summarise(...)}: collapses each group into a single row.
+  \texttt{n()} counts the rows in the group;
+  \texttt{across(cols,\ mean)} applies \texttt{mean} to several columns
+  at once; \texttt{.groups\ =\ "drop"} removes the grouping afterwards.
+\item
+  \texttt{pivot\_longer()}: turns several columns into two
+  (\texttt{names\_to} gets the old column names, \texttt{values\_to} the
+  values). One row per scenario and population results, as
+  \texttt{ggplot2} needs..
+\item
+  \texttt{ggplot(data,\ aes(...))\ +\ geom\_*()}: \texttt{ggplot2}
+  builds a plot in layers. \texttt{aes()} maps data columns to visual
+  properties (x, y, colour, fill), and each \texttt{geom\_} adds a
+  layer: \texttt{geom\_line}, \texttt{geom\_point},
+  \texttt{geom\_errorbar} (error bars), \texttt{geom\_tile} (coloured
+  rectangles), \texttt{geom\_text} (printed numbers).
+\item
+  \texttt{pmax()} / \texttt{pmin()}: \emph{parallel} maximum / minimum,
+  applied element by element to a vector (unlike \texttt{max()}, which
+  returns a single number). Used to keep error bars inside {[}0, 1{]}.
+\item
+  \texttt{scale\_y\_continuous(limits,\ breaks)}: sets the axis range
+  and tick positions. \texttt{seq(from,\ to,\ by)} generates the tick
+  values.
+\item
+  \texttt{labs()}: sets titles and axis/legend labels.
+  \texttt{theme\_minimal()}: applies a clean plot theme.
+\item
+  \texttt{facet\_wrap(\textasciitilde{}\ population)}: splits the plot
+  into one panel per value of \texttt{population}.
+\item
+  \texttt{scale\_fill\_viridis\_c(option\ =\ "C")}: a continuous colour
+  scale (viridis palette), readable also for colour-blind people.
+\item
+  \texttt{factor(x,\ levels,\ labels)}: converts values into a
+  categorical variable with a fixed order and custom display labels.
+  \texttt{factor(st)} makes the split time a category so that tiles are
+  evenly spaced.
+\item
+  \texttt{sprintf("\%.2f",\ x)}: formats a number as text with 2
+  decimals.
+\item
+  \texttt{sort(unique(x))}: the distinct values of \texttt{x} in
+  ascending order.
+\end{itemize}
+
+\end{document}

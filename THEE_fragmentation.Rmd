@@ -6,6 +6,7 @@ output:
   pdf_document: default
   html_document:
     df_print: paged
+ 
 ---
 
 # Abstract
@@ -59,7 +60,7 @@ library(dplyr)
 #libraries used for our code / use install.packages(c(ggplot2,tidyr,dplyr))
 ```
 
-## 1.1 Overview of the code
+##  Overview of the code
 
 
 1. `simulate_one_gen()`: simulates **one generation** (reproduction with logistic growth + mutation) for one habitat.
@@ -69,7 +70,7 @@ library(dplyr)
 5. Four analyses: split time varies, habitat proportion varies and migration rates
 
 
-## 1.2 Parameters and variables
+##  Parameters and variables
 
 | Name | Meaning |
 |------------------------------------|------------------------------------|
@@ -86,7 +87,7 @@ library(dplyr)
 
 
 
-=======
+
 ## Simulating evolutionary rescue in discrete time
 
 In this notebook, we are implementing simulations of evolutionary rescue by a single mutation in discrete time, as discussed and analyzed in the work by Orr & Unckless. The model is as follows: a haploid population starts with a given number of wild-type and mutant individuals. Because of a sudden environmental change, the wild type is unfit and declines in the new environment. The mutant is beneficial and can survive and expand in the new environment, but it starts at a low (or zero) frequency in the total population. In order to rescue the population, it has to outcompete the wild type. If the mutant is not present at time 0, it has to appear through mutation and then spread in the population before extinction occurs.
@@ -113,7 +114,7 @@ When $N_{tot}$ approaches $K$, the mutant's growth factor approaches 1 (populati
 
 The function returns a vector `c(N_a_new, N_A_new)`.
 
-```{r SImulation for one Generation}
+```{r SImulation-for-one-Generation}
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   
   # total population size and per-capita growth rates without competition
@@ -142,57 +143,51 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
 ``` 
 
 
-## Simulate population changes and implementing habitat fragmentation
-=======
-```
+## Simulate populations
 
 
+The function simulate_one_gen() describes a single generation, whereas evolutionary rescue unfolds over many. We therefore iterate this step in simulate_pop(), which integrates habitat fragmentation (the population is divided into two isolated habitats at a chosen generation) and migration (individuals may move between these habitats afterwards). The function records the numbers of wild-type and mutant individuals in each habitat, so we can determine whether the mutant spreads and rescues the population, and how the timing of the split, the relative habitat sizes and the migration rate influence this outcome.
+
+The function simulate_pop() runs the full simulation over t_max generations and has two phases. In the first phase (generations 1 to split_time), the population lives in one habitat with carrying capacity K, and each generation is simulated with simulate_one_gen(). This phase stops early if the population goes extinct or grows to at least twice its initial size.
+
+In the second phase, at generation split_time + 1, the habitat is fragmented into two isolated habitats, B and C. Habitat B receives the share habitat_prop of the carrying capacity (K_B = K * habitat_prop) and habitat C receives the rest (K_C = K * (1 - habitat_prop)). The existing individuals are distributed randomly: each wild-type and each mutant individual is assigned to habitat B with probability split_ratio (using rbinom()) and to habitat C otherwise. From then on both habitats are simulated independently, each with its own carrying capacity.
+
+After each generation, migration can occur. Each individual moves to the other habitat with probability migrate, drawn separately for wild types and mutants. Migration is symmetric in its rate but not in its effect. The number of migrants is proportional to the size of the source habitat.
+
+The function returns a list of three data frames: main (population sizes before the split), and B and C. If the population dies out or reaches twice its starting size before the split, B and C are empty.
 
 
-```{r simulating whole population}
+```{r simulating-whole-population}
 simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_max, K, habitat_prop, split_ratio, split_time,migrate) {
   # Create the vector in which to save the results
   pop_vector <- c(N_init_a, N_init_A)
   # initiate the variables
   pop_new <- c(N_init_a, N_init_A)
-  
   # Create the vectors for the new habitats
   pop_vector_B <- NULL
   pop_vector_C <- NULL
-  
   # run the simulation until generation t_max
   for (i in 1:t_max) {
-    
     # Time when the fragmentation occur
     if (i == split_time + 1) {
-      
       # Create the new habitats (creating new K)
       K_B <- K * habitat_prop
       K_C <- K * (1 - habitat_prop)
-      
       #create the ratio of the splitting
       split_ratio_B <- split_ratio
       split_ratio_C <- (1 - split_ratio_B)
-      # print(split_ratio_B)
-      # print(split_ratio_C)
       # Distribute individuals  randomly to the habitat B
       n_B_a <- rbinom(1, pop_new[1], split_ratio_B) 
       n_B_A <- rbinom(1, pop_new[2], split_ratio_B)   
-      
       # Distribute individuals randomly to the habitat C
       n_C_a <- pop_new[1] - n_B_a
       n_C_A <- pop_new[2] - n_B_A
-      
       # Calculate the new populatins for B an C 
       pop_new_B <- simulate_one_gen(n_B_a, n_B_A, decay_rate, sel_coeff, mut_rate, K_B)
       pop_new_C <- simulate_one_gen(n_C_a, n_C_A, decay_rate, sel_coeff, mut_rate, K_C)
-      
-      
       # add the new population sizes to the output vector
       pop_vector_B <- rbind(pop_vector_B,pop_new_B)
       pop_vector_C <- rbind(pop_vector_C,pop_new_C)
-      
-      
     }
     
     if (i > split_time + 1) {
@@ -210,12 +205,10 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
                         rbinom(1, pop_new_B[2], migrate))
       migrateC_vec <- c(rbinom(1, pop_new_C[1], migrate),
                         rbinom(1, pop_new_C[2], migrate))
-      
+      #adding the migrating individuals backto the Populations
       pop_new_B <- pop_new_B - migrateB_vec + migrateC_vec
       pop_new_C <- pop_new_C - migrateC_vec + migrateB_vec
-        
-        
-        
+
       # Save the results for each generation
       pop_vector_B <- rbind(pop_vector_B, pop_new_B)
       pop_vector_C <- rbind(pop_vector_C, pop_new_C)
@@ -243,7 +236,6 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   # define the row and column names of the output vector
   rownames(pop_vector) <- (0:t_max)[1:length(pop_vector[,1])] # note that the vector has to be cut if the simulation stopped early
   colnames(pop_vector) <- c("a","A")
-  
   # Data frames
   pop_vector_df <- as.data.frame(pop_vector)
   pop_vector_B_df <- as.data.frame(pop_vector_B)
@@ -252,8 +244,11 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
   return(list(main = pop_vector_df, B = pop_vector_B_df, C = pop_vector_C_df))
 }
 ```
+## Plotting function for the model
 
-```{r plotting function model}
+To inspect what happens in a single simulation, we define three plot functions. plot_split() shows the whole run: wild type and mutant before the split, and the total population of habitats B and C afterwards, together with the carrying capacities (K, K_B, K_C) and the split time. plot_habitat() draws one habitat in detail, with the wild type, the mutant and the total population, and plot_habitats() stacks the panels of B and C so that they can be compared directly. These plots serve to check that the simulation behaves as expected, and they were used extensively for debugging in the early stages of the project. We used base R graphics here, and the plots received very positive feedback. Opinions on whether to use base R or ggplot2 for plotting are divided, even within the **THEE** Lab. In the later plotting functions we use ggplot2, both as an exercise to learn the package and to show that both approaches can produce informative figures.
+
+```{r plotting-function-model,echo = FALSE}
 # ============================================================
 # Plot functions for the evolutionary rescue simulation
 # with habitat fragmentation
@@ -347,19 +342,12 @@ plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL)
   lines(gens, df$A, col = "firebrick", lwd = 2)  # mutant
   
   
-  
-  legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
-         xjust = 0, yjust = 1, cex = 0.85,
-         legend = c("Total", "Wild type (a)", "Mutant (A)", "K", "Split time"),
-         col = c(col_tot, "blue", "firebrick", col_tot, "grey40"),
-         lty = c(1, 1, 1, 2, 3), lwd = 2)
-  
   ##adding the starting population
   legend(x = par("usr")[2], y = par("usr")[4], xpd = TRUE, bty = "n",
          xjust = 0, yjust = 1, cex = 0.85,
          legend = c("Total",
-                    paste0("Wild type (a), start ", df$a[1]),
-                    paste0("Mutant (A), start ", df$A[1]),
+                    paste0("Wild type (a), 1st gen: ", df$a[1]),
+                    paste0("Mutant (A), 1st gen: ", df$A[1]),
                     "K", "Split time"),
          col = c(col_tot, "blue", "firebrick", col_tot, "grey40"),
          lty = c(1, 1, 1, 2, 3), lwd = 2)
@@ -381,7 +369,7 @@ plot_habitats <- function(output, K, habitat_prop, split_time, xlim_max = NULL) 
 ```
 
 
-```{r plotting model}
+```{r plotting-model}
 # ============================================================
 # Usage
 # (simulate_one_gen and simulate_pop must be defined first)
@@ -427,7 +415,7 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 10  # more replicates give more precise probabilities
+no_replicates    <- 1  # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1  
 migrate<- 0# rescue = A >= rescue_frac * K of the habitat, changeable 
