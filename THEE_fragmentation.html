@@ -406,44 +406,191 @@ which can occur at any time. Furthermore, from a conservation
 perspective, it is important to understand the impact of splitting time,
 habitat size, and individual distribution on evolutionary rescue in
 order to ensure the survival of the populations.</p>
+<p>This report will document a stochastic simulation of
+<strong>evolutionary rescue</strong> in discrete time, based on the
+model of Orr &amp; Unckless introduced in the practical, which was
+extend with different parameters to answer the questions listed above.
+Therefore, an explanation of the model is provided in the Methods
+section, followed by a presentation of the results obtained and a
+subsequent discussion.</p>
 </div>
 </div>
 <div id="methodology" class="section level1">
 <h1>Methodology</h1>
-<p>This report documents a stochastic simulation of <strong>evolutionary
-rescue</strong> in discrete time, based on the model of Orr &amp;
-Unckless introduced in the practical. We extended the basic model with
-<strong>habitat fragmentation</strong>: at a chosen generation
-(<code>split_time</code>) the population is split into two separate and
-isolated habitats (B and C) of varieng sizes, each with its own carrying
-capacity.</p>
-<p><strong>Biological scenario</strong></p>
-<ul>
-<li>A haploid population consists of wild-type individuals
+<p>The base model of Orr &amp; Unckless, which was provided from the
+banklab recreating a biological scenario on which we built on. In this
+scenario a haploid population consists of wild-type individuals
 (<strong>a</strong>) and, possibly, mutant individuals
-(<strong>A</strong>).</li>
-<li>A sudden environmental change makes the wild type unfit: it
-<strong>declines</strong> at rate <code>decay_rate</code>.</li>
-<li>The mutant is <strong>beneficial</strong> (advantage
-<code>sel_coeff</code>) and can grow in the new environment, but it is
-initially rare or absent. If absent, it has to arise by mutation from
-the wild type.</li>
-<li>The population is <strong>rescued</strong> if the mutant spreads
-before the wild type (and with it the whole population) goes
-extinct.</li>
-<li>The Habitat gets seperatated at a defined time called
-<strong>split_time</strong>.Individuals are randomly distributed, each
-habitat has a smaller carrying capacity, and both then evolve
-independently.</li>
-</ul>
-<p><strong>Research Questions</strong></p>
-<ul>
-<li>Is evolutionary rescue possible in the Fragmented habitats?</li>
-<li>What is the impact of split_time on ER?</li>
-<li>What is the impact of the habitat porportions on ER?</li>
-</ul>
+(<strong>A</strong>). A sudden environmental change has a negative
+efefect on the wild type and makes it unfit, which is why it starts to
+<strong>decline</strong>. The mutant allele is
+<strong>beneficial</strong> and is able to grow under the new
+environmental conditions, but it is initially rare or absent. If it’s
+absent, it has to arise first by mutation from the wild type. The
+population is then <strong>rescued</strong> if the mutant spreads before
+the wild type goes extinct.</p>
+<p>To assess the impact of <strong>habitat fragmentation</strong> on ER,
+we extended the model by adding a additional biological scenario, where
+the habitat, in which the population is located (called habitat A), gets
+separated after a defined number of generations into <strong>two
+isolated habitats</strong> (called habitat B and C) of defined sizes.
+Based on that, the following equation must be considered with regard to
+the habitat sizes:<span class="math inline">\((A_size = B_size +
+C_size)\)</span>. Each habitat has also its own carrying capacity
+(<strong>K</strong>) related to its size: <span class="math inline">\((K_A = K_B + K_C)\)</span>. At a
+<strong>separation time</strong> individuals of the population A are
+distributed then into the two new habitats B and C and both will then
+evolve independently. Since our aim was also to investigate what happens
+when <strong>migration</strong> is possible, after the splitting event
+migration ??????????</p>
+<div id="parameters-and-variables" class="section level2">
+<h2>Parameters and variables</h2>
+<p>Overall, we have expanded the base model therefore with five
+parameters; <code>split_time, habitat_prop, split_ratio, K</code> and
+<code>migration</code>. All the other parameters and variables were
+already set in the based model. The table below provides brief
+explanations of the respective parameters and variables.</p>
+<p><strong>Taken from the base model:</strong></p>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>N_a</code>, <code>N_A</code></td>
+<td>current size of the wild-type / mutant population (change over
+time)</td>
+</tr>
+<tr class="even">
+<td><code>N_init_a</code>, <code>N_init_A</code></td>
+<td>initial sizes of wild type (positive integer) and mutant
+(non-negative integer)</td>
+</tr>
+<tr class="odd">
+<td><code>decay_rate</code></td>
+<td>detrimental effect of the environment on the wild type (&gt; 0 so
+that extinction is possible)</td>
+</tr>
+<tr class="even">
+<td><code>sel_coeff</code></td>
+<td>selective advantage of the mutant (should be &gt;
+<code>decay_rate</code> to allow rescue)</td>
+</tr>
+<tr class="odd">
+<td><code>mut_rate</code></td>
+<td>mutation rate from wild type to mutant (&gt; 0 and small)</td>
+</tr>
+<tr class="even">
+<td><code>t_max</code></td>
+<td>maximum number of generations simulated (a setting, not a model
+parameter)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Added to expand the model:</strong></p>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>split_time</code></td>
+<td>generation at which the fragmentation happens (integer &gt; 0)</td>
+</tr>
+<tr class="even">
+<td><code>habitat_prop</code></td>
+<td>defining size of the new habitat B and therefor also it’s carrying
+capacity (between 0 and 1); habitat C gets
+<code>1 - habitat_prop</code></td>
+</tr>
+<tr class="odd">
+<td><code>split_ratio</code></td>
+<td>probability with which each individual is assigned to habitat B at
+the split (between 0 and 1): habitat C gets
+<code>1 - split_ratio</code></td>
+</tr>
+<tr class="even">
+<td><code>K</code></td>
+<td>carrying capacity of the original (unsplit) habitat; limits growth
+and is divided among B and C in the same proportions as the habitat
+size</td>
+</tr>
+<tr class="odd">
+<td><code>migrate</code></td>
+<td>???</td>
+</tr>
+</tbody>
+</table>
+<div id="example" class="section level3">
+<h3>Example</h3>
+<p>To ensure that there is no confusion and that the parameters and
+variables are clear, here is a brief example:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Parameters</th>
+<th>values</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>N_a</code>, <code>N_A</code></td>
+<td>200, 100</td>
+</tr>
+<tr class="even">
+<td><code>split_time</code></td>
+<td>30</td>
+</tr>
+<tr class="odd">
+<td><code>habitat_prop</code></td>
+<td>0.8</td>
+</tr>
+<tr class="even">
+<td><code>split_ratio</code></td>
+<td>0.7</td>
+</tr>
+<tr class="odd">
+<td><code>K</code></td>
+<td>1000</td>
+</tr>
+<tr class="even">
+<td><code>migrate</code></td>
+<td>?</td>
+</tr>
+</tbody>
+</table>
+<p>The carrying capacity of habitat A is set at 1000 individuals. Based
+on the <code>habitat_prop</code> we know that habitat B is able to carry
+800 individuals <span class="math inline">\((K *
+habitat_{prop})\)</span> and habitat C is able to carry 200 individuals
+<span class="math inline">\((K*(1-habitat_{prop}))\)</span>. From the
+<code>split_ratio</code> we know that 140 wild type individuals and 70
+mutant individuals are located within the habitat B <span class="math inline">\((N_{a} * split_{time})\)</span> &amp; <span class="math inline">\((N_{A} * split_{time})\)</span>. In habitat C we
+will then be able to find 60 wild type individuals and 30 mutant
+individuals <span class="math inline">\((N_{a} * (1-
+split_{time})\)</span> &amp; <span class="math inline">\((N_{A} * (1-
+split_{time}))\)</span>. Migration ?????</p>
+</div>
+</div>
+<div id="modelsimulation" class="section level2">
+<h2>Model/Simulation</h2>
+</div>
 <div id="overview-of-the-code" class="section level2">
-<h2>1.1 Overview of the code</h2>
+<h2>Overview of the code</h2>
 <ol style="list-style-type: decimal">
 <li><code>simulate_one_gen()</code>: simulates <strong>one
 generation</strong> (reproduction with logistic growth + mutation) for
@@ -461,8 +608,8 @@ simulation many times for different parameter values and summaries the
 migration rates</li>
 </ol>
 </div>
-<div id="parameters-and-variables" class="section level2">
-<h2>1.2 Parameters and variables</h2>
+<div id="parameters-and-variables-1" class="section level2">
+<h2>Parameters and variables</h2>
 <table>
 <colgroup>
 <col width="50%" />

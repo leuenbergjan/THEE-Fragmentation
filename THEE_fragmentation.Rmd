@@ -3,9 +3,7 @@ title: "Evolutionary rescue under habitat fragmentation"
 author: "Jan Leuenberger & Safeeya Ramis"
 date: "2026-10-28"
 output:
-  pdf_document: default
-  html_document:
-    df_print: paged
+
  
 ---
 
@@ -25,8 +23,6 @@ Based on this reflection, the following questions emerged, which we intended to 
 
   - How does the timing of habitat fragmentation affect evolutionary rescue?
 
-  - How does the timing of habitat fragmentation affect evolutionary rescue?
-
   - What impact does the distribution of individuals across habitats have on evolutionary rescue?
 
   - What would happen if migration between the isolated fragmented habitats were possible?
@@ -39,7 +35,7 @@ This report will document a stochastic simulation of **evolutionary rescue** in 
 
 The base model of Orr & Unckless, which was provided from the banklab recreating a biological scenario on which we built on. In this scenario a haploid population consists of wild-type individuals (**a**) and, possibly, mutant individuals (**A**). A sudden environmental change has a negative efefect on the wild type and makes it unfit, which is why it starts to **decline**. The mutant allele is **beneficial** and is able to grow under the new environmental conditions, but it is initially rare or absent. If it's absent, it has to arise first by mutation from the wild type. The population is then **rescued** if the mutant spreads before the wild type goes extinct.
 
-To assess the impact of **habitat fragmentation** on ER, we extended the model by adding a additional biological scenario, where the habitat, in which the population is located (called habitat A), gets separated after a defined number of generations into **two isolated habitats** (called habitat B and C) of defined sizes. Based on that, the following equation must be considered with regard to the habitat sizes:$(A_size = B_size + C_size)$. Each habitat has also its own carrying capacity (**K**) related to its size: $(K_A = K_B + K_C)$. At a **separation time** individuals of the population A are distributed then into the two new habitats B and C and both will then evolve independently. Since our aim was also to investigate what happens when **migration** is possible, after the splitting event migration ??????????
+To assess the impact of **habitat fragmentation** on ER, we extended the model by adding a additional biological scenario, where the habitat, in which the population is located (called habitat A), gets separated after a defined number of generations into **two isolated habitats** (called habitat B and C) of defined sizes. Based on that, the following equation must be considered with regard to the habitat sizes:$(A_size = B_size + C_size)$. Each habitat has also its own carrying capacity (**K**) related to its size: $(K_A = K_B + K_C)$. At a **separation time** individuals of the population A are distributed then into the two new habitats B and C and both will then evolve independently. Since our aim was also to investigate what happens when **migration** is possible, we allowed individuals to move between habitats B and C after the splitting event. In each generation, every individual (wild type and mutant separately) migrates to the other habitat with probability **migrate**.
 
 ## Parameters and variables
 
@@ -64,7 +60,7 @@ Overall, we have expanded the base model therefore with five parameters; `split_
 | `habitat_prop` | defining size of the new habitat B and therefor also it's carrying capacity (between 0 and 1); habitat C gets `1 - habitat_prop` |
 | `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1): habitat C gets `1 - split_ratio` |
 | `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitat size |
-| `migrate` | ??? |
+| `migrate` | migration rate: (between 0 and 1) with which each individual moves to the other habitat in every generation after the split. |
 
 ### Example
 
@@ -77,9 +73,9 @@ To ensure that there is no confusion and that the parameters and variables are c
 | `habitat_prop` | 0.8      |
 | `split_ratio`  | 0.7      |
 | `K`            | 1000     |
-| `migrate`      | ?        |
+| `migrate`      | 0.01     |
 
-The carrying capacity of habitat A is set at 1000 individuals. Based on the `habitat_prop` we know that habitat B is able to carry 800 individuals $(K * habitat_{prop})$ and habitat C is able to carry 200 individuals $(K*(1-habitat_{prop}))$. From the `split_ratio` we know that 140 wild type individuals and 70 mutant individuals are located within the habitat B $(N_{a} * split_{time})$ & $(N_{A} * split_{time})$. In habitat C we will then be able to find 60 wild type individuals and 30 mutant individuals $(N_{a} * (1- split_{time})$ & $(N_{A} * (1- split_{time}))$. Migration ?????
+The carrying capacity of habitat A is set at 1000 individuals. Based on the `habitat_prop` we know that habitat B is able to carry 800 individuals $(K * habitat_{prop})$ and habitat C is able to carry 200 individuals $(K*(1-habitat_{prop}))$. From the `split_ratio` we know that 140 wild type individuals and 70 mutant individuals are located within the habitat B $(N_{a} * split_{time})$ & $(N_{A} * split_{time})$. In habitat C we will then be able to find 60 wild type individuals and 30 mutant individuals $(N_{a} * (1- split_{time})$ & $(N_{A} * (1- split_{time}))$. With `migrate` = 0.01, each individual has a 1% chance per generation of moving to the other habitat.
 
 ## Model/Simulation
 
