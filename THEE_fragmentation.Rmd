@@ -22,6 +22,8 @@ Based on this reflection, the following questions emerged, which we intended to 
 - Is evolutionary rescue possible in fragmented habitats if the habitats are separated at a certain time point after the ER processes have already begun?
 
   - How does the timing of habitat fragmentation affect evolutionary rescue?
+  
+  - How does the size of the habitats affect evolutionary rescue?
 
   - What impact does the distribution of individuals across habitats have on evolutionary rescue?
 
@@ -75,10 +77,12 @@ To ensure that there is no confusion and that the parameters and variables are c
 | `K`            | 1000     |
 | `migrate`      | 0.01     |
 
-The carrying capacity of habitat A is set at 1000 individuals. Based on the `habitat_prop` we know that habitat B is able to carry 800 individuals $(K * habitat_{prop})$ and habitat C is able to carry 200 individuals $(K*(1-habitat_{prop}))$. From the `split_ratio` we know that 140 wild type individuals and 70 mutant individuals are located within the habitat B $(N_{a} * split_{time})$ & $(N_{A} * split_{time})$. In habitat C we will then be able to find 60 wild type individuals and 30 mutant individuals $(N_{a} * (1- split_{time})$ & $(N_{A} * (1- split_{time}))$. With `migrate` = 0.01, each individual has a 1% chance per generation of moving to the other habitat.
+The carrying capacity of habitat A is set at 1000 individuals. Based on the `habitat_prop` we know that habitat B is able to carry 800 individuals $(K * habitat_{prop})$ and habitat C is able to carry 200 individuals $(K*(1-habitat_{prop}))$. From the `split_ratio` we know that 140 wild type individuals and 70 mutant individuals are located within the habitat B $(N_{a} * split_{time})$ & $(N_{A} * split_{time})$. In habitat C we will then be able to find 60 wild type individuals and 30 mutant individuals $(N_{a} * (1- split_{time})$ & $(N_{A} * (1- split_{time}))$. With `migrate` = 0.01, each individual has a 1% chance per generation of moving to the other habitat (migration in both directions are possible).
 
 ## Model/Simulation
+### Reproducibility
 
+To ensure the reproducibility of our results, it is important to set a seed first, in our case 57. In the same chunk we installed the libraries needed to run our simulation and analysis.
 
 ```{r Set-up, echo= FALSE, error= FALSE,message = FALSE,warning = FALSE}
 set.seed(57)
@@ -91,39 +95,43 @@ library(dplyr)
 
 ##  Overview of the code
 
-
 1. `simulate_one_gen()`: simulates **one generation** (reproduction with logistic growth + mutation) for one habitat.
 2. `simulate_pop()`: runs a **full simulation**: one habitat until `split_time`, then two habitats (B and C) afterwards.
 3. Plot functions (`plot_split()`, `plot_habitat()`, `plot_habitats()`): visualise a single simulation run.
 4. `run_scenarios()` and `to_long()`: repeat the simulation many times for different parameter values and summaries the **rescue probability**.
 5. Four analyses: split time varies, habitat proportion varies and migration rates
 
+### Simulate one generation
+
 
 ## Simulating evolutionary rescue in discrete time
 
-In this notebook, we are implementing simulations of evolutionary rescue by a single mutation in discrete time, as discussed and analyzed in the work by Orr & Unckless. The model is as follows: a haploid population starts with a given number of wild-type and mutant individuals. Because of a sudden environmental change, the wild type is unfit and declines in the new environment. The mutant is beneficial and can survive and expand in the new environment, but it starts at a low (or zero) frequency in the total population. In order to rescue the population, it has to outcompete the wild type. If the mutant is not present at time 0, it has to appear through mutation and then spread in the population before extinction occurs.
+Our actual simulation begins in the second chunk, although the change in population is first calculated only within a single generation. To do this, we use the function `simulate_one_gen()`, which simulates **one generation** based on the following steps:
+
+1.  **Expected offspring (logistic growth)**
+
+    Without competition, the per-capita growth rates of the individual are:
+
+    - wild type: $\rho_a = -r$ (negative, so the type declines), with $r$ = `decay_rate`
+
+    - mutant: $\rho_A = s - r$ (positive if $s > r$), with $s$ = `sel_coeff`
+
+    In addition a carrying capacity is added by a **density-dependent term**, means that the growth factor of each type is reduced by $\rho_A \cdot N_{tot}/K$. The expected number of offspring is therefore
 
 
-## Simulate one generation of population size change
+    $$\bar N_a = N_a\,\max\!\left(0,\;1+\rho_a-\rho_A \tfrac{N_{tot}}{K}\right), \qquad \bar N_A = N_A\,\max\!\left(0,\;1+\rho_A-\rho_A \tfrac{N_{tot}}{K}\right)$$
 
-We want to observe the numbers of wild-type and mutant individuals over time. As first step, we simulate one generation of the population. At time $t$, the population has $N_a$ wild-type individuals and $N_A$ mutant individuals. First, these reproduce. This is modeled by drawing a Poisson random variable according to the expected absolute number $N_a \cdot (1-r)$ of wild-type individuals, where $r$ is the decay rate of the wild type, and $N_A \cdot (1-r+s)$ of mutant individuals, where $s$ is the selective advantage of the mutant over the wild time. Then mutation from $a$ to $A$ occurs as a Poisson random variable according to the given mutation rate. This defines the composition of the population at time $t+1$.
+    When $N_{tot}$ approaches $K$, the mutant's growth factor approaches 1 (population stays constant) and the wild type keeps declining. When $N_{tot} > K$ the mutant would shrink back towards $K$. The `max(0, ...)` prevents negative expected values, which `rpois()` cannot handle.
 
-1.  **Expected offspring (logistic growth).** Without competition, the per-capita growth rates are
+2.  **Demographic stochasticity**
 
-- wild type: $\rho_a = -r$ (negative, so the type declines), with $r$ = `decay_rate`
-- mutant: $\rho_A = s - r$ (positive if $s > r$), with $s$ = `sel_coeff`
+    The actual number of offspring is drawn from a **Poisson distribution** whose mean is the expected value above. This is what makes every run different.
 
-Carryign capacity is added by a **density-dependent term**: the growth factor of each type is reduced by $\rho_A \cdot N_{tot}/K$. The expected number of offspring is therefore
+3.  **Mutations**
 
-$$\bar N_a = N_a\,\max\!\left(0,\;1+\rho_a-\rho_A \tfrac{N_{tot}}{K}\right), \qquad \bar N_A = N_A\,\max\!\left(0,\;1+\rho_A-\rho_A \tfrac{N_{tot}}{K}\right)$$
+    Of the wild-type offspring (a), a Poisson-distributed number (mean `offsp_a * mut_rate`) mutates to mutant individuals (A). These are subtracted from the wild type and added to the mutants.
 
-When $N_{tot}$ approaches $K$, the mutant's growth factor approaches 1 (population stays constant) and the wild type keeps declining. When $N_{tot} > K$ the mutant would shrink back towards $K$. The `max(0, ...)` prevents negative expected values, which `rpois()` cannot handle.
-
-2.  **Demographic stochasticity.** The actual number of offspring is drawn from a **Poisson distribution** whose mean is the expected value above. This is what makes every run different.
-
-3.  **Mutation.** Of the wild-type offspring, a Poisson-distributed number (mean `offsp_a * mut_rate`) mutates to type A. These are subtracted from the wild type and added to the mutants.
-
-The function returns a vector `c(N_a_new, N_A_new)`.
+The function then returns a vector `c(N_a_new, N_A_new)`, containing the current population size based on these calculations.
 
 ```{r SImulation-for-one-Generation}
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
@@ -152,7 +160,6 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
 
 
 ## Simulate populations
-
 
 The function simulate_one_gen() describes a single generation, whereas evolutionary rescue unfolds over many. We therefore iterate this step in simulate_pop(), which integrates habitat fragmentation (the population is divided into two isolated habitats at a chosen generation) and migration (individuals may move between these habitats afterwards). The function records the numbers of wild-type and mutant individuals in each habitat, so we can determine whether the mutant spreads and rescues the population, and how the timing of the split, the relative habitat sizes and the migration rate influence this outcome.
 
