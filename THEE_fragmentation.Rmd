@@ -77,7 +77,7 @@ To ensure that there is no confusion and that the parameters and variables are c
 | `K`            | 1000     |
 | `migrate`      | 0.01     |
 
-The carrying capacity of habitat A is set at 1000 individuals. Based on the `habitat_prop` we know that habitat B is able to carry 800 individuals $(K * habitat_{prop})$ and habitat C is able to carry 200 individuals $(K*(1-habitat_{prop}))$. From the `split_ratio` we know that 140 wild type individuals and 70 mutant individuals are located within the habitat B $(N_{a} * split_{time})$ & $(N_{A} * split_{time})$. In habitat C we will then be able to find 60 wild type individuals and 30 mutant individuals $(N_{a} * (1- split_{time})$ & $(N_{A} * (1- split_{time}))$. With `migrate` = 0.01, each individual has a 1% chance per generation of moving to the other habitat (migration in both directiona are possible).
+The carrying capacity of habitat A is set at 1000 individuals. Based on the `habitat_prop` we know that habitat B is able to carry 800 individuals $(K * habitat_{prop})$ and habitat C is able to carry 200 individuals $(K*(1-habitat_{prop}))$. From the `split_ratio` we know that 140 wild type individuals and 70 mutant individuals are located within the habitat B $(N_{a} * split_{time})$ & $(N_{A} * split_{time})$. In habitat C we will then be able to find 60 wild type individuals and 30 mutant individuals $(N_{a} * (1- split_{time})$ & $(N_{A} * (1- split_{time}))$. With `migrate` = 0.01, each individual has a 1% chance per generation of moving to the other habitat (migration in both directions are possible).
 
 ## Model/Simulation
 ### Reproducibility
