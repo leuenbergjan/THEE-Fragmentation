@@ -240,7 +240,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
       colnames(pop_vector_B) <- c("a","A")
       colnames(pop_vector_C) <- c("a","A")
       
-      if (sum(pop_new_B) + sum(pop_new_C) >= 2*(N_init_a + N_init_A) |
+      if (sum(pop_new_B) + sum(pop_new_C) >= 2.5*(N_init_a + N_init_A) |
           sum(pop_new_B) + sum(pop_new_C) == 0) break
     }
     
@@ -426,8 +426,7 @@ As you can see if you simulate and plot the output several times, there is a lot
 - time until the population has recovered in case it becomes rescued, dependent on mutation rate and selection coefficient
 - ...
 
-```{r analyses}
-
+```{r analyses-function}
 # fixed parameters
 init_a           <- 600
 init_A           <- 0
@@ -440,12 +439,13 @@ rescue_frac      <- 1
 migrate          <- 0.01    # rescue = A >= rescue_frac * K of the habitat, changeable 
 
 # core function
-run_scenarios <- function(split_times, habitat_props, split_ratios) {
+run_scenarios <- function(split_times, habitat_props, split_ratios,migrates = migrate) {
   results <- list()
   
   for (st in split_times) {
     for (hp in habitat_props) {
       for (sr in split_ratios) {
+        for (mg in migrates) {  
         
         K_B <- K_analysis * hp
         K_C <- K_analysis * (1 - hp)
@@ -460,7 +460,8 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
             warning(paste(
               "Too many failed runs for st =", st,
               "hp =", hp,
-              "sr =", sr
+              "sr =", sr,
+              "mig =", mg
             ))
             break
           }
@@ -475,7 +476,7 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
             habitat_prop = hp,
             split_ratio  = sr,
             split_time   = st,
-            migrate
+            migrate      = mg
           )
           
           # Skip runs that ended before the split time
@@ -493,6 +494,7 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
             st = st,
             hp = hp,
             sr = sr,
+            mig = mg,
             replicate = i,
             rescued_B = rescued_B,
             rescued_C = rescued_C,
@@ -503,6 +505,7 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
           )
           
           if (i >= no_replicates) break
+         }
         }
       }
     }
@@ -517,7 +520,7 @@ run_scenarios <- function(split_times, habitat_props, split_ratios) {
 
   # Rescue probability per scenario
   rescue_prob <- data_table %>%
-    dplyr::group_by(st, hp, sr) %>%
+    dplyr::group_by(st, hp, sr, mig) %>%
     dplyr::summarise(
       n = dplyr::n(),
       dplyr::across(
@@ -554,7 +557,10 @@ to_long <- function(rescue_prob) {
       )
     )
 }
+```
+##results
 
+```{r analyses-1}
 # =======================================================================
 # ANALYSIS 1: split time varies, habitat proportion fixed
 # =======================================================================
@@ -577,7 +583,10 @@ ggplot(long1, aes(x = st, y = rescue_probability,
   labs(title = "Rescue prob. for split time habitat proportion = 0.5",
        x = "Split time", y = "Rescue probability", color = "Population") +
   theme_minimal(base_size = 16)
+```
+explain plot
 
+```{r analyses-2}
 # =======================================================================
 # ANALYSIS 2: habitat proportion varies, split time fixed
 # =======================================================================
@@ -602,22 +611,25 @@ ggplot(long2, aes(x = hp, y = rescue_probability,
        x = "Habitat proportion (B)", y = "Rescue probability",
        color = "Population") +
   theme_minimal()
+```
 
+
+```{r analyses-3}
 # =======================================================================
 # ANALYSIS 3: split ratio varies, habitat proportion fixed
 # =======================================================================
 
-res2 <- run_scenarios(
+res3 <- run_scenarios(
   split_times   = 30,  # fix split time
   habitat_props = 0.5,
   split_ratios  = c(0.1, 0.2, 0.3, 0.4, 0.5)
 )
 
-long2 <- to_long(res2$prob)
+long3 <- to_long(res3$prob)
 
-print(res2$prob)
+print(res3$prob)
 
-ggplot(long2, aes(x = sr, y = rescue_probability,
+ggplot(long3, aes(x = sr, y = rescue_probability,
                   color = population, group = population)) +
   geom_line(linewidth = 1) +
   geom_point(size = 3) +
@@ -640,26 +652,29 @@ ggplot(long2, aes(x = sr, y = rescue_probability,
     color = "Population"
   ) +
   theme_minimal()
+```
 
+
+```{r analyses-4}
 # =======================================================================
 # ANALYSIS 4: both vary (full grid)
 # =======================================================================
-res3 <- run_scenarios(
+res4 <- run_scenarios(
   split_times   = c(10, 30, 50, 100),
   habitat_props = c(0.1, 0.25, 0.5),
   split_ratios = 0.5
 )
-long3 <- to_long(res3$prob)
-print(res3$prob)
+long4 <- to_long(res4$prob)
+print(res4$prob)
 
 # heatmap: one panel per population
 # label showing the proportion of BOTH habitats on two lines, e.g. "B 0.1" over "C 0.9"
-hp_values <- sort(unique(long3$hp))
-long3 <- long3 %>%
+hp_values <- sort(unique(long4$hp))
+long4 <- long4 %>%
   mutate(hp_label = factor(hp, levels = hp_values,
                            labels = paste0("B ", hp_values, "\nC ", 1 - hp_values)))
 
-ggplot(long3, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
+ggplot(long4, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
   geom_tile(color = "white") +
   geom_text(aes(label = sprintf("%.2f", rescue_probability)), size = 3.5) +
   facet_wrap(~ population) +
@@ -668,23 +683,26 @@ ggplot(long3, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
        x = "Habitat proportion", y = "Split time",
        fill = "Rescue\nprobability") +
   theme_minimal(base_size= 16)
+```
 
+
+```{r analyses-5}
 # =======================================================================
 # ANALYSIS 5: split time and split ratio vary (full grid)
 # =======================================================================
 
-res3 <- run_scenarios(
+res5 <- run_scenarios(
   split_times   = c(10, 30, 50, 100),
   habitat_props = 0.5,
   split_ratios  = c(0.1, 0.25, 0.5)
 )
 
-long3 <- to_long(res3$prob)
+long5 <- to_long(res5$prob)
 
-print(res3$prob)
+print(res5$prob)
 
 # Heatmap: one panel per population
-ggplot(long3, aes(x = factor(sr), y = factor(st),
+ggplot(long5, aes(x = factor(sr), y = factor(st),
                   fill = rescue_probability)) +
   geom_tile(color = "white") +
   geom_text(aes(label = sprintf("%.2f", rescue_probability)),
@@ -701,6 +719,31 @@ ggplot(long3, aes(x = factor(sr), y = factor(st),
 
 ```
 
+```{r analysis-6-migration}
+# =======================================================================
+# ANALYSIS 6: migration rate varies
+# =======================================================================
+res6 <- run_scenarios(
+  split_times   = 30,
+  habitat_props = 0.25,
+  split_ratios  = 0.5,
+  migrates      = c(0, 0.001, 0.01,0.1,0.25)
+)
+long6 <- to_long(res6$prob)
+print(res6$prob)
+
+ggplot(long6, aes(x = factor(mig), y = rescue_probability,
+                  color = population, group = population)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = pmax(0, rescue_probability - se),
+                    ymax = pmin(1, rescue_probability + se)),
+                width = 0.1) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
+  labs(title = "Rescue probability vs. migration rate (split time = 30)",
+       x = "Migration rate", y = "Rescue probability", color = "Population") +
+  theme_minimal(base_size = 16)
+```
 ## \# Appendix
 
 ```{r}
