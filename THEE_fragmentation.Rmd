@@ -128,6 +128,8 @@ Our actual simulation begins in the second chunk, although the change in populat
 
 The function then returns a vector `c(N_a_new, N_A_new)`, containing the current population size based on these calculations.
 
+Since the base model describes exponential growth and this needed to be converted to logistic growth in this model, we used AI to some extent to adapt the code for this purpose.
+
 ```{r SImulation-for-one-Generation}
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   
