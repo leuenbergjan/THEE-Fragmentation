@@ -432,7 +432,7 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 10    # more replicates give more precise probabilities
+no_replicates    <- 100    # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1  
 migrate          <- 0.01    # rescue = A >= rescue_frac * K of the habitat, changeable 
@@ -557,9 +557,9 @@ to_long <- function(rescue_prob) {
     )
 }
 ```
-##results
+## Result of Analyses
 
-```{r analyses-1}
+```{r analyses-1, results= 'hide'}
 # =======================================================================
 # ANALYSIS 1: split time varies, habitat proportion fixed
 # =======================================================================
@@ -583,9 +583,10 @@ ggplot(long1, aes(x = st, y = rescue_probability,
        x = "Split time", y = "Rescue probability", color = "Population") +
   theme_minimal(base_size = 16)
 ```
-explain plot
+### Timing of fragmentation
+This plot shows the proportion of 100 replicate simulations in which the mutant reached the rescue threshold (100% of K), depending on the generation at which the habitat was split into two equal halves. Rescue probability tended to increase with later splits, from about 0.24 (B) and 0.23 (C) at generation 10 to about 0.43 and 0.41 at generation 100, with a dip at generation 30. Habitats B and C behaved very similarly, as expected for identical halves. The probability that both were rescued was lower (about 0.06 to 0.17) and stayed roughly flat from generation 50 onwards.
 
-```{r analyses-2}
+```{r analyses-2, results='hide'}
 # =======================================================================
 # ANALYSIS 2: habitat proportion varies, split time fixed
 # =======================================================================
@@ -611,7 +612,8 @@ ggplot(long2, aes(x = hp, y = rescue_probability,
        color = "Population") +
   theme_minimal()
 ```
-
+### Habitat proportion
+This Figure shows how rescue probability changes when the habitat is split differently at generation 30. The x-axis gives the share of the original habitat and also of K that goes to habitat B, with habitat C receiving the remainder, while individuals were still divided evenly. The smaller habitat was rescued more often. At a habitat proportion of 0.1, habitat B (10% of K) was rescued in 39% of the 100 replicates and habitat C (90% of K) in only 5%. As B grew towards equal size, its rescue probability fell (0.18 at 0.5) and that of C rose (0.26 at 0.5). The probability that both habitats were rescued stayed low at 0.05 to 0.10.
 
 ```{r analyses-3}
 # =======================================================================
@@ -652,7 +654,8 @@ ggplot(long3, aes(x = sr, y = rescue_probability,
   ) +
   theme_minimal()
 ```
-
+### Distribution of individuals
+the third analyses shows the effect of how individuals are distributed at the split, with habitats of equal size split at generation 30. The x-axis gives the probability (split ratio) that an individual is assigned to habitat B, with the remaining individuals going to C. Rescue probability showed no consistent trend across split ratios. Habitat B was rescued in 17% to 32% of the 100 replicates and habitat C in 19% to 33%, and the two habitats did not differ clearly at any ratio. Both curves peaked at a split ratio of 0.3. The probability that both habitats were rescued was lower at more uneven splits.
 
 ```{r analyses-4}
 # =======================================================================
@@ -683,7 +686,8 @@ ggplot(long4, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
        fill = "Rescue\nprobability") +
   theme_minimal(base_size= 16)
 ```
-
+###Split time and habitat size combined
+This heatmap combines both factors for habitat proportions of 0.1, 0.25 and 0.5. Rescue of habitat B increased with split time at every proportion. It was highest when B was smallest: at a proportion of 0.1 it rose from 0.44 to 1.00, compared with 0.17 to 0.53 at 0.5. Habitat C, the larger habitat in unequal splits, was rarely rescued (at most 0.17). Only at equal size did its rescue probability increase with split time (0.13 to 0.46). Rescue of both habitats stayed low (0.05 to 0.25). The smaller habitat was thus rescued more often than the larger one. This difference grew with later splits.
 
 ```{r analyses-5}
 # =======================================================================
@@ -717,33 +721,11 @@ ggplot(long5, aes(x = factor(sr), y = factor(st),
   theme_minimal()
 
 ```
+### Split time and distribution of individuals combined
+This Plot combines split time with split ratios of 0.1, 0.25 and 0.5. Rescue probability increased with split time in both habitats. For habitat B it rose from about 0.2 at generation 10 to about 0.4 to 0.5 at generation 100. Habitat C showed the same pattern. Rescue of both habitats also increased, from 0.05 to 0.09 at generation 10 to about 0.2 at generation 100. The split ratio had little effect. Differences between ratios were small and showed no clear direction.
 
-```{r analysis-6-migration}
-# =======================================================================
-# ANALYSIS 6: migration rate varies
-# =======================================================================
-res6 <- run_scenarios(
-  split_times   = 30,
-  habitat_props = 0.5,
-  split_ratios  = 0.5,
-  migrates      = c(0, 0.001, 0.01,0.1,0.25)
-)
-long6 <- to_long(res6$prob)
-print(res6$prob)
 
-ggplot(long6, aes(x = factor(mig), y = rescue_probability,
-                  color = population, group = population)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 3) +
-  geom_errorbar(aes(ymin = pmax(0, rescue_probability - se),
-                    ymax = pmin(1, rescue_probability + se)),
-                width = 0.1) +
-  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
-  labs(title = "Rescue probability vs. migration rate (split time = 30)",
-       x = "Migration rate", y = "Rescue probability", color = "Population") +
-  theme_minimal(base_size = 16)
-```
-```{r analysis-7-migration-habitat}
+```{r analysis-6-migration-habitat}
 # =======================================================================
 # ANALYSIS 7: migration rate and habitat proportion vary (full grid)
 # =======================================================================
@@ -767,11 +749,15 @@ ggplot(long7, aes(x = hp_label, y = factor(mig), fill = rescue_probability)) +
   geom_text(aes(label = sprintf("%.2f", rescue_probability)), size = 3.5) +
   facet_wrap(~ population) +
   scale_fill_viridis_c(limits = c(0, 1), option = "C") +
-  labs(title = "Rescue probability by migration rate and habitat proportion",
+  labs(title = "Rescue proba. by migration rate and habitat propo.",
        x = "Habitat proportion", y = "Migration rate",
        fill = "Rescue\nprobability") +
   theme_minimal(base_size = 16)
 ```
+### Migration and habitat size
+The last analyses combines the migration rate with habitat proportions of 0.1, 0.25 and 0.5. Without migration, the habitats were rescued about equally often, at every proportion. Even the smallest habitat had no advantage. With migration, unequal habitats behaved very differently. The smaller habitat B was rescued more often. The larger habitat C was rarely rescued at 0.01, at most 0.11 and never at 0.05 or higher. Rescue of both habitats dropped to zero accordingly.
+
+
 ## \# Appendix
 
 ```{r}
