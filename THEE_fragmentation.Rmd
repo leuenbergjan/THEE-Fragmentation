@@ -3,9 +3,11 @@ title: "Evolutionary rescue under habitat fragmentation"
 author: "Jan Leuenberger & Safeeya Ramis"
 date: "2026-10-28"
 output:
+  html_document: null
+  theme: paper
 ---
 
-# Abstract
+# Abstract 
 
 # Introduction
 
@@ -29,11 +31,15 @@ Based on this reflection, the following questions emerged, which we intended to 
 
 It is important to analyze these questions in more detail because habitat fragmentation represents an increasing threat to populations, which can occur at any time. Furthermore, from a conservation perspective, it is important to understand the impact of splitting time, habitat size, and individual distribution on evolutionary rescue in order to ensure the survival of the populations.
 
-This report will document a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical, which was extend with different parameters to answer the questions listed above. Therefore, an explanation of the model is provided in the Methods section, followed by a presentation of the results obtained and a subsequent discussion.
+This report will document a stochastic simulation of **evolutionary rescue** in discrete time, based on the model of Orr & Unckless introduced in the practical, which was extended with different parameters to answer the questions listed above. Therefore, an explanation of the model is provided in the Methods section, followed by a presentation of the results obtained and a subsequent discussion.
 
 # Methodology
 
+## Base Model
+
 The base model of Orr & Unckless, which was provided from the banklab recreating a biological scenario on which we built on. In this scenario a haploid population consists of wild-type individuals (**a**) and, possibly, mutant individuals (**A**). A sudden environmental change has a negative efefect on the wild type and makes it unfit, which is why it starts to **decline**. The mutant allele is **beneficial** and is able to grow under the new environmental conditions, but it is initially rare or absent. If it's absent, it has to arise first by mutation from the wild type. The population is then **rescued** if the mutant spreads before the wild type goes extinct.
+
+## Fragmentation and migration
 
 To assess the impact of **habitat fragmentation** on ER, we extended the model by adding a additional biological scenario, where the habitat, in which the population is located (called habitat A), gets separated after a defined number of generations into **two isolated habitats** (called habitat B and C) of defined sizes. Based on that, the following equation must be considered with regard to the habitat sizes:$(A_size = B_size + C_size)$. Each habitat has also its own carrying capacity (**K**) related to its size: $(K_A = K_B + K_C)$. At a **separation time** individuals of the population A are distributed then into the two new habitats B and C and both will then evolve independently. Since our aim was also to investigate what happens when **migration** is possible, we allowed individuals to move between habitats B and C after the splitting event. In each generation, every individual (wild type and mutant separately) migrates to the other habitat with probability **migrate**.
 
@@ -57,7 +63,7 @@ Overall, we have expanded the base model therefore with five parameters; `split_
 | Name | Meaning |
 |------------------------------------|------------------------------------|
 | `split_time` | generation at which the fragmentation happens (integer \> 0) |
-| `habitat_prop` | defining size of the new habitat B and therefor also it's carrying capacity (between 0 and 1); habitat C gets `1 - habitat_prop` |
+| `habitat_prop` | defining size of the new habitat B and therefore also it's carrying capacity (between 0 and 1); habitat C gets `1 - habitat_prop` |
 | `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1): habitat C gets `1 - split_ratio` |
 | `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitat size |
 | `migrate` | migration rate: (between 0 and 1) with which each individual moves to the other habitat in every generation after the split. |
@@ -97,8 +103,8 @@ library(dplyr)
 1.  `simulate_one_gen()`: simulates **one generation** (reproduction with logistic growth + mutation) for one habitat.
 2.  `simulate_pop()`: runs a **full simulation**: one habitat until `split_time`, then two habitats (B and C) afterwards.
 3.  Plot functions (`plot_split()`, `plot_habitat()`, `plot_habitats()`): visualise a single simulation run.
-4.  `run_scenarios()` and `to_long()`: repeat the simulation many times for different parameter values and summaries the **rescue probability**.
-5.  Four analyses: split time varies, habitat proportion varies and migration rates
+4.  `run_scenarios()` and `to_long()`: repeat the simulation many times for different parameter values and summarise the **rescue probability**.
+5.  Six analyses: split time varies, habitat proportion varies and migration rates
 
 ### Simulate one generation
 
@@ -130,7 +136,7 @@ The function then returns a vector `c(N_a_new, N_A_new)`, containing the current
 
 Since the base model describes exponential growth and this needed to be converted to logistic growth in this model, we used AI to some extent to adapt the code for this purpose.
 
-```{r SImulation-for-one-Generation}
+```{r Simulation-one-gen}
 simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
   
   # total population size and per-capita growth rates without competition
@@ -155,7 +161,7 @@ simulate_one_gen <- function(N_a, N_A, decay_rate, sel_coeff, mut_rate, K) {
 #print(simulate_one_gen(100,0,0.1,0.2,0.001,1000))
 ```
 
-### Simulate populations
+### Simulating the whole populations
 
 The function `simulate_one_gen()` describes a single generation, whereas evolutionary rescue unfolds over many. We therefore iterate this step in `simulate_pop()`, which integrates habitat fragmentation (the population is divided into two isolated habitats at a chosen generation) and migration (individuals may move between these habitats afterwards). The function records the numbers of wild-type and mutant individuals in each habitat, so we can determine whether the mutant spreads and rescues the population, and how the timing of the split, the relative habitat sizes and the migration rate influence this outcome.
 
@@ -200,7 +206,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
       n_C_a <- pop_new[1] - n_B_a
       n_C_A <- pop_new[2] - n_B_A
      
-      # Calculate the new populatins for B an C 
+      # Calculate the new populations for B and C 
       pop_new_B <- simulate_one_gen(n_B_a, n_B_A, decay_rate, sel_coeff, mut_rate, K_B)
       pop_new_C <- simulate_one_gen(n_C_a, n_C_A, decay_rate, sel_coeff, mut_rate, K_C)
       
@@ -267,7 +273,7 @@ simulate_pop <- function(N_init_a, N_init_A, decay_rate, sel_coeff, mut_rate, t_
 }
 ```
 
-## Plotting function for the model
+### Plotting functions for the model
 
 To inspect what happens in a single simulation, we define three plot functions. plot_split() shows the whole run: wild type and mutant before the split, and the total population of habitats B and C afterwards, together with the carrying capacities (K, K_B, K_C) and the split time. plot_habitat() draws one habitat in detail, with the wild type, the mutant and the total population, and plot_habitats() stacks the panels of B and C so that they can be compared directly. These plots serve to check that the simulation behaves as expected, and they were used extensively for debugging in the early stages of the project. We used base R graphics here, and the plots received very positive feedback. Opinions on whether to use base R or ggplot2 for plotting are divided, even within the **THEE** Lab. In the later plotting functions we use ggplot2, both as an exercise to learn the package and to show that both approaches can produce informative figures.
 
@@ -416,15 +422,23 @@ plot_habitats(output, K = K, habitat_prop = habitat_prop,
 
 ```
 
-## A small analysis
+# Analyses and Results
 
-As you can see if you simulate and plot the output several times, there is a lot of stochasticity/variation in the outcome. Therefore, to get interpretable results, we have to run the simulation many times and summarize the outcome depending on the question of our study. Here I am showing an example in which we record the time and the value of the lowest population size (or the time of extinction, if the population size eventually goes to 0). Usually, we want to study this for a range of model parameters; here I am varying the decay rate and the selection coefficient. Other (maybe more interesting) features to study would be the following:
+A single simulation is one random realisation of the model: whether the mutant arises, and whether it spreads before the wild type dies out, depends on one run. To obtain interpretative results we repeat each scenario many times and report the **rescue probability**, the proportion of replicates in which rescue occured. The function `run_scenarios()` does this for any combination of `split_times`, `habitat_props`, `split_ratios` and `migrates`, and `to_long()` prepares the summary for plotting.
 
-- rescue probability dependent on initial frequency and selection coefficient
-- time at which the rescue mutation occurs first if it rescues, vs. if it doesn't rescue, dependent on initial population size and mutation rate
-- time until the population has recovered in case it becomes rescued, dependent on mutation rate and selection coefficient
-- ...
+All analyses use the same settings, and only the parameters named in each analysis are varied. Note that migration is switched on in analyses 1 to 5 (migrate = 0.01) and only varied in the last analysis.
 
+### What `run_scenarios()` does
+
+The function `run_scenarios()` loops over every combination of split time, habitat proportion, split ratio and migration rate, and each combination is treated as one scenario. For each scenario it calls `simulate_pop()` repeatedly until 100 replicates have been made. Runs in which the population went extinct (or reached twice its initial size) before the split are discarded and drawn again, because habitats B and C do not exist in these runs.
+
+The helper function `to_long()` reshapes the summary for `ggplot2`: the columns `rescued_B`, `rescued_C` and `rescued_both` are combined into a single column, and the standard error of a proportion, $\sqrt{p(1-p)/n}$, is added and shown as error bars in the plots.
+
+### Important points for interpretation
+
+Three features of this design affect how the results should be read. First, runs that die out before the split are discarded, so all rescue probabilities are conditional on the population still existing at the split time. This matters most for late splits, where many runs without a mutant have already gone extinct. Second, a habitat counts as rescued if the number of mutants at the end of the run is at least `rescue_frac` times its carrying capacity. Because the population fluctuates around K, this is a strict threshold. Third, with 100 replicates the standard error of a probability is up to about 0.05, so small differences between scenarios should not be interpreted as real effects.
+
+## Overview of the analysis code
 ```{r analyses-function}
 # fixed parameters
 init_a           <- 600
@@ -557,7 +571,7 @@ to_long <- function(rescue_prob) {
     )
 }
 ```
-## Result of Analyses
+
 
 ```{r analyses-1, results= 'hide'}
 # =======================================================================
@@ -583,7 +597,9 @@ ggplot(long1, aes(x = st, y = rescue_probability,
        x = "Split time", y = "Rescue probability", color = "Population") +
   theme_minimal(base_size = 16)
 ```
-### Timing of fragmentation
+
+
+## Timing of fragmentation
 This plot shows the proportion of 100 replicate simulations in which the mutant reached the rescue threshold (100% of K), depending on the generation at which the habitat was split into two equal halves. Rescue probability tended to increase with later splits, from about 0.24 (B) and 0.23 (C) at generation 10 to about 0.43 and 0.41 at generation 100, with a dip at generation 30. Habitats B and C behaved very similarly, as expected for identical halves. The probability that both were rescued was lower (about 0.06 to 0.17) and stayed roughly flat from generation 50 onwards.
 
 ```{r analyses-2, results='hide'}
@@ -610,12 +626,14 @@ ggplot(long2, aes(x = hp, y = rescue_probability,
   labs(title = "Rescue Prob. for habitat proportions (split time = 30)",
        x = "Habitat proportion (B)", y = "Rescue probability",
        color = "Population") +
-  theme_minimal()
+  theme_minimal(base_size = 16)
 ```
-### Habitat proportion
+
+
+## Habitat proportion
 This Figure shows how rescue probability changes when the habitat is split differently at generation 30. The x-axis gives the share of the original habitat and also of K that goes to habitat B, with habitat C receiving the remainder, while individuals were still divided evenly. The smaller habitat was rescued more often. At a habitat proportion of 0.1, habitat B (10% of K) was rescued in 39% of the 100 replicates and habitat C (90% of K) in only 5%. As B grew towards equal size, its rescue probability fell (0.18 at 0.5) and that of C rose (0.26 at 0.5). The probability that both habitats were rescued stayed low at 0.05 to 0.10.
 
-```{r analyses-3}
+```{r analyses-3, results='hide'}
 # =======================================================================
 # ANALYSIS 3: split ratio varies, habitat proportion fixed
 # =======================================================================
@@ -652,12 +670,14 @@ ggplot(long3, aes(x = sr, y = rescue_probability,
     y = "Rescue probability",
     color = "Population"
   ) +
-  theme_minimal()
+  theme_minimal(base_size = 16)
 ```
-### Distribution of individuals
+
+
+## Distribution of individuals
 the third analyses shows the effect of how individuals are distributed at the split, with habitats of equal size split at generation 30. The x-axis gives the probability (split ratio) that an individual is assigned to habitat B, with the remaining individuals going to C. Rescue probability showed no consistent trend across split ratios. Habitat B was rescued in 17% to 32% of the 100 replicates and habitat C in 19% to 33%, and the two habitats did not differ clearly at any ratio. Both curves peaked at a split ratio of 0.3. The probability that both habitats were rescued was lower at more uneven splits.
 
-```{r analyses-4}
+```{r analyses-4, results='hide'}
 # =======================================================================
 # ANALYSIS 4: both vary (full grid)
 # =======================================================================
@@ -686,10 +706,12 @@ ggplot(long4, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
        fill = "Rescue\nprobability") +
   theme_minimal(base_size= 16)
 ```
-###Split time and habitat size combined
+
+
+## Split time x habitat proportion
 This heatmap combines both factors for habitat proportions of 0.1, 0.25 and 0.5. Rescue of habitat B increased with split time at every proportion. It was highest when B was smallest: at a proportion of 0.1 it rose from 0.44 to 1.00, compared with 0.17 to 0.53 at 0.5. Habitat C, the larger habitat in unequal splits, was rarely rescued (at most 0.17). Only at equal size did its rescue probability increase with split time (0.13 to 0.46). Rescue of both habitats stayed low (0.05 to 0.25). The smaller habitat was thus rescued more often than the larger one. This difference grew with later splits.
 
-```{r analyses-5}
+```{r analyses-5, results='hide'}
 # =======================================================================
 # ANALYSIS 5: split time and split ratio vary (full grid)
 # =======================================================================
@@ -718,16 +740,18 @@ ggplot(long5, aes(x = factor(sr), y = factor(st),
     y = "Split time (st)",
     fill = "Rescue\nprobability"
   ) +
-  theme_minimal()
+  theme_minimal(base_size = 16)
 
 ```
-### Split time and distribution of individuals combined
+
+
+## Split time x split ratio
 This Plot combines split time with split ratios of 0.1, 0.25 and 0.5. Rescue probability increased with split time in both habitats. For habitat B it rose from about 0.2 at generation 10 to about 0.4 to 0.5 at generation 100. Habitat C showed the same pattern. Rescue of both habitats also increased, from 0.05 to 0.09 at generation 10 to about 0.2 at generation 100. The split ratio had little effect. Differences between ratios were small and showed no clear direction.
 
 
-```{r analysis-6-migration-habitat}
+```{r analysis-6, results='hide'}
 # =======================================================================
-# ANALYSIS 7: migration rate and habitat proportion vary (full grid)
+# ANALYSIS 6: migration rate and habitat proportion vary (full grid)
 # =======================================================================
 res7 <- run_scenarios(
   split_times   = 30,
@@ -754,15 +778,29 @@ ggplot(long7, aes(x = hp_label, y = factor(mig), fill = rescue_probability)) +
        fill = "Rescue\nprobability") +
   theme_minimal(base_size = 16)
 ```
-### Migration and habitat size
+
+
+### Migration x habitat proportion
 The last analyses combines the migration rate with habitat proportions of 0.1, 0.25 and 0.5. Without migration, the habitats were rescued about equally often, at every proportion. Even the smallest habitat had no advantage. With migration, unequal habitats behaved very differently. The smaller habitat B was rescued more often. The larger habitat C was rarely rescued at 0.01, at most 0.11 and never at 0.05 or higher. Rescue of both habitats dropped to zero accordingly.
 
+# Discussion
 
-## \# Appendix
 
-```{r}
-"Built with `r getRversion()`" 
-```
+- Our simulations suggest that evolutionary rescue remains possible when a habitat is fragmented after the rescue process has begun, but the outcome depends on the timing of the split, the habitat sizes and migration.
+- Rescue probability tended to increase with later splits. In equally sized habitats, it rose from about 0.24 (B) and 0.23 (C) at generation 10 to about 0.43 and 0.41 at generation 100.
+- Later splits may give mutants more time to arise and establish before the population is divided. However, only runs that survived until the split were included, which may inflate rescue probabilities for later splits.
+- When habitat sizes were unequal, the smaller habitat was rescued more often than the larger one, and this difference grew with later splits. At a habitat proportion of 0.1, rescue of habitat B rose from 0.44 to 1.00 with later splits, while habitat C reached at most 0.17.
+- Because the rescue threshold depends on carrying capacity, a smaller habitat needs fewer mutants to count as rescued. Its higher rescue probability therefore does not necessarily mean that small habitats are better for long-term population persistence.
+- The split ratio had little effect on rescue of either habitat, and differences between ratios showed no clear direction. The initial distribution of individuals therefore appears less important than the timing of the split or the habitat sizes under the conditions tested.
+- Without migration, the habitats were rescued about equally often at every habitat proportion. With migration, the smaller habitat was rescued more often, while the larger habitat was rarely rescued at a migration rate of 0.01 and never at 0.05 or higher.
+- Migration has a larger effect when habitats are more uneven in size. Because the number of migrants is proportional to the population of the source habitat, the larger habitat sends many more individuals to the smaller one than it receives, so even low migration rates create a noticeable net flow. In human-altered landscapes, migration corridors should therefore be recommended.
+- This recommendation should be treated with caution because our results do not show that migration improves rescue overall. Rescue of both habitats dropped to zero at higher migration rates in unequal habitats, so the effects of corridors need further testing.
+- Our rescue measure has an important limitation: a habitat only counted as rescued if the number of mutants was at least equal to K in the final generation. Because populations fluctuate around K, some established populations may have been classified as not rescued.
+- The model is also simplified: it assumes a haploid population, a single beneficial mutation and only two habitats, and `decay_rate`, `sel_coeff` and `mut_rate` were not varied. In addition, 100 replicates per scenario are too few to interpret small differences as real effects.
+- Future work should test alternative rescue definitions, more replicates, different selection and mutation parameters and more than two habitats. This would show whether the patterns found here are robust and help to assess their relevance for conservation.
+
+# Appendix 
+
 
 **Less common functions used**
 
