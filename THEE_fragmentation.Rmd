@@ -430,7 +430,7 @@ init_A           <- 0
 m_rate           <- 0.001
 max_gen_analysis <- 1000
 K_analysis       <- 1000
-no_replicates    <- 100     # more replicates give more precise probabilities
+no_replicates    <- 10    # more replicates give more precise probabilities
 max_attempts     <- 5000
 rescue_frac      <- 1  
 migrate          <- 0.01    # rescue = A >= rescue_frac * K of the habitat, changeable 
@@ -722,7 +722,7 @@ ggplot(long5, aes(x = factor(sr), y = factor(st),
 # =======================================================================
 res6 <- run_scenarios(
   split_times   = 30,
-  habitat_props = 0.25,
+  habitat_props = 0.5,
   split_ratios  = 0.5,
   migrates      = c(0, 0.001, 0.01,0.1,0.25)
 )
@@ -739,6 +739,35 @@ ggplot(long6, aes(x = factor(mig), y = rescue_probability,
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
   labs(title = "Rescue probability vs. migration rate (split time = 30)",
        x = "Migration rate", y = "Rescue probability", color = "Population") +
+  theme_minimal(base_size = 16)
+```
+```{r analysis-7-migration-habitat}
+# =======================================================================
+# ANALYSIS 7: migration rate and habitat proportion vary (full grid)
+# =======================================================================
+res7 <- run_scenarios(
+  split_times   = 30,
+  habitat_props = c(0.1, 0.25, 0.5),
+  split_ratios  = 0.5,
+  migrates      = c(0, 0.01, 0.05, 0.1)
+)
+long7 <- to_long(res7$prob)
+print(res7$prob)
+
+# label showing the proportion of BOTH habitats on two lines
+hp_values7 <- sort(unique(long7$hp))
+long7 <- long7 %>%
+  mutate(hp_label = factor(hp, levels = hp_values7,
+                           labels = paste0("B ", hp_values7, "\nC ", 1 - hp_values7)))
+
+ggplot(long7, aes(x = hp_label, y = factor(mig), fill = rescue_probability)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", rescue_probability)), size = 3.5) +
+  facet_wrap(~ population) +
+  scale_fill_viridis_c(limits = c(0, 1), option = "C") +
+  labs(title = "Rescue probability by migration rate and habitat proportion",
+       x = "Habitat proportion", y = "Migration rate",
+       fill = "Rescue\nprobability") +
   theme_minimal(base_size = 16)
 ```
 ## \# Appendix
