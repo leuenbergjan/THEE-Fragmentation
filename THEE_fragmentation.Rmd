@@ -8,7 +8,7 @@ output:
     theme: journal
 ---
 
-# Abstract  
+# Abstract
 
 Habitat fragmentation is a major threat to wildlife populations and can occur after ER has already begun, yet its effect on this process is not well understood. We extended the Orr & Unckless model into a discrete-time stochastic simulation of a haploid population with logistic growth. At a defined generation, the habitat was split into two fragments, and we varied the timing of the split, the relative habitat size, the distribution of individuals, and the migration rate. For each scenario, we estimated rescue probability from 100 replicates. ER remained possible after fragmentation, and rescue probability tended to increase with later splits, although this may be inflated because only populations that survived until the split were included. When migration was possible, smaller habitats were rescued more often than larger ones, whereas the distribution of individuals had little effect. Migration strongly influenced outcomes, but we found no evidence that it improved rescue overall. These patterns may partly reflect asymmetric migration and our rescue definition rather than true differences in adaptation. Further simulations are needed before these findings can inform conservation measures.
 
@@ -46,6 +46,8 @@ The base model of Orr & Unckless, which was provided from the banklab recreating
 
 To assess the impact of **habitat fragmentation** on ER, we extended the model by adding a additional biological scenario, where the habitat, in which the population is located (called habitat A), gets separated after a defined number of generations into **two isolated habitats** (called habitat B and C) of defined sizes. Based on that, the following equation must be considered with regard to the habitat sizes:$(A_size = B_size + C_size)$. Each habitat has also its own carrying capacity (**K**) related to its size: $(K_A = K_B + K_C)$. At a **separation time** individuals of the population A are distributed then into the two new habitats B and C and both will then evolve independently. Since our aim was also to investigate what happens when **migration** is possible, we allowed individuals to move between habitats B and C after the splitting event. In each generation, every individual (wild type and mutant separately) migrates to the other habitat with probability **migrate**.
 
+![*Simplified sketch of the model*](images/sketch.png){width="375"}
+
 ## Parameters and variables
 
 Overall, we have expanded the base model therefore with five parameters; `split_time, habitat_prop, split_ratio, K` and `migration`. All the other parameters and variables were already set in the based model. The table below provides brief explanations of the respective parameters and variables.
@@ -53,7 +55,7 @@ Overall, we have expanded the base model therefore with five parameters; `split_
 **Taken from the base model:**
 
 | Name | Meaning |
-|------------------------------------|------------------------------------|
+|----|----|
 | `N_a`, `N_A` | current size of the wild-type / mutant population (change over time) |
 | `N_init_a`, `N_init_A` | initial sizes of wild type (positive integer) and mutant (non-negative integer) |
 | `decay_rate` | detrimental effect of the environment on the wild type (\> 0 so that extinction is possible) |
@@ -64,7 +66,7 @@ Overall, we have expanded the base model therefore with five parameters; `split_
 **Added to expand the model:**
 
 | Name | Meaning |
-|------------------------------------|------------------------------------|
+|----|----|
 | `split_time` | generation at which the fragmentation happens (integer \> 0) |
 | `habitat_prop` | defining size of the new habitat B and therefore also it's carrying capacity (between 0 and 1); habitat C gets `1 - habitat_prop` |
 | `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1): habitat C gets `1 - split_ratio` |
@@ -434,7 +436,6 @@ plot_habitats(output, K = K, habitat_prop = habitat_prop,
 
 A single simulation is one random realization of the model, so we repeated each scenario and report the rescue probability, the proportion of replicates in which rescue occurred. Only the parameters named in each analysis are varied. Migration is switched on in analyses 1 to 5 (migrate = 0.01) and varied only in the last analysis.
 
-
 ### What `run_scenarios()` does
 
 The function `run_scenarios()` loops over every combination of split time, habitat proportion, split ratio and migration rate, and each combination is treated as one scenario. For each scenario it calls `simulate_pop()` repeatedly until 100 replicates have been made. Runs in which the population went extinct (or reached twice its initial size) before the split are discarded and drawn again, because habitats B and C do not exist in these runs.
@@ -446,6 +447,7 @@ The helper function `to_long()` reshapes the summary for `ggplot2`: the columns 
 Three features affect interpretation. First, rescue probabilities are conditional on the population still existing at the split. Second, a habitat counts as rescued only if the number of mutants in the final generation is at least its K. Third, with 100 replicates, the standard error is up to about 0.05, so small differences should not be interpreted as real effects.
 
 ## Overview of the analysis code
+
 ```{r analyses-function}
 # fixed parameters
 init_a           <- 600
@@ -586,7 +588,6 @@ to_long <- function(rescue_prob) {
 }
 ```
 
-
 ```{r analyses-1, results= 'hide'}
 # =======================================================================
 # ANALYSIS 1: split time varies, habitat proportion fixed
@@ -615,8 +616,8 @@ ggplot(long1, aes(x = st, y = rescue_probability,
   theme_minimal(base_size = 16)
 ```
 
-
 ## Timing of fragmentation
+
 This plot shows the proportion of 100 replicate simulations in which the mutant reached the rescue threshold (100% of K), depending on the generation at which the habitat was split into two equal halves. Rescue probability tended to increase with later splits, from about 0.24 (B) and 0.23 (C) at generation 10 to about 0.43 and 0.41 at generation 100, with a dip at generation 30. Habitats B and C behaved very similarly, as expected for identical halves. The probability that both were rescued was lower (about 0.06 to 0.17) and stayed roughly flat from generation 50 onwards.
 
 ```{r analyses-2, results='hide'}
@@ -646,8 +647,8 @@ ggplot(long2, aes(x = hp, y = rescue_probability,
   theme_minimal(base_size = 16)
 ```
 
-
 ## Habitat proportion
+
 This Figure shows how rescue probability changes when the habitat is split differently at generation 30. The x-axis gives the share of the original habitat and also of K that goes to habitat B, with habitat C receiving the remainder, while individuals were still divided evenly. The smaller habitat was rescued more often. At a habitat proportion of 0.1, habitat B (10% of K) was rescued in 39% of the 100 replicates and habitat C (90% of K) in only 5%. As B grew towards equal size, its rescue probability fell (0.18 at 0.5) and that of C rose (0.26 at 0.5). The probability that both habitats were rescued stayed low at 0.05 to 0.10.
 
 ```{r analyses-3, results='hide'}
@@ -690,8 +691,8 @@ ggplot(long3, aes(x = sr, y = rescue_probability,
   theme_minimal(base_size = 16)
 ```
 
-
 ## Distribution of individuals
+
 the third analyses shows the effect of how individuals are distributed at the split, with habitats of equal size split at generation 30. The x-axis gives the probability (split ratio) that an individual is assigned to habitat B, with the remaining individuals going to C. Rescue probability showed no consistent trend across split ratios. Habitat B was rescued in 17% to 32% of the 100 replicates and habitat C in 19% to 33%, and the two habitats did not differ clearly at any ratio. Both curves peaked at a split ratio of 0.3. The probability that both habitats were rescued was lower at more uneven splits.
 
 ```{r analyses-4, results='hide'}
@@ -724,8 +725,8 @@ ggplot(long4, aes(x = hp_label, y = factor(st), fill = rescue_probability)) +
   theme_minimal(base_size= 16)
 ```
 
-
 ## Split time x habitat proportion
+
 This heatmap combines both factors for habitat proportions of 0.1, 0.25 and 0.5. Rescue of habitat B increased with split time at every proportion. It was highest when B was smallest: at a proportion of 0.1 it rose from 0.44 to 1.00, compared with 0.17 to 0.53 at 0.5. Habitat C, the larger habitat in unequal splits, was rarely rescued (at most 0.17). Only at equal size did its rescue probability increase with split time (0.13 to 0.46). Rescue of both habitats stayed low (0.05 to 0.25). The smaller habitat was thus rescued more often than the larger one. This difference grew with later splits.
 
 ```{r analyses-5, results='hide'}
@@ -761,10 +762,9 @@ ggplot(long5, aes(x = factor(sr), y = factor(st),
 
 ```
 
-
 ## Split time x split ratio
-This Plot combines split time with split ratios of 0.1, 0.25 and 0.5. Rescue probability increased with split time in both habitats. For habitat B it rose from about 0.2 at generation 10 to about 0.4 to 0.5 at generation 100. Habitat C showed the same pattern. Rescue of both habitats also increased, from 0.05 to 0.09 at generation 10 to about 0.2 at generation 100. The split ratio had little effect. Differences between ratios were small and showed no clear direction.
 
+This Plot combines split time with split ratios of 0.1, 0.25 and 0.5. Rescue probability increased with split time in both habitats. For habitat B it rose from about 0.2 at generation 10 to about 0.4 to 0.5 at generation 100. Habitat C showed the same pattern. Rescue of both habitats also increased, from 0.05 to 0.09 at generation 10 to about 0.2 at generation 100. The split ratio had little effect. Differences between ratios were small and showed no clear direction.
 
 ```{r analysis-6, results='hide'}
 # =======================================================================
@@ -796,53 +796,51 @@ ggplot(long7, aes(x = hp_label, y = factor(mig), fill = rescue_probability)) +
   theme_minimal(base_size = 16)
 ```
 
-
 ### Migration x habitat proportion
+
 The last analyses combines the migration rate with habitat proportions of 0.1, 0.25 and 0.5. Without migration, the habitats were rescued about equally often, at every proportion. Even the smallest habitat had no advantage. With migration, unequal habitats behaved very differently. The smaller habitat B was rescued more often. The larger habitat C was rarely rescued at 0.01, at most 0.11 and never at 0.05 or higher. Rescue of both habitats dropped to zero accordingly.
 
-
 # Discussion
+
 Our simulations suggest that evolutionary rescue remains possible when a habitat is fragmented after the rescue process has begun, but the outcome depends on the timing of the split, the habitat sizes and migration.
 
 ### Time point of fragmentation
+
 The rescue probability tended to increase with later splits. In equally sized habitats, it rose from a probability of 0.24 (B) and 0.23 (C) at generation 10 to about 0.43 (B) and 0.41 (C) at generation 100. This shows that later splits may give mutants more time to arise and establish before the population is divided. However we need to be cautious about this result, because only the populations that survived until the split time were included, which may inflate rescue probabilities for later splits.
 
 ### Habitat size
+
 When habitat sizes were unequal, the smaller habitat tended to be rescued more often than the larger one, and this difference increased with later splitting time. Similar results were found in (Bell & Gonzalez, 2011), where they looked at yeast and surprisingly found that adaptation is faster in small populations. At a habitat proportion of 0.1, the rescue probability of habitat B rose from 0.44 to 1.00 with later splits, while habitat C reached at most 0.17. Because the rescue threshold depends on carrying capacity, a smaller habitat needs fewer mutants to count as rescued. Furthermore, when considering the rescue probability based on habitat size, it is important to note that our settings for migration can also influence ER here. Since a fixed percentage of individuals always migrate from one habitat to another, a very large number of individuals will always move from the larger habitat to the smaller one. This is why the carrying capacity of the smaller habitat may be reached more quickly solely due to migration. Its higher rescue probability therefore does not necessarily mean that small habitats are better for long-term population persistence.
 
 ### Migration
-Migration has a larger effect when habitats are more uneven in size. Because the number of migrants is proportional to the population of the source habitat, the larger habitat sends many more individuals to the smaller one than it receives, so even low migration rates create a noticeable  flow. In human-altered landscapes, migration corridors should therefore be recommended. This recommendation should be treated with caution because our results do not show that migration improves rescue overall. Rescue of both habitats dropped to zero at higher migration rates in unequal habitats, so the effects of corridors need further testing. 
+
+Migration has a larger effect when habitats are more uneven in size. Because the number of migrants is proportional to the population of the source habitat, the larger habitat sends many more individuals to the smaller one than it receives, so even low migration rates create a noticeable flow. In human-altered landscapes, migration corridors should therefore be recommended. This recommendation should be treated with caution because our results do not show that migration improves rescue overall. Rescue of both habitats dropped to zero at higher migration rates in unequal habitats, so the effects of corridors need further testing.
 
 ### Individual distribution
+
 The split ratio had little effect on rescue of either habitat, and differences between ratios showed no clear direction. The initial distribution of individuals therefore appears less important than the timing of the split or the habitat sizes under the conditions tested.
 
 ### Biological relevance
+
 Even though our model is based on a theoretical simulation, our project can be applied and used primarily in the field of conservation biology, as it highlights which factors have the most significant impact on a population experiencing habitat fragmentation. At a time when nature is increasingly dominated by humans and habitats are being fragmented as a result, this kind of projects and research form the basic knowledge to understand which factors have to be most considered, whether in the construction of a highway, in supporting measures after a fire, or in the planning of migration corridors in already fragmented habitats, to ensure the survival or growth of the populations.
 
 ### Limitations & Improvements
+
 Our rescue measure has an important limitation due to the fact that a habitat only counted as rescued if the number of mutants was at least equal to K in the final generation. Because populations fluctuate around K, some established populations may have been classified as not rescued. The model is also simplified, meaning, that it assumes a haploid population, a single beneficial mutation and only two habitats, and `decay_rate`, `sel_coeff` and `mut_rate` were not varied. In addition, 100 replicates per scenario are too few to interpret small differences as real effects, why a higher number of replicates is recommended.
 
 Future work should test therefore alternative rescue definitions, more replicates, different selection and mutation parameters and more than two habitats. This would show whether the patterns found here are robust and help to assess their relevance for conservation. In addition, when applying this model in other contexts, a real-world connection to an existing species or population should be established. Although our model simulates the theoretical growth of a population, many confounding factors can still mask the actual effect of habitat fragmentation, as has been demonstrated in (Ewers & Didham, 2006). This is because habitat fragmentation can have different effects depending on various life history traits, such as trophic level, migration ability, or habitat specialization.
-
 
 ### Conclusion
 
 Evolutionary rescue can remain possible when a habitat is fragmented after the rescue process has begun, but the outcome depends on the timing of fragmentation, habitat sizes and migration. Later splits were associated with higher rescue probabilities, and smaller habitats were rescued more often when migration was possible, whereas the distribution of individuals had little effect. We found no evidence that migration improved rescue overall. Because these patterns may partly reflect survivor bias, asymmetric migration and our rescue definition, further simulations are needed before they can inform conservation measures.
 
 #### Authorship Contributions
-Jan Leuenberger
-Code: carrying capacity, migration , plotting model, plotting analyses
-Report: Results, Discussion, Abstract
 
-Safeeya Ramis
-Code: split time, habitat proportion, split ratio, Analyses
-Report: Introduction, Methods , Discussion
-AI promts and pdf knitting
+Jan Leuenberger Code: carrying capacity, migration , plotting model, plotting analyses Report: Results, Discussion, Abstract
 
+Safeeya Ramis Code: split time, habitat proportion, split ratio, Analyses Report: Introduction, Methods , Discussion AI promts and pdf knitting
 
-# Appendix 
-
-
+# Appendix
 
 ## Additional plots
 
@@ -882,3 +880,15 @@ plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat 
 ```
 
 # References
+
+Baiotto, T., & Guzman, L. M. (2025). Maintaining Local Adaptation Is Key for Evolutionary Rescue and Long-Term Persistence of Populations Experiencing Habitat Loss and a Changing Environment. Evolutionary Applications , 18(3). <https://doi.org/10.1111/eva.70081>
+
+Bell, G., & Gonzalez, A. (2011). Adaptation and Evolutionary Rescue in Metapopulations Experiencing Environmental Deterioration. Science, 332(6035), 1327–1330. <https://doi.org/10.1126/science.1203105>
+
+Cheptou, P. O., Hargreaves, A. L., Bonte, D., & Jacquemyn, H. (2017). Adaptation to fragmentation: Evolutionarydynamics driven by human influences. In Philosophical Transactions of the Royal Society B: Biological Sciences (Vol. 372, Number 1712). Royal Society of London. <https://doi.org/10.1098/rstb.2016.0037>
+
+Ewers, R. M., & Didham, R. K. (2006). Confounding factors in the detection of species responses to habitat fragmentation. In Biological Reviews of the Cambridge Philosophical Society (Vol. 81, Number 1, pp. 117–142). <https://doi.org/10.1017/S1464793105006949>
+
+Gonzalez, A., Ronce, O., Ferriere, R., & Hochberg, M. E. (2013). Evolutionary rescue: An emerging focus at the intersection between ecology and evolution. Philosophical Transactions of the Royal Society B: Biological Sciences, 368(1610). <https://doi.org/10.1098/rstb.2012.0404>
+
+Home, R., Angelone, S., Hunziker, M., & Bolliger, J. (2014). Public preferences for ecosystem-enhancing elements in agricultural landscapes in the Swiss lowlands. Journal of Integrative Environmental Sciences, 11(2), 93–108. <https://doi.org/10.1080/1943815X.2014.923913>
