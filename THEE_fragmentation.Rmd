@@ -813,10 +813,10 @@ Migration has a larger effect when habitats are more uneven in size. Because the
 ## Individual distribution
 The split ratio had little effect on rescue of either habitat, and differences between ratios showed no clear direction. The initial distribution of individuals therefore appears less important than the timing of the split or the habitat sizes under the conditions tested.
 
-## Rating?
+### Rating?
 split_time > migration > usw...
 
-# Biological relevance
+## Biological relevance
 Even though our model is based on a theoretical simulation, our project can be applied and used primarily in the field of conservation biology, as it highlights which factors have the most significant impact on a population experiencing habitat fragmentation. At a time when nature is increasingly dominated by humans and habitats are being fragmented as a result, this kind of projects and research form the basic knowledge to understand which factors have to be most considered, whether in the construction of a highway, in supporting measures after a fire, or in the planning of migration corridors in already fragmented habitats, to ensure the survival or growth of the populations.
 
 # Limitations & Improvements
