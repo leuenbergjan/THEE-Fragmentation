@@ -116,7 +116,7 @@ The actual code can be found in the Model & Methods section and contains five co
 
 5\. Analysis with varying model parameters (seven separate chunks)
 
-#### Note that code folding only works in HTML format
+#### Note that we use code folding in our Markdown! To see the code in the html, please press "Show".
 
 ### Help
 
