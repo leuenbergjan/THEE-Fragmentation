@@ -282,10 +282,12 @@ To inspect what happens in a single simulation, we define three plot functions. 
 # Overview plot: wild type and mutant before the split
 plot_split <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
   
+  # Add outputs of calculations to main, B and C
   main <- output$main
   B    <- output$B
   C    <- output$C
   
+  #Define size and carrying capacity of the new habitats
   K_B <- K * habitat_prop
   K_C <- K * (1 - habitat_prop)
   
@@ -381,6 +383,7 @@ plot_habitat <- function(df, K_hab, split_time, title, col_tot, xlim_max = NULL)
 # ---- 3. Two panels: habitat B on top, habitat C below ----
 plot_habitats <- function(output, K, habitat_prop, split_time, xlim_max = NULL) {
   
+  # #Define size and carrying capacity of the new habitats
   K_B <- K * habitat_prop
   K_C <- K * (1 - habitat_prop)
   
@@ -398,6 +401,7 @@ plot_habitats <- function(output, K, habitat_prop, split_time, xlim_max = NULL) 
 # Usage
 # (simulate_one_gen and simulate_pop must be defined first)
 # ============================================================
+# set parameters
 max_gen      <- 1000
 K            <- 1000
 habitat_prop <- 0.8
@@ -405,6 +409,7 @@ split_time   <- 50
 split_ratio  <- 0.5
 migrate      <- 0.01
 
+# run simulation and define it as output
 output <- simulate_pop(600, 0, 0.01, 0.2, 0.001, max_gen, K,
                        habitat_prop, split_ratio , split_time,migrate)
 
@@ -451,18 +456,21 @@ max_attempts     <- 5000
 rescue_frac      <- 1  
 migrate          <- 0.01    # rescue = A >= rescue_frac * K of the habitat, changeable 
 
-# core function
+# core function from analyse section of base model
 run_scenarios <- function(split_times, habitat_props, split_ratios,migrates = migrate) {
   results <- list()
   
+  # extend analysis with split_time, habitat_prop, split_ratio and migration
   for (st in split_times) {
     for (hp in habitat_props) {
       for (sr in split_ratios) {
         for (mg in migrates) {  
         
+        # Habitat sizes
         K_B <- K_analysis * hp
         K_C <- K_analysis * (1 - hp)
         
+        #set to zero
         i <- 0
         attempts <- 0
         
@@ -497,12 +505,14 @@ run_scenarios <- function(split_times, habitat_props, split_ratios,migrates = mi
           
           i <- i + 1
           
+          # Populations reaching carrying capacity
           reached_B <- one_run$B$A >= rescue_frac * K_B
           reached_C <- one_run$C$A >= rescue_frac * K_C
           
           rescued_B <- reached_B[length(reached_B)]
           rescued_C <- reached_C[length(reached_C)]
           
+          # summerizig results
           results[[length(results) + 1]] <- data.frame(
             st = st,
             hp = hp,
@@ -529,6 +539,7 @@ run_scenarios <- function(split_times, habitat_props, split_ratios,migrates = mi
     stop("No valid simulation results were obtained.")
   }
   
+  # Create data table
   data_table <- do.call(rbind, results)
 
   # Rescue probability per scenario
@@ -543,6 +554,7 @@ run_scenarios <- function(split_times, habitat_props, split_ratios,migrates = mi
       .groups = "drop"
     )
   
+  # Define what will be returned
   return(list(
     data = data_table,
     prob = rescue_prob
@@ -577,14 +589,17 @@ to_long <- function(rescue_prob) {
 # =======================================================================
 # ANALYSIS 1: split time varies, habitat proportion fixed
 # =======================================================================
+# run analysis with given parameters and store as res1
 res1 <- run_scenarios(
   split_times   = c(10, 20, 30, 50, 75, 100),
   habitat_props = 0.5,
   split_ratios = 0.5
 )
+# save as long1
 long1 <- to_long(res1$prob)
 print(res1$prob)
 
+# plot results
 ggplot(long1, aes(x = st, y = rescue_probability,
                   color = population, group = population)) +
   geom_line(linewidth = 1) +
