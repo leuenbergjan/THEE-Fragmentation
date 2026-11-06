@@ -807,18 +807,26 @@ The rescue probability tended to increase with later splits. In equally sized ha
 ## Habitat size
 When habitat sizes were unequal, the smaller habitat tended to be rescued more often than the larger one, and this difference increased with later splitting time. Similar results were found in (Bell & Gonzalez, 2011), where they looked at yeast and surprisingly found that adaptation is faster in small populations. At a habitat proportion of 0.1, the rescue probability of habitat B rose from 0.44 to 1.00 with later splits, while habitat C reached at most 0.17. Because the rescue threshold depends on carrying capacity, a smaller habitat needs fewer mutants to count as rescued. Furthermore, when considering the rescue probability based on habitat size, it is important to note that our settings for migration can also influence ER here. Since a fixed percentage of individuals always migrate from one habitat to another, a very large number of individuals will always move from the larger habitat to the smaller one. This is why the carrying capacity of the smaller habitat may be reached more quickly solely due to migration. Its higher rescue probability therefore does not necessarily mean that small habitats are better for long-term population persistence.
 
-## Migration corridors
+## Migration
 Migration has a larger effect when habitats are more uneven in size. Because the number of migrants is proportional to the population of the source habitat, the larger habitat sends many more individuals to the smaller one than it receives, so even low migration rates create a noticeable net flow. In human-altered landscapes, migration corridors should therefore be recommended. This recommendation should be treated with caution because our results do not show that migration improves rescue overall. Rescue of both habitats dropped to zero at higher migration rates in unequal habitats, so the effects of corridors need further testing. 
 
 ## Individual distribution
 The split ratio had little effect on rescue of either habitat, and differences between ratios showed no clear direction. The initial distribution of individuals therefore appears less important than the timing of the split or the habitat sizes under the conditions tested.
 
-# Limitations & Improvements
-Our rescue measure has an important limitation: a habitat only counted as rescued if the number of mutants was at least equal to K in the final generation. Because populations fluctuate around K, some established populations may have been classified as not rescued. The model is also simplified, meaning, that it assumes a haploid population, a single beneficial mutation and only two habitats, and `decay_rate`, `sel_coeff` and `mut_rate` were not varied. In addition, 100 replicates per scenario are too few to interpret small differences as real effects, why a higher number of replicates is recommended.
+## Rating?
+split_time > migration > usw...
 
-Future work should test therefore alternative rescue definitions, more replicates, different selection and mutation parameters and more than two habitats. This would show whether the patterns found here are robust and help to assess their relevance for conservation. In addition In addition, when applying this model in other contexts, a real-world connection to an existing animal species or population should be established. Although our model simulates the theoretical growth of a population, many confounding factors can still mask the actual effect of habitat fragmentation, as has been demonstrated in (Ewers & Didham, 2006). This is because habitat fragmentation can have different effects depending on various life history traits, such as trophic level, migration ability, or habitat specialization.
+# Biological relevance
+Even though our model is based on a theoretical simulation, our project can be applied and used primarily in the field of conservation biology, as it highlights which factors have the most significant impact on a population experiencing habitat fragmentation. At a time when nature is increasingly dominated by humans and habitats are being fragmented as a result, this kind of projects and research form the basic knowledge to understand which factors have to be most considered, whether in the construction of a highway, in supporting measures after a fire, or in the planning of migration corridors in already fragmented habitats, to ensure the survival or growth of the populations.
+
+# Limitations & Improvements
+Our rescue measure has an important limitation due to the fact that a habitat only counted as rescued if the number of mutants was at least equal to K in the final generation. Because populations fluctuate around K, some established populations may have been classified as not rescued. The model is also simplified, meaning, that it assumes a haploid population, a single beneficial mutation and only two habitats, and `decay_rate`, `sel_coeff` and `mut_rate` were not varied. In addition, 100 replicates per scenario are too few to interpret small differences as real effects, why a higher number of replicates is recommended.
+
+Future work should test therefore alternative rescue definitions, more replicates, different selection and mutation parameters and more than two habitats. This would show whether the patterns found here are robust and help to assess their relevance for conservation. In addition, when applying this model in other contexts, a real-world connection to an existing species or population should be established. Although our model simulates the theoretical growth of a population, many confounding factors can still mask the actual effect of habitat fragmentation, as has been demonstrated in (Ewers & Didham, 2006). This is because habitat fragmentation can have different effects depending on various life history traits, such as trophic level, migration ability, or habitat specialization.
 
 ***Without migration, the habitats were rescued about equally often at every habitat proportion. With migration, the smaller habitat was rescued more often, while the larger habitat was rarely rescued at a migration rate of 0.01 and never at 0.05 or higher. (I don't know how to include this, because I don't understand it.)***
+
+# Authorship Contributions
 
 # Appendix 
 ##Less common functions used
@@ -899,3 +907,5 @@ plot_outcomes(res3$data, "st", "Split time", "Outcome by split time and habitat 
 }
 
 ```
+
+# References
