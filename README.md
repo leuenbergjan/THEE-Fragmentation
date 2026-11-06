@@ -104,15 +104,17 @@ The report notebook is broadly organized into the following sections:
 - Appendix
 - References
 
-The actual code can be found in the Model & Methods section and contains four rough junks:
+The actual code can be found in the Model & Methods section and contains five code sections:
 
-1\. Calculations for one generation of the population
+1\. Reproducibility & Libraries (one chunk)
 
-2\. Trajectory of the population over time
+2.\ Calculations for one generation of the population (one chunk)
 
-3\. Generation of plots showing the trajectory
+3\. Trajectory of the population over time (one chunk)
 
-4\. Analysis with varying model parameters
+4\. Plots showing the trajectory of the population (two separate chunks)
+
+5\. Analysis with varying model parameters (seven separate chunks)
 
 ### Help
 
