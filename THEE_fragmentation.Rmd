@@ -829,7 +829,7 @@ Future work should test therefore alternative rescue definitions, more replicate
 
 Evolutionary rescue can remain possible when a habitat is fragmented after the rescue process has begun, but the outcome depends on the timing of fragmentation, habitat sizes and migration. Later splits were associated with higher rescue probabilities, and smaller habitats were rescued more often when migration was possible, whereas the distribution of individuals had little effect. We found no evidence that migration improved rescue overall. Because these patterns may partly reflect survivor bias, asymmetric migration and our rescue definition, further simulations are needed before they can inform conservation measures.
 
-# Authorship Contributions
+#### Authorship Contributions
 Jan Leuenberger
 Code: carrying capacity, migration , plotting model, plotting analyses
 Report: Results, Discussion, Abstract
@@ -838,6 +838,8 @@ Safeeya Ramis
 Code: split time, habitat proportion, split ratio, Analyses
 Report: Introduction, Methods , Discussion
 AI promts and pdf knitting
+
+
 # Appendix 
 
 
