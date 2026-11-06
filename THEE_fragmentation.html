@@ -1001,18 +1001,11 @@ plot_split(output, K = K, habitat_prop = habitat_prop,
 </div>
 <div id="analyses-and-results" class="section level1">
 <h1>Analyses and Results</h1>
-<p>A single simulation is one random realization of the model: whether
-the mutant arises, and whether it spreads before the wild type dies out,
-depends on one run. To obtain interpretative results we repeat each
-scenario many times and report the <strong>rescue probability</strong>,
-the proportion of replicates in which rescue occurred. The function
-<code>run_scenarios()</code> does this for any combination of
-<code>split_times</code>, <code>habitat_props</code>,
-<code>split_ratios</code> and <code>migrates</code>, and
-<code>to_long()</code> prepares the summary for plotting.</p>
-<p>All analyses use the same settings, and only the parameters named in
-each analysis are varied. Note that migration is switched on in analyses
-1 to 5 (migrate = 0.01) and only varied in the last analysis.</p>
+<p>A single simulation is one random realization of the model, so we
+repeated each scenario and report the rescue probability, the proportion
+of replicates in which rescue occurred. Only the parameters named in
+each analysis are varied. Migration is switched on in analyses 1 to 5
+(migrate = 0.01) and varied only in the last analysis.</p>
 <div id="what-run_scenarios-does" class="section level3">
 <h3>What <code>run_scenarios()</code> does</h3>
 <p>The function <code>run_scenarios()</code> loops over every
@@ -1030,17 +1023,12 @@ error bars in the plots.</p>
 </div>
 <div id="important-points-for-interpretation" class="section level3">
 <h3>Important points for interpretation</h3>
-<p>Three features of this design affect how the results should be read.
-First, runs that die out before the split are discarded, so all rescue
-probabilities are conditional on the population still existing at the
-split time. This matters most for late splits, where many runs without a
-mutant have already gone extinct. Second, a habitat counts as rescued if
-the number of mutants at the end of the run is at least
-<code>rescue_frac</code> times its carrying capacity. Because the
-population fluctuates around K, this is a strict threshold. Third, with
-100 replicates the standard error of a probability is up to about 0.05,
-so small differences between scenarios should not be interpreted as real
-effects.</p>
+<p>Three features affect interpretation. First, rescue probabilities are
+conditional on the population still existing at the split. Second, a
+habitat counts as rescued only if the number of mutants in the final
+generation is at least its K. Third, with 100 replicates, the standard
+error is up to about 0.05, so small differences should not be
+interpreted as real effects.</p>
 </div>
 <div id="overview-of-the-analysis-code" class="section level2">
 <h2>Overview of the analysis code</h2>
@@ -1470,12 +1458,12 @@ habitats are better for long-term population persistence.</p>
 Because the number of migrants is proportional to the population of the
 source habitat, the larger habitat sends many more individuals to the
 smaller one than it receives, so even low migration rates create a
-noticeable net flow. In human-altered landscapes, migration corridors
-should therefore be recommended. This recommendation should be treated
-with caution because our results do not show that migration improves
-rescue overall. Rescue of both habitats dropped to zero at higher
-migration rates in unequal habitats, so the effects of corridors need
-further testing.</p>
+noticeable flow. In human-altered landscapes, migration corridors should
+therefore be recommended. This recommendation should be treated with
+caution because our results do not show that migration improves rescue
+overall. Rescue of both habitats dropped to zero at higher migration
+rates in unequal habitats, so the effects of corridors need further
+testing.</p>
 </div>
 <div id="individual-distribution" class="section level3">
 <h3>Individual distribution</h3>
@@ -1522,48 +1510,30 @@ has been demonstrated in (Ewers &amp; Didham, 2006). This is because
 habitat fragmentation can have different effects depending on various
 life history traits, such as trophic level, migration ability, or
 habitat specialization.</p>
-<p>Without migration, the habitats were rescued about equally often at
-every habitat proportion. With migration, the smaller habitat was
-rescued more often, while the larger habitat was rarely rescued at a
-migration rate of 0.01 and never at 0.05 or higher. This pattern may
-partly result from how migration was modelled. We used a constant
-per-capita migration rate, meaning that each individual had the same
-probability of leaving its habitat regardless of population density.
-Although this rate was symmetric, the number of migrants scaled with the
-size of the source population, so the larger habitat sent more
-individuals than it received. This flow can keep the smaller habitat
-above its carrying capacity and the larger habitat below it. Because a
-habitat only counted as rescued if population was at least equal to K,
-the larger habitat may have been classified as not rescued even when
-mutants had become established. These differences may therefore reflect
-asymmetric migration and our rescue definition rather than true
-differences in adaptation.</p>
 </div>
 <div id="conclusion" class="section level3">
 <h3>Conclusion</h3>
-<p>Our simulations suggest that evolutionary rescue can remain possible
-when a habitat is fragmented after the rescue process has begun, but
-that its outcome depends on the conditions of fragmentation. Rescue
-probability tended to increase with later splits, although this result
-may be inflated because only populations that survived until the split
-were included. Smaller habitats were rescued more often than larger ones
-when migration was possible, whereas the distribution of individuals at
-the split had little effect. However, these size differences may partly
-reflect asymmetric migration and our rescue definition rather than true
-differences in adaptation. Migration therefore had a strong influence on
-the results, but we found no evidence that it improved rescue overall.
-Further simulations with more replicates and density-dependent dispersal
-are needed to test whether these patterns are robust before they can
-inform conservation measures.</p>
-</div>
-</div>
-<div id="authorship-contributions" class="section level1">
-<h1>Authorship Contributions</h1>
+<p>Evolutionary rescue can remain possible when a habitat is fragmented
+after the rescue process has begun, but the outcome depends on the
+timing of fragmentation, habitat sizes and migration. Later splits were
+associated with higher rescue probabilities, and smaller habitats were
+rescued more often when migration was possible, whereas the distribution
+of individuals had little effect. We found no evidence that migration
+improved rescue overall. Because these patterns may partly reflect
+survivor bias, asymmetric migration and our rescue definition, further
+simulations are needed before they can inform conservation measures.</p>
+<div id="authorship-contributions" class="section level4">
+<h4>Authorship Contributions</h4>
 <p>Jan Leuenberger Code: carrying capacity, migration , plotting model,
 plotting analyses Report: Results, Discussion, Abstract</p>
 <p>Safeeya Ramis Code: split time, habitat proportion, split ratio,
 Analyses Report: Introduction, Methods , Discussion AI promts and pdf
-knitting # Appendix</p>
+knitting</p>
+</div>
+</div>
+</div>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
 <div id="additional-plots" class="section level2">
 <h2>Additional plots</h2>
 </div>
