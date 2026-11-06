@@ -3,6 +3,7 @@ title: "Evolutionary rescue under habitat fragmentation"
 author: "Jan Leuenberger & Safeeya Ramis"
 date: "2026-10-28"
 output:
+  pdf_document: default
   html_document:
     code_folding: hide
     theme: journal
@@ -55,7 +56,7 @@ Overall, we have expanded the base model therefore with five parameters; `split_
 **Taken from the base model:**
 
 | Name | Meaning |
-|----|----|
+|------------------------------------|------------------------------------|
 | `N_a`, `N_A` | current size of the wild-type / mutant population (change over time) |
 | `N_init_a`, `N_init_A` | initial sizes of wild type (positive integer) and mutant (non-negative integer) |
 | `decay_rate` | detrimental effect of the environment on the wild type (\> 0 so that extinction is possible) |
@@ -66,7 +67,7 @@ Overall, we have expanded the base model therefore with five parameters; `split_
 **Added to expand the model:**
 
 | Name | Meaning |
-|----|----|
+|------------------------------------|------------------------------------|
 | `split_time` | generation at which the fragmentation happens (integer \> 0) |
 | `habitat_prop` | defining size of the new habitat B and therefore also it's carrying capacity (between 0 and 1); habitat C gets `1 - habitat_prop` |
 | `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1): habitat C gets `1 - split_ratio` |
