@@ -7,7 +7,7 @@ editor_options: markdown: wrap: 72 ---
 ## THEE Research Practical 2026
 
 **Authors:** Jan Leuenberger & Safeeya Ramis\
-**Date:** October 28, 2026
+**Date:** November 06, 2026
 
 ### Overview
 
@@ -21,13 +21,21 @@ The Base code for this project was provided by the [banklab](https://github.com/
 
 The main questions we want to answer regarding evolutionary rescue under habitat fragmentation are:
 
-- Is evolutionary rescue possible in the fragmented habitats?
-- What is the impact of the splitting time on evolutionary rescue?
-- What is the impact of the habitat proportion on evolutionary rescue?
+- Is evolutionary rescue possible in fragmented habitats if the habitats are separated at a certain time point after the ER processes have already begun?
+
+  - How does the timing of habitat fragmentation affect evolutionary rescue?
+
+  - How does the size of the habitats affect evolutionary rescue?
+
+  - What impact does the distribution of individuals across habitats have on evolutionary rescue?
+
+  - What would happen if migration between the isolated fragmented habitats were possible?
 
 ### Variables & Parameters
 
 Following you will find a table containing the most important variables and parameters used in our model:
+
+**Taken from the base model:**
 
 | Name | Meaning |
 |------------------------------------|------------------------------------|
@@ -37,13 +45,18 @@ Following you will find a table containing the most important variables and para
 | `sel_coeff` | selective advantage of the mutant (should be \> `decay_rate` to allow rescue) |
 | `mut_rate` | mutation rate from wild type to mutant (\> 0 and small) |
 | `t_max` | maximum number of generations simulated (a setting, not a model parameter) |
+
+**Added to expand the model:**
+
+| Name | Meaning |
+|------------------------------------|------------------------------------|
 | `split_time` | generation at which the fragmentation happens (integer \> 0) |
-| `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1) |
-| `habitat_prop` | share of the total carrying capacity given to habitat B (between 0 and 1); habitat C gets `1 - habitat_prop` |
-| `K` | carrying capacity of the original (unsplitted) habitat; limits growth and is divided after the splitting time point among B and C in the same proportions as the habitats |
+| `habitat_prop` | defining size of the new habitat B and therefore also it's carrying capacity (between 0 and 1); habitat C gets `1 - habitat_prop` |
+| `split_ratio` | probability with which each individual is assigned to habitat B at the split (between 0 and 1): habitat C gets `1 - split_ratio` |
+| `K` | carrying capacity of the original (unsplit) habitat; limits growth and is divided among B and C in the same proportions as the habitat size |
+| `migrate` | migration rate: (between 0 and 1) with which each individual moves to the other habitat in every generation after the split. |
 
 ### Packages needed
-
 To run the code, the following packages are required.
 
 \- ggplot2
@@ -61,19 +74,21 @@ If they have not been installed yet, you can do this as follows by using the com
 \- `install.packages("dplyr")`
 
 Please note that this project was created with the R version 4.5.2 (2025-10-31 ucrt), which might be needed to run the code properly.
-### Files and functions
 
+### Files and functions
 To provide an overview of the various files in the repository, they are briefly listed and explained below:
 
 | Name | Meaning |
 |------------------------------------|------------------------------------|
 | `.gitignore` | Files which are not needed and not important for the project, they can be ignored. |
+| `.Rhistory` | Files which are needed for RStudio, but they can be ignored, because they don't have report relevant informations in it. |
 | `Base Model.Rmd` | Base model provided from the [banklab](https://github.com/banklab/THEErp2025) which can be knitted to get an .html or .pdf format of it. |
 | `README.md` | Md file creating this explanation for the repository. |
 | `THEE_fragmentation.Rmd` | The report notebook of our project which runs the simulations and include the actual code used for the project. |
-| `AI promts.pdf` | This file should give transparency of the use of AI during our project, showing all the AI prompts. |
 | `THEE_fragmentation.pdf` | The knitted pdf version of our report. |
-| `Habitat fragmentation.pptx` | Might be not uploaded yet, but will show the presentation for the project. |
+| `THEE_fragmentation.html` | The knitted html version of our report. |
+| `AI promts.docx` | This file should give transparency of the use of AI during our project, showing all the AI prompts. |
+| `Habitat fragmentation.pptx` | Might be not uploaded yet, but will show the final presentation for the project. |
 
 ### Structure overview of the code
 
@@ -86,6 +101,7 @@ The report notebook is broadly organized into the following sections:
 - Model & Methods
 - Results
 - Discussion
+- Appendix
 - References
 
 The actual code can be found in the Model & Methods section and contains four rough junks:
