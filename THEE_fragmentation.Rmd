@@ -5,6 +5,7 @@ date: "2026-10-28"
 output:
   html_document: null
   theme: paper
+  code_folding: hide
 ---
 
 # Abstract 
