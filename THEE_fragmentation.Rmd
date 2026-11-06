@@ -3,12 +3,14 @@ title: "Evolutionary rescue under habitat fragmentation"
 author: "Jan Leuenberger & Safeeya Ramis"
 date: "2026-10-28"
 output:
-  html_document: null
-  theme: paper
-  code_folding: hide
+  html_document:
+    code_folding: hide
+    theme: journal
 ---
 
-# Abstract 
+# Abstract  
+
+Habitat fragmentation is a major threat to wildlife populations and can occur after ER has already begun, yet its effect on this process is not well understood. We extended the Orr & Unckless model into a discrete-time stochastic simulation of a haploid population with logistic growth. At a defined generation, the habitat was split into two fragments, and we varied the timing of the split, the relative habitat size, the distribution of individuals, and the migration rate. For each scenario, we estimated rescue probability from 100 replicates. ER remained possible after fragmentation, and rescue probability tended to increase with later splits, although this may be inflated because only populations that survived until the split were included. When migration was possible, smaller habitats were rescued more often than larger ones, whereas the distribution of individuals had little effect. Migration strongly influenced outcomes, but we found no evidence that it improved rescue overall. These patterns may partly reflect asymmetric migration and our rescue definition rather than true differences in adaptation. Further simulations are needed before these findings can inform conservation measures.
 
 # Introduction
 
@@ -799,78 +801,48 @@ ggplot(long7, aes(x = hp_label, y = factor(mig), fill = rescue_probability)) +
 ### Migration x habitat proportion
 The last analyses combines the migration rate with habitat proportions of 0.1, 0.25 and 0.5. Without migration, the habitats were rescued about equally often, at every proportion. Even the smallest habitat had no advantage. With migration, unequal habitats behaved very differently. The smaller habitat B was rescued more often. The larger habitat C was rarely rescued at 0.01, at most 0.11 and never at 0.05 or higher. Rescue of both habitats dropped to zero accordingly.
 
+
 # Discussion
 Our simulations suggest that evolutionary rescue remains possible when a habitat is fragmented after the rescue process has begun, but the outcome depends on the timing of the split, the habitat sizes and migration.
 
-## Time point of fragmentation
+### Time point of fragmentation
 The rescue probability tended to increase with later splits. In equally sized habitats, it rose from a probability of 0.24 (B) and 0.23 (C) at generation 10 to about 0.43 (B) and 0.41 (C) at generation 100. This shows that later splits may give mutants more time to arise and establish before the population is divided. However we need to be cautious about this result, because only the populations that survived until the split time were included, which may inflate rescue probabilities for later splits.
 
-## Habitat size
+### Habitat size
 When habitat sizes were unequal, the smaller habitat tended to be rescued more often than the larger one, and this difference increased with later splitting time. Similar results were found in (Bell & Gonzalez, 2011), where they looked at yeast and surprisingly found that adaptation is faster in small populations. At a habitat proportion of 0.1, the rescue probability of habitat B rose from 0.44 to 1.00 with later splits, while habitat C reached at most 0.17. Because the rescue threshold depends on carrying capacity, a smaller habitat needs fewer mutants to count as rescued. Furthermore, when considering the rescue probability based on habitat size, it is important to note that our settings for migration can also influence ER here. Since a fixed percentage of individuals always migrate from one habitat to another, a very large number of individuals will always move from the larger habitat to the smaller one. This is why the carrying capacity of the smaller habitat may be reached more quickly solely due to migration. Its higher rescue probability therefore does not necessarily mean that small habitats are better for long-term population persistence.
 
-## Migration
+### Migration
 Migration has a larger effect when habitats are more uneven in size. Because the number of migrants is proportional to the population of the source habitat, the larger habitat sends many more individuals to the smaller one than it receives, so even low migration rates create a noticeable net flow. In human-altered landscapes, migration corridors should therefore be recommended. This recommendation should be treated with caution because our results do not show that migration improves rescue overall. Rescue of both habitats dropped to zero at higher migration rates in unequal habitats, so the effects of corridors need further testing. 
 
-## Individual distribution
+### Individual distribution
 The split ratio had little effect on rescue of either habitat, and differences between ratios showed no clear direction. The initial distribution of individuals therefore appears less important than the timing of the split or the habitat sizes under the conditions tested.
 
-### Rating?
-split_time > migration > usw...
-
-## Biological relevance
+### Biological relevance
 Even though our model is based on a theoretical simulation, our project can be applied and used primarily in the field of conservation biology, as it highlights which factors have the most significant impact on a population experiencing habitat fragmentation. At a time when nature is increasingly dominated by humans and habitats are being fragmented as a result, this kind of projects and research form the basic knowledge to understand which factors have to be most considered, whether in the construction of a highway, in supporting measures after a fire, or in the planning of migration corridors in already fragmented habitats, to ensure the survival or growth of the populations.
 
-# Limitations & Improvements
+### Limitations & Improvements
 Our rescue measure has an important limitation due to the fact that a habitat only counted as rescued if the number of mutants was at least equal to K in the final generation. Because populations fluctuate around K, some established populations may have been classified as not rescued. The model is also simplified, meaning, that it assumes a haploid population, a single beneficial mutation and only two habitats, and `decay_rate`, `sel_coeff` and `mut_rate` were not varied. In addition, 100 replicates per scenario are too few to interpret small differences as real effects, why a higher number of replicates is recommended.
 
 Future work should test therefore alternative rescue definitions, more replicates, different selection and mutation parameters and more than two habitats. This would show whether the patterns found here are robust and help to assess their relevance for conservation. In addition, when applying this model in other contexts, a real-world connection to an existing species or population should be established. Although our model simulates the theoretical growth of a population, many confounding factors can still mask the actual effect of habitat fragmentation, as has been demonstrated in (Ewers & Didham, 2006). This is because habitat fragmentation can have different effects depending on various life history traits, such as trophic level, migration ability, or habitat specialization.
 
-***Without migration, the habitats were rescued about equally often at every habitat proportion. With migration, the smaller habitat was rescued more often, while the larger habitat was rarely rescued at a migration rate of 0.01 and never at 0.05 or higher. (I don't know how to include this, because I don't understand it.)***
+Without migration, the habitats were rescued about equally often at every habitat proportion. With migration, the smaller habitat was rescued more often, while the larger habitat was rarely rescued at a migration rate of 0.01 and never at 0.05 or higher. This pattern may partly result from how migration was modelled. We used a constant per-capita migration rate, meaning that each individual had the same probability of leaving its habitat regardless of population density. Although this rate was symmetric, the number of migrants scaled with the size of the source population, so the larger habitat sent more individuals than it received. This flow can keep the smaller habitat above its carrying capacity and the larger habitat below it. Because a habitat only counted as rescued if population was at least equal to K, the larger habitat may have been classified as not rescued even when mutants had become established. These differences may therefore reflect asymmetric migration and our rescue definition rather than true differences in adaptation. 
+
+### Conclusion
+
+Our simulations suggest that evolutionary rescue can remain possible when a habitat is fragmented after the rescue process has begun, but that its outcome depends on the conditions of fragmentation. Rescue probability tended to increase with later splits, although this result may be inflated because only populations that survived until the split were included. Smaller habitats were rescued more often than larger ones when migration was possible, whereas the distribution of individuals at the split had little effect. However, these size differences may partly reflect asymmetric migration and our rescue definition rather than true differences in adaptation. Migration therefore had a strong influence on the results, but we found no evidence that it improved rescue overall. Further simulations with more replicates and density-dependent dispersal are needed to test whether these patterns are robust before they can inform conservation measures.
 
 # Authorship Contributions
+Jan Leuenberger
+Code: carrying capacity, migration , plotting model, plotting analyses
+Report: Results, Discussion, Abstract
 
+Safeeya Ramis
+Code: split time, habitat proportion, split ratio, Analyses
+Report: Introduction, Methods , Discussion
+AI promts and pdf knitting
 # Appendix 
-##Less common functions used
 
-- `set.seed(57)`: initialises R's random number generator. With the same seed, all "random" draws are repeated identically, so results can be reproduced. Without it every knit gives different numbers.
-- `rpois(n, lambda)`: draws `n` random numbers from a Poisson distribution with mean `lambda`. The Poisson distribution describes counts of independent events, which is a natural model for the number of offspring.
-- `max(0, x)`: returns the larger of the two values, used here as a floor at 0.
-- `rbinom(n, size, prob)`: draws `n` random numbers from a binomial distribution, i.e. the number of "successes" among `size` independent trials, each with success probability `prob`. Here: how many of the individuals are assigned to habitat B.
-- `rbind(x, y)`: "row-bind", appends `y` as a new row below `x`. Starting from `NULL`, the first `rbind` creates the matrix. This is how the time series grows by one row per generation.
-- `rownames()` / `colnames()`: set the labels of the rows / columns of a matrix. `(0:t_max)[1:length(...)]` creates the generation numbers and cuts them to the actual number of rows.
-- `break`: leaves the `for` loop immediately (used for early stopping).
-- `|`: element-wise logical "or" (here equivalent to `||` since both sides are single values).
-- `as.data.frame()`: converts a matrix into a data frame, so columns can be accessed with `$` (e.g. `output$B$A`). `as.data.frame(NULL)` gives an empty data frame with 0 rows, which is how we detect runs that ended before the split.
-- `list(main = ..., B = ..., C = ...)`: returns several objects of different size in one named container.
-- `par()`: sets global graphics parameters. `mar` = margins (bottom, left, top, right) in lines; `mfrow = c(2, 1)` = a grid of 2 rows × 1 column of plots. `par()` returns the *old* values, which we save in `old_par`.
-- `on.exit(par(old_par))`: registers code that runs automatically when the function ends, restoring the original graphics settings so that later plots are not affected.
-- `segments(x0, y0, x1, y1)`: draws a straight line between two points; used for the carrying-capacity lines that only span part of the x-axis.
-- `legend()`: adds a legend. `par("usr")` returns the plot region's coordinates (x-min, x-max, y-min, y-max), so `par("usr")[2]` and `[4]` are the top-right corner. `xpd = TRUE` allows drawing outside the plot region, `bty = "n"` removes the legend box, `xjust`/`yjust` set which corner of the legend is anchored at that point.
-- `seq_along(x)` / `seq_len(n)`: safe ways to create `1, 2, ..., length(x)` or `1, ..., n` (they return an empty sequence for empty input, unlike `1:length(x)`).
-- `if (...) a else b` used as an expression: `x_max <- if (is.null(xlim_max)) ... else ...` assigns one of two values.
-- `plot.new()` + `title()`: create a blank plot and add a title, used as a placeholder when there is no data.
-- `invisible(NULL)`: returns `NULL` without printing it.
-- `paste0()`: joins strings without separator, used to put the starting numbers in the legend.
-- `repeat { ... }`: an endless loop that is left only with `break`. Used here because we do not know in advance how many attempts are needed to get enough valid runs.
-- `next`: skips the rest of the current loop iteration and goes to the next one.
-- `any(x)`: `TRUE` if at least one element of the logical vector `x` is `TRUE`.
-- `which(x)[1]`: `which()` returns the positions of all `TRUE` elements; `[1]` takes the first, i.e. the **first generation** at which the threshold was reached. Note this counts rows after the split (row 1 = first generation after the split).
-- `NA_integer_`: a missing value of integer type (a plain `NA` could create type conflicts when binding rows).
-- `results[[length(results) + 1]] <- ...`: appends an element to the end of a list.
-- `do.call(rbind, results)`: calls `rbind` with the list elements as separate arguments, i.e. stacks all data frames in the list into one big table.
-- `%>%` (pipe): passes the result on the left as the first argument of the function on the right, so operations can be read top to bottom.
-- `group_by(st, hp)`: tells `dplyr` to do the following calculations separately for each combination of `st` and `hp`.
-- `summarise(...)`: collapses each group into a single row. `n()` counts the rows in the group; `across(cols, mean)` applies `mean` to several columns at once; `.groups = "drop"` removes the grouping afterwards.
-- `pivot_longer()`: turns several columns into two (`names_to` gets the old column names, `values_to` the values). One row per scenario and population results, as `ggplot2` needs..
-- `ggplot(data, aes(...)) + geom_*()`: `ggplot2` builds a plot in layers. `aes()` maps data columns to visual properties (x, y, colour, fill), and each `geom_` adds a layer: `geom_line`, `geom_point`, `geom_errorbar` (error bars), `geom_tile` (coloured rectangles), `geom_text` (printed numbers).
-- `pmax()` / `pmin()`: *parallel* maximum / minimum, applied element by element to a vector (unlike `max()`, which returns a single number). Used to keep error bars inside [0, 1].
-- `scale_y_continuous(limits, breaks)`: sets the axis range and tick positions. `seq(from, to, by)` generates the tick values.
-- `labs()`: sets titles and axis/legend labels. `theme_minimal()`: applies a clean plot theme.
-- `facet_wrap(~ population)`: splits the plot into one panel per value of `population`.
-- `scale_fill_viridis_c(option = "C")`: a continuous colour scale (viridis palette), readable also for colour-blind people.
-- `factor(x, levels, labels)`: converts values into a categorical variable with a fixed order and custom display labels. `factor(st)` makes the split time a category so that tiles are evenly spaced.
-- `sprintf("%.2f", x)`: formats a number as text with 2 decimals.
-- `sort(unique(x))`: the distinct values of `x` in ascending order. code chunks for maybe later use:
+
 
 ## Additional plots
 
